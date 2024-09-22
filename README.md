@@ -1,16 +1,8 @@
-# only_job
+# OnlyJob
 
-A new Flutter project.
+A platform for finding jobs that is suited for your skills
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## How to Run
+- install flutter
+- install nodejs. refer here: https://nodejs.org/en/download/package-manager
+- install firebase-tools and flutterfire. instructions here: https://firebase.flutter.dev/docs/cli
