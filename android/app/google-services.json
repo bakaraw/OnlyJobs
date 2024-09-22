@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "794494904809",
+    "project_id": "onlyjob-13c80",
+    "storage_bucket": "onlyjob-13c80.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:794494904809:android:e72f1f8ec5684fae0cc378",
+        "android_client_info": {
+          "package_name": "com.u3L1J.only_job"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnHyRy2Sbyk6-gdMzZjvOsEkORyR3jQg4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
