@@ -30,4 +30,12 @@ class AuthService {
   // sign in with password
 
   // sign out
+  Future signOut() async {
+    try {
+      _auth.signOut();
+    } catch (e) {
+      log(e.toString());
+      return null;
+    }
+  }
 }
