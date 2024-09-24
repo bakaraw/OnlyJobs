@@ -15,6 +15,7 @@ class RegisterLogin extends StatelessWidget {
             // Image(image: image),
             // Image(image: image),
           ],
+        
         ),
       ),
     );
