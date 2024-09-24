@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:only_job/views/authenticate/login.dart';
 import 'package:only_job/views/authenticate/sign_in.dart';
 
 class Authenticate extends StatelessWidget {
@@ -18,7 +19,13 @@ class Authenticate extends StatelessWidget {
               child: Text('Create New Account'),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => Login(),
+                  ),
+                );
+              },
               child: Text('Log in'),
             ),
           ],
