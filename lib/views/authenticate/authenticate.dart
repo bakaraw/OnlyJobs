@@ -6,8 +6,24 @@ class Authenticate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: SignIn(),
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Image(image: image),
+            // Image(image: image),
+            ElevatedButton(
+              onPressed: () {},
+              child: Text('Create New Account'),
+            ),
+            ElevatedButton(
+              onPressed: () {},
+              child: Text('Log in'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
