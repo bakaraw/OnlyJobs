@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/models/user.dart';
 
-import 'Messages/message.dart';
+
+import 'chat/mainChatPage.dart';
 
 void main() async {
   // code needed to connect to the firebase servers
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         value: AuthService().user,
         initialData: null,
         child: MaterialApp(
-          home: messagePage(),
+          home: AuthGate(),
 
         ));
   }
