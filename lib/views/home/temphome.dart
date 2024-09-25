@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:only_job/chat/mainChatPage.dart';
 import 'package:only_job/services/auth.dart';
 
 class Home extends StatefulWidget {
@@ -18,12 +19,32 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: const Text("Home"),
       ),
-      body: ElevatedButton(
-        child: const Text("Sign out"),
-        onPressed: () async {
-          _auth.signOut();
-        },
+      body:
+      Column(
+        children: [
+          ElevatedButton(
+            child: const Text("Sign out"),
+            onPressed: () async {
+              _auth.signOut();
+            },
+          ),
+          SizedBox(height: 10),
+          ElevatedButton(
+            child: Text("Chat bubble"),
+            onPressed: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => mainChatPage()),
+              );
+            },
+          ),
+
+
+        ],
       ),
+
+
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/chat/chatHome.dart';
-import 'package:only_job/chat/chatList.dart';
+import 'package:only_job/chat/chatHead.dart';
 
 class mainChatPage extends StatefulWidget {
   const mainChatPage({super.key});
@@ -14,7 +14,7 @@ class _mainChatPageState extends State<mainChatPage> {
   int selectedIndex = 0;
   final List<Widget> pages = [
     chatHome(),
-   chatList(),
+   chatHead(),
   ];
 
   void tapped(int index) {
@@ -28,7 +28,7 @@ class _mainChatPageState extends State<mainChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chat message"),
+        title: Text("Chat messager"),
         actions: [
           Padding(
            padding: EdgeInsets.all(8.8),
@@ -46,7 +46,7 @@ class _mainChatPageState extends State<mainChatPage> {
         items: [
           BottomNavigationBarItem(
           icon: Icon(Icons.home),
-          label: 'Home',
+          label: 'Chat List',
         ),
           BottomNavigationBarItem(
           icon: Icon(Icons.chat_bubble),

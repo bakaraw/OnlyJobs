@@ -13,7 +13,7 @@ class _chatHomeState extends State<chatHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text("Home page"),
+        child: Text("all chathead"),
       ),
     );
   }

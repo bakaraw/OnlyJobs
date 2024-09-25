@@ -1,19 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class chatList extends StatefulWidget {
-  const chatList({super.key});
+class chatHead extends StatefulWidget {
+  const chatHead({super.key});
 
   @override
-  State<chatList> createState() => _chatListState();
+  State<chatHead> createState() => _chatHeadState();
 }
 
-class _chatListState extends State<chatList> {
+class _chatHeadState extends State<chatHead> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text("Chat"),
+        child: Text("user"),
       ),
     );
   }
