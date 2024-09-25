@@ -14,22 +14,6 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
-        child: ElevatedButton(
-          child: const Text("Sign in Anonymously"),
-          onPressed: () async {
-            dynamic result = await _auth.signInAnon();
-            if (result == null) {
-              log('error signing in');
-            } else {
-              log('signed in');
-              log(result.uid);
-            }
-          },
-        ),
-      ),
-    );
+    return Scaffold();
   }
 }
