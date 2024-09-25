@@ -12,8 +12,11 @@ class _chatHomeState extends State<chatHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text("all chathead"),
+      appBar: AppBar(
+        title: Text("all chathead"),
+      ),
+      body: ListView(
+
       ),
     );
   }
