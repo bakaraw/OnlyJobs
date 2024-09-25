@@ -53,13 +53,13 @@ class _LoginState extends State<Login> {
             color: accent1,
           ),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: primarycolor,
       ),
       body: Stack(
         children: [
           Container(
             height: double.infinity,
-            color: Colors.black,
+            color: primarycolor,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -82,7 +82,7 @@ class _LoginState extends State<Login> {
                   topLeft: Radius.circular(40),
                   topRight: Radius.circular(40),
                 ),
-                color: Colors.white,
+                color: backgroundwhite,
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
