@@ -28,6 +28,31 @@ class AuthService {
   }
 
   // sign in with password
+  Future signInWithEmailAndPassword(String email, String password) async {
+    try {
+      //fb_auth.UserCredential result = await _auth
+      fb_auth.UserCredential result = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      fb_auth.User? user = result.user;
+      return _userFromFirebaseUser(user);
+    } catch (e) {
+      log(e.toString());
+      return null;
+    }
+  }
+
+  // register with email and password
+  Future registerEmailAndPassword(String email, String password) async {
+    try {
+      fb_auth.UserCredential result = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
+      fb_auth.User? user = result.user;
+      return _userFromFirebaseUser(user);
+    } catch (e) {
+      log(e.toString());
+      return null;
+    }
+  }
 
   // sign out
   Future signOut() async {
