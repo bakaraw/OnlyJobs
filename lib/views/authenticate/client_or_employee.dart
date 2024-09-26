@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/authenticate/sign_up_form.dart';
+import 'client_signup_form.dart';
 
 class ClientOrEmployee extends StatelessWidget {
   const ClientOrEmployee({super.key});
@@ -31,7 +32,13 @@ class ClientOrEmployee extends StatelessWidget {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ClientSignupForm(),
+                  ),
+                );
+              },
               child: Text('Employer'),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 80.0),
