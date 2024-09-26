@@ -2,7 +2,6 @@ import 'package:only_job/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/views/authenticate/signup.dart';
 import 'package:only_job/views/constants/constants.dart';
-import 'dart:developer';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -17,6 +16,7 @@ class _LoginState extends State<Login> {
 
   late String errormessage;
   late bool isError;
+
 
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
@@ -92,7 +92,6 @@ class _LoginState extends State<Login> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: Form(
-                  key: _formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,28 +144,15 @@ class _LoginState extends State<Login> {
                       Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          //checkRegister(
-                          //  emailcontroller.text,
-                          //  passwordcontroller.text,
-                          //);
-                          if (_formKey.currentState != null &&
-                              _formKey.currentState!.validate()) {
-                            dynamic result =
-                                await _auth.signInWithEmailAndPassword(
-                              emailcontroller.text,
-                              passwordcontroller.text,
-                            );
-                            if (result == null) {
-                              setState(() {
-                                errormessage =
-                                    'Wrong email or password.';
-                                isError = true;
-                              });
-                            } else {
-                              Navigator.pop(context);
-                            }
+                          checkRegister(
+                            emailcontroller.text,
+                            passwordcontroller.text,
+                          );
 
-                          }
+                          dynamic result = await _auth.signInWithEmailAndPassword(
+                            emailcontroller.text,
+                            passwordcontroller.text,
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size.fromHeight(50),
