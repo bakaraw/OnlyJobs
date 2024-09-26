@@ -2,23 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:only_job/services/auth.dart';
 import 'dart:developer';
 
-class SignIn extends StatefulWidget {
-  const SignIn({super.key, required this.toggleView});
+class Register extends StatefulWidget {
+  const Register({super.key, required this.toggleView});
 
   final Function toggleView;
 
   @override
-  State<SignIn> createState() => _SignInState();
+  State<Register> createState() => _RegisterState();
 }
 
-class _SignInState extends State<SignIn> {
-  final AuthService _auth = AuthService();
-
-  // controller for the text field
+class _RegisterState extends State<Register> {
   TextEditingController emailctl = TextEditingController();
   TextEditingController passordctl = TextEditingController();
 
+  final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
+
   String error = '';
 
   @override
@@ -36,7 +35,7 @@ class _SignInState extends State<SignIn> {
               TextFormField(
                 controller: emailctl,
                 validator: (val) =>
-                val == null || val.isEmpty ? 'Enter an email' : null,
+                    val == null || val.isEmpty ? 'Enter an email' : null,
               ),
               const SizedBox(
                 height: 20,
@@ -49,7 +48,7 @@ class _SignInState extends State<SignIn> {
                     : null,
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
               Text(
                 error,
@@ -59,42 +58,44 @@ class _SignInState extends State<SignIn> {
                 height: 10,
               ),
               ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pink,
-                  ),
-                  child: const Text(
-                    "Sign in",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () async {
-                    if (_formKey.currentState != null &&
-                        _formKey.currentState!.validate()) {
-                      dynamic result = await _auth.signInWithEmailAndPassword(
-                          emailctl.text, passordctl.text);
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pink,
+                ),
+                child: const Text(
+                  "Register",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () async {
+                  if (_formKey.currentState != null &&
+                      _formKey.currentState!.validate()) {
 
-                      if (result == null) {
-                        setState(() {
-                          error = 'Invalid credentials';
-                        });
-                      }
+                    dynamic result = await _auth.registerEmailAndPassword(
+                        emailctl.text, passordctl.text);
+
+                    if (result == null) {
+                      setState(() {
+                        error = 'Invalid email';
+                      });
                     }
-                  }),
+                  }
+                },
+              ),
               const SizedBox(
                 height: 20,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Don't have an account?"),
+                  const Text("Already registered?"),
                   TextButton(
                     onPressed: () {
                       widget.toggleView();
                       Navigator.pushNamed(context, '/register');
                     },
-                    child: const Text("Register"),
+                    child: const Text("Sign in"),
                   )
                 ],
-              )
+              ),
             ],
           ),
         ),
