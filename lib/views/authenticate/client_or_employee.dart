@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:only_job/views/authenticate/SignUpForm.dart';
+import 'package:only_job/views/authenticate/sign_up_form.dart';
 
 class ClientOrEmployee extends StatelessWidget {
   const ClientOrEmployee({super.key});
