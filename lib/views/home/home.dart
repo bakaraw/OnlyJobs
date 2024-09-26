@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/services/auth.dart';
 import '../../chatFeature/chat_page.dart';
+import '../../chatFeature/mainChatPage.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -47,7 +48,7 @@ class _HomeState extends State<Home> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => ChatPage(user: currentUserId), // Pass the user ID
+                  builder: (context) => MainChatPage(User: currentUserId,), // Pass the user ID
                 ),
               );
             },

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:only_job/chatFeature/displayMessage.dart';
 
 class ChatPage extends StatefulWidget {
-  final String user; // Corrected variable name from `User` to `user`
+  final String user;
 
   const ChatPage({super.key, required this.user});
 
@@ -39,7 +39,7 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.8,
-              child: DisplayMessage(user: widget.user), // Pass the user parameter
+              child: DisplayMessage(user: widget.user),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
