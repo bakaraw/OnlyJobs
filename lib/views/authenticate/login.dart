@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:only_job/views/authenticate/signup.dart';
+import 'package:only_job/views/authenticate/client_or_employee.dart';
 import 'package:only_job/views/constants/constants.dart';
 
 class Login extends StatefulWidget {
@@ -155,7 +155,8 @@ class _LoginState extends State<Login> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => SignUp()),
+                              MaterialPageRoute(
+                                  builder: (context) => ClientOrEmployee()),
                             );
                           },
                           child: Text(
