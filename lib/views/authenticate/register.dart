@@ -33,6 +33,9 @@ class _RegisterState extends State<Register> {
                 height: 20,
               ),
               TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Email'
+                ),
                 controller: emailctl,
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Enter an email' : null,
@@ -41,6 +44,9 @@ class _RegisterState extends State<Register> {
                 height: 20,
               ),
               TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Password'
+                ),
                 controller: passordctl,
                 obscureText: true,
                 validator: (val) => val == null || val.length < 6
