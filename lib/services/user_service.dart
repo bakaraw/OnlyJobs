@@ -2,17 +2,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserService {
 
-  // collection reference
-  final CollectionReference userCollection = FirebaseFirestore.instance.collection('User');
+  final String uid;
 
-  Future<void> addUser(String uid, String name, String email, String phone, String address) async {
+  // collection reference
+  final CollectionReference userCollection =
+      FirebaseFirestore.instance.collection('User');
+
+  UserService({required this.uid});
+
+  Future addUser(String name, String? gender,
+      DateTime? birthDate, String email, String phone, String address) async {
     return await userCollection.doc(uid).set({
       'name': name,
+      'gender': gender,
+      'birth_date': birthDate,
       'email': email,
       'phone': phone,
       'address': address,
     });
   }
-
-  
 }
