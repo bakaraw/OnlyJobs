@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/services/auth.dart';
 import 'dart:developer';
+import 'package:only_job/services/user_service.dart';
 
 class SignUpForm extends StatefulWidget {
   @override
@@ -134,6 +135,7 @@ class _SignUpFormState extends State<SignUpForm> {
                         error = 'Something went wrong in creating your account';
                       });
                     }
+                    await UserService(uid: result.uid).addUser(_nameController.text, _selectedGender, _selectedDate, _emailController.text, _phoneController.text, _addressController.text);
                     
                     // pops this page
                     Navigator.pop(context);
