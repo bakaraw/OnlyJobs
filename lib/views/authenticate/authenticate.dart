@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:only_job/views/authenticate/login.dart';
 import 'package:only_job/views/authenticate/sign_in.dart';
 import 'package:only_job/views/authenticate/client_or_employee.dart';
 
@@ -36,7 +37,13 @@ class _AuthenticateState extends State<Authenticate> {
               child: Text('Create New Account'),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => Login(),
+                  ),
+                );
+              },
               child: Text('Log in'),
             ),
           ],
