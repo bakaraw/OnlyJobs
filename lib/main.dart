@@ -6,9 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/models/user.dart';
 
-
-import 'chat/mainChatPage.dart';
-
 void main() async {
   // code needed to connect to the firebase servers
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +26,6 @@ class MyApp extends StatelessWidget {
         initialData: null,
         child: MaterialApp(
           home: AuthGate(),
-
         ));
   }
 }
