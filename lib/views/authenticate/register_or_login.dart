@@ -1,20 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:only_job/views/authenticate/sign_in.dart';
+import 'package:flutter/widgets.dart';
 import 'package:only_job/views/authenticate/client_or_employee.dart';
+import 'package:only_job/views/authenticate/login.dart';
 
-class Authenticate extends StatefulWidget {
-  const Authenticate({super.key});
-
-  @override
-  State<Authenticate> createState() => _AuthenticateState();
-}
-
-class _AuthenticateState extends State<Authenticate> {
-  bool showSignIn = true;
-
-  void toggleView() {
-    setState(() => showSignIn = !showSignIn);
-  }
+class RegisterLogin extends StatelessWidget {
+  const RegisterLogin({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +27,13 @@ class _AuthenticateState extends State<Authenticate> {
               child: Text('Create New Account'),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => Login(),
+                  ),
+                );
+              },
               child: Text('Log in'),
             ),
           ],
