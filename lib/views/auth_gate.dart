@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:only_job/views/authenticate/register_or_login.dart';
 import 'package:only_job/views/home/temphome.dart';
-import 'package:only_job/views/authenticate/authenticate.dart';
 import 'package:provider/provider.dart';
 import 'package:only_job/models/user.dart';
 
@@ -18,7 +18,7 @@ class _AuthGateState extends State<AuthGate> {
     if (user != null) {
       return Home();
     } else {
-      return Authenticate();
+      return RegisterLogin();
     }
   }
 }
