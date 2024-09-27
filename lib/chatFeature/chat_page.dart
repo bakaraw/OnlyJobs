@@ -3,10 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/chatFeature/displayMessage.dart';
 
-class ChatPage extends StatefulWidget {
-  final String user;
+import '../services/auth.dart';
 
-  const ChatPage({super.key, required this.user});
+class ChatPage extends StatefulWidget {
+
+  const ChatPage({super.key});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -16,7 +17,20 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController messageController = TextEditingController();
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
+  final AuthService authService = AuthService();
 
+  String? currentUserName;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCurrentUserName();
+  }
+
+  void fetchCurrentUserName() async {
+    currentUserName = await authService.getCurrentUserName();
+    setState(() {});
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +53,7 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.8,
-              child: DisplayMessage(user: widget.user),
+              child: DisplayMessage(user: currentUserName ?? 'User'),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -75,7 +89,7 @@ class _ChatPageState extends State<ChatPage> {
                         firebaseFirestore.collection("Messages").add({
                           'message': messageController.text.trim(),
                           'time': DateTime.now(),
-                          'name': widget.user, // Using the passed user name
+                          'name': currentUserName ?? 'Unknown', // Use current user's name
                         });
                         messageController.clear();
                       }

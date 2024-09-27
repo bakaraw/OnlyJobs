@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:only_job/models/user.dart';
 import 'dart:developer';
@@ -66,4 +67,16 @@ class AuthService {
   String? getCurrentUserId() {
     return _auth.currentUser?.uid;
   }
+
+
+
+  Future<String?> getCurrentUserName() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('User').doc(userId).get();
+      return userDoc['name']; // Make sure 'name' is the correct field in your Firestore document.
+    }
+    return null;
+  }
+
 }

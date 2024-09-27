@@ -22,7 +22,7 @@ class _MainChatPageState extends State<MainChatPage> {
     super.initState();
     _pages = [
       UserListPage(),
-      ChatPage(user: widget.User),
+      ChatPage(),
     ];
   }
 

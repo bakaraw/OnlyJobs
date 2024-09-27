@@ -40,7 +40,7 @@ class _UserListPageState extends State<UserListPage> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => ChatPage(user: uid),
+                      builder: (context) => ChatPage(),
                     ),
                   );
                 },
