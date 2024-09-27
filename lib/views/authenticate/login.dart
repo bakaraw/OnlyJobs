@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/authenticate/client_or_employee.dart';
 import 'package:only_job/views/constants/constants.dart';
+import 'dart:developer';
+import 'package:only_job/services/auth.dart';
+import 'package:only_job/views/constants/loading.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -10,11 +13,14 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final _formKey = GlobalKey<FormState>();
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
 
   late String errormessage;
   late bool isError;
+
+  bool loading = false;
 
   @override
   void initState() {
@@ -43,7 +49,7 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading ? const Loading() : Scaffold(
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
@@ -87,92 +93,119 @@ class _LoginState extends State<Login> {
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    largeSizedBox_H,
-                    Text(
-                      "Login",
-                      style: headingStyle,
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      "Please enter your credentials to continue.",
-                      style: bodyStyle,
-                      textAlign: TextAlign.center,
-                    ),
-                    largeSizedBox_H,
-                    TextField(
-                      controller: emailcontroller,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Enter Email Address',
-                        prefixIcon: Icon(Icons.email),
-                        labelText: 'Email Address',
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      largeSizedBox_H,
+                      Text(
+                        "Login",
+                        style: headingStyle,
                       ),
-                      onChanged: (value) {},
-                    ),
-                    largeSizedBox_H,
-                    TextField(
-                      controller: passwordcontroller,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Enter Password',
-                        prefixIcon: Icon(Icons.lock),
-                        labelText: 'Password',
+                      SizedBox(height: 10),
+                      Text(
+                        "Please enter your credentials to continue.",
+                        style: bodyStyle,
+                        textAlign: TextAlign.center,
                       ),
-                      onChanged: (value) {},
-                      obscureText: true,
-                    ),
-                    largeSizedBox_H,
-                    (isError)
-                        ? Text(
-                            errormessage,
-                            style: errortxtstyle,
-                          )
-                        : Container(),
-                    Spacer(),
-                    ElevatedButton(
-                      onPressed: () {
-                        checkRegister(
-                          emailcontroller.text,
-                          passwordcontroller.text,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size.fromHeight(50),
-                        foregroundColor: Colors.white,
-                        backgroundColor: accent1,
+                      largeSizedBox_H,
+                      TextFormField(
+                        validator: (val) => val == null || val.isEmpty
+                            ? 'Enter an email'
+                            : null,
+                        controller: emailcontroller,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter Email Address',
+                          prefixIcon: Icon(Icons.email),
+                          labelText: 'Email Address',
+                        ),
+                        onChanged: (value) {},
                       ),
-                      child: Text('Sign In'),
-                    ),
-                    mediumSizedBox_H,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Don't have an account? "),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ClientOrEmployee(),
-                              ),
+                      largeSizedBox_H,
+                      TextFormField(
+                        validator: (val) => val == null || val.isEmpty
+                            ? 'Enter password'
+                            : null,
+                        controller: passwordcontroller,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter Password',
+                          prefixIcon: Icon(Icons.lock),
+                          labelText: 'Password',
+                        ),
+                        onChanged: (value) {},
+                        obscureText: true,
+                      ),
+                      largeSizedBox_H,
+                      (isError)
+                          ? Text(
+                              errormessage,
+                              style: errortxtstyle,
+                            )
+                          : Container(),
+                      Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState != null &&
+                              _formKey.currentState!.validate()) {
+                            setState(() {
+                              loading = true;
+                            });
+
+                            dynamic result =
+                                await AuthService().signInWithEmailAndPassword(
+                              emailcontroller.text,
+                              passwordcontroller.text,
                             );
-                          },
-                          child: Text(
-                            "Sign up",
-                            style: TextStyle(
-                              color: accent1,
-                              fontWeight: FontWeight.bold,
+
+                            if (result == null) {
+                              setState(() {
+                                errormessage = 'Invalid email or password';
+                                isError = true;
+                                loading = false;
+                              });
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size.fromHeight(50),
+                          foregroundColor: Colors.white,
+                          backgroundColor: accent1,
+                        ),
+                        child: Text('Sign In'),
+                      ),
+                      mediumSizedBox_H,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Don't have an account? "),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ClientOrEmployee(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Sign up",
+                              style: TextStyle(
+                                color: accent1,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    largeSizedBox_H,
-                  ],
+                        ],
+                      ),
+                      largeSizedBox_H,
+                    ],
+                  ),
                 ),
               ),
             ),

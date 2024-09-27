@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/authenticate/login.dart';
-import 'package:only_job/views/authenticate/sign_in.dart';
 import 'package:only_job/views/authenticate/client_or_employee.dart';
 
 class Authenticate extends StatefulWidget {
