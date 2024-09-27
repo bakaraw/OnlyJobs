@@ -7,7 +7,6 @@ class UserService {
 
   final String uid;
 
-
   // Collection reference
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('User');
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -28,8 +27,5 @@ class UserService {
       'isJobSeeker': true,
     });
   }
-
-
-
 
 }

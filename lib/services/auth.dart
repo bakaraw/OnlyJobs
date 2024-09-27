@@ -12,14 +12,6 @@ class AuthService {
     return user != null ? User(uid: user.uid) : null;
   }
 
-
-  User? _userFromFirebaseName(fb_auth.User? user) {
-    return user != null ? User(name: user.name) : null;
-  }
-
-
-
-
   // auth change user stream
   Stream<User?> get user {
     return _auth.authStateChanges().map(_userFromFirebaseUser);
