@@ -5,4 +5,3 @@ flutter_native_splash:
 
   color: "#3E595C"
   image: "assets/Logo.png"
-  branding: "assets/BrandingName.png"

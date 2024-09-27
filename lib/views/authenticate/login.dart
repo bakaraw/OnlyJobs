@@ -28,6 +28,7 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
+//Error Message
   void checkRegister(email, password) {
     setState(() {
       if (email == "") {
@@ -156,7 +157,8 @@ class _LoginState extends State<Login> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ClientOrEmployee()),
+                                builder: (context) => ClientOrEmployee(),
+                              ),
                             );
                           },
                           child: Text(
