@@ -1,5 +1,9 @@
 class User {
   final String? uid;
-  
-  User({this.uid});
+  final String? name;
+
+  User({
+    this.name,
+    this.uid,
+  });
 }

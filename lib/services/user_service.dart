@@ -4,9 +4,8 @@ class UserService {
 
   final String uid;
 
-  // collection reference
-  final CollectionReference userCollection =
-      FirebaseFirestore.instance.collection('User');
+  final CollectionReference userCollection = FirebaseFirestore.instance.collection('User');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   UserService({required this.uid});
 
