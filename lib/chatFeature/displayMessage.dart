@@ -62,7 +62,7 @@ class _DisplayMessageState extends State<DisplayMessage> {
                         children: [
                           Expanded(
                             child: Text(
-                              qds['message'], // Display actual message content
+                              qds['message'],
                               softWrap: true,
                               style: TextStyle(fontSize: 15, color: Colors.black),
                             ),

@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../views/constants/loading.dart';
+
 class UserSearchDelegate extends SearchDelegate {
+
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
@@ -26,17 +29,22 @@ class UserSearchDelegate extends SearchDelegate {
     );
   }
 
+  Future<void> addUser(Map<String, dynamic> userData) async {
+    await firestore.collection('ChatUser').add(userData);
+  }
+
+
   @override
   Widget buildResults(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: firestore
-          .collection('users') // Adjust this to your users collection
-          .where('username', isGreaterThanOrEqualTo: query)
-          .where('username', isLessThanOrEqualTo: query + '\uf8ff')
+          .collection('User')
+          .where('name', isGreaterThanOrEqualTo: query)
+          .where('name', isLessThanOrEqualTo: query + '\uf8ff')
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: Loading());
         }
         final users = snapshot.data!.docs;
 
@@ -45,10 +53,12 @@ class UserSearchDelegate extends SearchDelegate {
           itemBuilder: (context, index) {
             final user = users[index];
             return ListTile(
-              title: Text(user['username']),
-              onTap: () {
-                // Handle user selection
-                close(context, user);
+              title: Text(user['name'], ),
+              subtitle: Text(user['email']),
+              onTap: () async {
+                  final userData = user.data() as Map<String, dynamic>;
+                  await addUser(userData);
+                  close(context, userData);
               },
             );
           },
