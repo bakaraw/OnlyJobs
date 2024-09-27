@@ -1,12 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../models/user.dart';
 
 class UserService {
 
   final String uid;
 
-  // collection reference
-  final CollectionReference userCollection =
-      FirebaseFirestore.instance.collection('User');
+
+  // Collection reference
+  final CollectionReference userCollection = FirebaseFirestore.instance.collection('User');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   UserService({required this.uid});
 
