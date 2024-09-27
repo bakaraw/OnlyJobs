@@ -14,6 +14,7 @@ class _DisplayMessageState extends State<DisplayMessage> {
   final Stream<QuerySnapshot> messageStream =
   FirebaseFirestore.instance.collection('Messages').orderBy('time').snapshots();
 
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(

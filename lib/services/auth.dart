@@ -13,6 +13,11 @@ class AuthService {
   }
 
 
+  User? _userFromFirebaseName(fb_auth.User? user) {
+    return user != null ? User(name: user.name) : null;
+  }
+
+
 
 
   // auth change user stream
