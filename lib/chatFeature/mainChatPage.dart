@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:only_job/chatFeature/userSearch.dart';
 import 'chatList.dart'; // Ensure UserListPage is defined in this file
 import 'chat_page.dart';
 
@@ -31,22 +33,37 @@ class _MainChatPageState extends State<MainChatPage> {
     });
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Main Chat Page'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: UserSearchDelegate(),
+              );
+            },
+          ),
+        ],
       ),
-      body: _pages[_selectedIndex], // Show the selected page
+      body: _pages[_selectedIndex],
+      // Show the selected page
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Users',
+            label: 'Chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
-            label: 'Chat',
+            label: 'Message',
           ),
         ],
         currentIndex: _selectedIndex,

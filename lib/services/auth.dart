@@ -41,7 +41,7 @@ class AuthService {
     }
   }
 
-  // register with email and password
+  // register with email and passwordss
   Future registerEmailAndPassword(String email, String password) async {
     try {
       fb_auth.UserCredential result = await _auth
@@ -62,5 +62,8 @@ class AuthService {
       log(e.toString());
       return null;
     }
+  }
+  String? getCurrentUserId() {
+    return _auth.currentUser?.uid;
   }
 }
