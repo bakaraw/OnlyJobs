@@ -55,7 +55,7 @@ class RegisterLogin extends StatelessWidget {
                   );
                 },
                 child: Text(
-                  "Sign up",
+                  "Sign In",
                   style: TextStyle(
                     color: accent1,
                     fontWeight: FontWeight.bold,
