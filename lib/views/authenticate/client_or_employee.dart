@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:only_job/views/authenticate/introduction.dart';
 import 'package:only_job/views/authenticate/sign_up_form.dart';
-import 'client_signup_form.dart';
+import 'package:only_job/views/home/profileJS.dart';
 
 class ClientOrEmployee extends StatelessWidget {
   const ClientOrEmployee({super.key});
@@ -17,31 +18,61 @@ class ClientOrEmployee extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => SignUpForm(),
+            Card(
+              elevation: 4.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  height: 150,
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: SizedBox(
+                      width: 150,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => SignUpForm(),
+                            ),
+                          );
+                        },
+                        child: Text('Employee'),
+                      ),
+                    ),
                   ),
-                );
-              },
-              child: Text('Employee'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 80.0),
+                ),
               ),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ClientSignupForm(),
+            Card(
+              elevation: 4.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  height: 150,
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: SizedBox(
+                      width: 150,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ProfileScreen(),
+                            ),
+                          );
+                        },
+                        child: Text('Employer'),
+                      ),
+                    ),
                   ),
-                );
-              },
-              child: Text('Employer'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 80.0),
+                ),
               ),
             ),
           ],

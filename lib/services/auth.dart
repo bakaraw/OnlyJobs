@@ -1,11 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:only_job/models/user.dart';
 import 'dart:developer';
 
 class AuthService {
   final fb_auth.FirebaseAuth _auth = fb_auth.FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // create user object based on firebase user
   User? _userFromFirebaseUser(fb_auth.User? user) {
@@ -65,7 +63,4 @@ class AuthService {
       return null;
     }
   }
-  String? getCurrentUserId() {
-    return _auth.currentUser?.uid;
-  }
-  }
+}
