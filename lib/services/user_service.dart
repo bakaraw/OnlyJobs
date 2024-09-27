@@ -10,7 +10,7 @@ class UserService {
 
   UserService({required this.uid});
 
-  Future addUser(String name, String gender,
+  Future addJobSeeker(String name, String gender,
       DateTime birthDate, String email, String phone, String address) async {
     return await userCollection.doc(uid).set({
       'name': name,
@@ -21,4 +21,15 @@ class UserService {
       'isJobSeeker': true,
     });
   }
+
+  Future addEmployer(String name, String email, String phone, String address) async {
+    return await userCollection.doc(uid).set({
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'address': address,
+      'isJobSeeker': false,
+    });
+  }
+
 }

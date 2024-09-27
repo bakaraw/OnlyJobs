@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:developer';
+import 'package:only_job/services/auth.dart';
+import 'package:only_job/services/user_service.dart';
 
 class ClientSignupForm extends StatefulWidget {
   const ClientSignupForm({super.key});
@@ -8,6 +11,7 @@ class ClientSignupForm extends StatefulWidget {
 }
 
 class _ClientSignupFormState extends State<ClientSignupForm> {
+  final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _nameController = TextEditingController();
@@ -44,40 +48,48 @@ class _ClientSignupFormState extends State<ClientSignupForm> {
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(labelText: 'Email Address'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email address';
-                  }
-                  return null;
-                },
+                validator: (value) => value != null && value.isEmpty
+                    ? 'Please enter your email address'
+                    : null,
               ),
               SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(labelText: 'Password'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
+                validator: (value) => value != null && value.isEmpty
+                    ? 'Please enter a password'
+                    : null,
               ),
               SizedBox(height: 16),
               TextFormField(
                 controller: _confirmPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(labelText: 'Confirm Password'),
-                validator: (value) {
-                  if (value == null || value != _passwordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                    value != null && value != _passwordController.text
+                        ? 'Passwords do not match'
+                        : null,
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  if (_formKey.currentState != null &&
+                      _formKey.currentState!.validate()) {
+                    dynamic result = await _auth.registerEmailAndPassword(
+                        _emailController.text, _passwordController.text);
+
+                    if (result == null) {
+                      log('something went wrong');
+                    }
+
+                    await UserService(uid: result.uid).addEmployer(_nameController.text, _emailController.text, 'aeff', 'aesf');
+
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+
+                  }
+                },
                 child: Text('Submit'),
               ),
             ],
