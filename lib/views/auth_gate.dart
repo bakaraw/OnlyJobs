@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:only_job/views/home/home.dart';
-import 'package:only_job/views/authenticate/authenticate.dart';
 import 'package:only_job/views/authenticate/register_or_login.dart';
+import 'package:only_job/views/home/temphome.dart';
 import 'package:provider/provider.dart';
 import 'package:only_job/models/user.dart';
 
