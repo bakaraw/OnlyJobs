@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/services/auth.dart';
-import '../../chatFeature/chat_page.dart';
+
 import '../../chatFeature/mainChatPage.dart';
 
 class Home extends StatefulWidget {
@@ -11,9 +11,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
   final AuthService _auth = AuthService();
   String currentUserId = '';
-
 
   @override
   void initState() {
@@ -34,27 +34,27 @@ class _HomeState extends State<Home> {
         title: const Text("Home"),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            child: const Text("Sign out"),
-            onPressed: () async {
-              await _auth.signOut();
-            },
+           children: [
+           ElevatedButton(
+                  child: const Text("Sign out"),
+                    onPressed: () async {
+                    _auth.signOut();
+                    },
+                    ),
+               ElevatedButton(
+                  child: const Text("Go to Chat"),
+                  onPressed: () {
+                    Navigator.push(
+                    context,
+                  MaterialPageRoute(
+                  builder: (context) => MainChatPage(User: currentUserId), // Pass the user ID
           ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            child: const Text('Chat Bubble'),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => MainChatPage(User: currentUserId,), // Pass the user ID
-                ),
-              );
-            },
-          ),
-        ],
+          );
+      },
       ),
+    ],
+    ),
     );
   }
-}
+
+  }

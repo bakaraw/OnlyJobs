@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:only_job/services/auth.dart';
 import 'dart:developer';
 import 'package:only_job/services/user_service.dart';
+import 'package:only_job/views/constants/loading.dart';
 
 class SignUpForm extends StatefulWidget {
   @override
@@ -11,6 +12,7 @@ class SignUpForm extends StatefulWidget {
 class _SignUpFormState extends State<SignUpForm> {
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
+  bool loading = false;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -27,9 +29,9 @@ class _SignUpFormState extends State<SignUpForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading ? const Loading() : Scaffold(
       appBar: AppBar(
-        title: Text('Sign Up'),
+        title: const Text('Sign Up'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -40,12 +42,12 @@ class _SignUpFormState extends State<SignUpForm> {
               TextFormField(
                 validator: (val) => emptyFieldValidator(val, 'Enter name'),
                 controller: _nameController,
-                decoration: InputDecoration(labelText: 'Full Name'),
+                decoration: const InputDecoration(labelText: 'Full Name'),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 validator: (val) => emptyFieldValidator(val, 'Enter gender'),
-                decoration: InputDecoration(labelText: 'Gender'),
+                decoration: const InputDecoration(labelText: 'Gender'),
                 value: _selectedGender,
                 items: ['Male', 'Female', 'Other'].map((String gender) {
                   return DropdownMenuItem<String>(
@@ -127,20 +129,34 @@ class _SignUpFormState extends State<SignUpForm> {
                 onPressed: () async {
                   if (_formKey.currentState != null &&
                       _formKey.currentState!.validate()) {
+
+                    // sets loading to true to show the loading screen
+                    setState(() {
+                      loading = true;
+                    });
+
                     dynamic result = await _auth.registerEmailAndPassword(
                         _emailController.text, _passwordController.text);
 
                     if (result == null) {
                       setState(() {
                         error = 'Something went wrong in creating your account';
+                        loading = false;
                       });
+                    } else {
+                      await UserService(uid: result.uid).addUser(
+                          _nameController.text,
+                          _selectedGender!,
+                          _selectedDate!,
+                          _emailController.text,
+                          _phoneController.text,
+                          _addressController.text);
+
+                      // pops this page
+                      Navigator.pop(context);
+                      // pops the employee_or_employer.dart
+                      Navigator.pop(context);
                     }
-                    await UserService(uid: result.uid).addJobSeeker(_nameController.text, _selectedGender!, _selectedDate!, _emailController.text, _phoneController.text, _addressController.text);
-                    
-                    // pops this page
-                    Navigator.pop(context);
-                    // pops the employee_or_employer.dart
-                    Navigator.pop(context);
                   }
                 },
                 child: Text('Submit'),

@@ -87,7 +87,6 @@ class _ClientSignupFormState extends State<ClientSignupForm> {
 
                     Navigator.pop(context);
                     Navigator.pop(context);
-
                   }
                 },
                 child: Text('Submit'),

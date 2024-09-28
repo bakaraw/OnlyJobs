@@ -14,6 +14,7 @@ class _DisplayMessageState extends State<DisplayMessage> {
   final Stream<QuerySnapshot> messageStream =
   FirebaseFirestore.instance.collection('Messages').orderBy('time').snapshots();
 
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -61,7 +62,7 @@ class _DisplayMessageState extends State<DisplayMessage> {
                         children: [
                           Expanded(
                             child: Text(
-                              qds['message'], // Display actual message content
+                              qds['message'],
                               softWrap: true,
                               style: TextStyle(fontSize: 15, color: Colors.black),
                             ),

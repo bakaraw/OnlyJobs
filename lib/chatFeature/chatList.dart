@@ -1,15 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'chat_page.dart'; // Ensure this is the correct path to your ChatPage
-
+import '../views/constants/loading.dart';
+import 'chat_page.dart';
 class UserListPage extends StatefulWidget {
   @override
   _UserListPageState createState() => _UserListPageState();
 }
 
 class _UserListPageState extends State<UserListPage> {
+
   final Stream<QuerySnapshot> userStream =
-  FirebaseFirestore.instance.collection('User').snapshots(); // Use 'user' as the collection name
+  FirebaseFirestore.instance.collection('ChatUser').snapshots();
 
   @override
   Widget build(BuildContext context) {
@@ -24,22 +26,21 @@ class _UserListPageState extends State<UserListPage> {
             return Center(child: Text("An error occurred"));
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: Loading());
           }
 
           return ListView(
             children: snapshot.data!.docs.map((DocumentSnapshot document) {
               Map<String, dynamic> userData = document.data()! as Map<String, dynamic>;
-              String uid = document.id; // Get the UID from the document ID
+              String uid = document.id;
 
               return ListTile(
-                title: Text(userData['name'] ?? 'No Name'), // Display user name
-                subtitle: Text(userData['email'] ?? 'No Email'), // Display user email
+                title: Text(userData['name'] ?? 'No Name'),
+                subtitle: Text(userData['email'] ?? 'No Email'),
                 onTap: () {
-                  // Navigate to ChatPage with the selected user's UID
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => ChatPage(user: uid), // Assuming ChatPage takes a user parameter
+                      builder: (context) => ChatPage(),
                     ),
                   );
                 },

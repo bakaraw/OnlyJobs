@@ -5,15 +5,11 @@ import 'dart:developer';
 
 class AuthService {
   final fb_auth.FirebaseAuth _auth = fb_auth.FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // create user object based on firebase user
   User? _userFromFirebaseUser(fb_auth.User? user) {
     return user != null ? User(uid: user.uid) : null;
   }
-
-
-
 
   // auth change user stream
   Stream<User?> get user {
@@ -46,7 +42,7 @@ class AuthService {
     }
   }
 
-  // register with email and password
+  // register with email and passwordss
   Future registerEmailAndPassword(String email, String password) async {
     try {
       fb_auth.UserCredential result = await _auth
@@ -71,4 +67,16 @@ class AuthService {
   String? getCurrentUserId() {
     return _auth.currentUser?.uid;
   }
+
+
+
+  Future<String?> getCurrentUserName() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('User').doc(userId).get();
+      return userDoc['name']; // Make sure 'name' is the correct field in your Firestore document.
+    }
+    return null;
   }
+
+}

@@ -1,8 +1,9 @@
-import 'package:only_job/services/auth.dart';
 import 'package:flutter/material.dart';
-import 'package:only_job/views/authenticate/signup.dart';
+import 'package:only_job/views/authenticate/client_or_employee.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'dart:developer';
+import 'package:only_job/services/auth.dart';
+import 'package:only_job/views/constants/loading.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -12,14 +13,14 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final _formKey = GlobalKey<FormState>();
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
 
   late String errormessage;
   late bool isError;
 
-  final AuthService _auth = AuthService();
-  final _formKey = GlobalKey<FormState>();
+  bool loading = false;
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
+//Error Message
   void checkRegister(email, password) {
     setState(() {
       if (email == "") {
@@ -47,7 +49,7 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading ? const Loading() : Scaffold(
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
@@ -120,11 +122,12 @@ class _LoginState extends State<Login> {
                           prefixIcon: Icon(Icons.email),
                           labelText: 'Email Address',
                         ),
+                        onChanged: (value) {},
                       ),
                       largeSizedBox_H,
                       TextFormField(
                         validator: (val) => val == null || val.isEmpty
-                            ? 'Enter a password'
+                            ? 'Enter password'
                             : null,
                         controller: passwordcontroller,
                         decoration: InputDecoration(
@@ -133,6 +136,7 @@ class _LoginState extends State<Login> {
                           prefixIcon: Icon(Icons.lock),
                           labelText: 'Password',
                         ),
+                        onChanged: (value) {},
                         obscureText: true,
                       ),
                       largeSizedBox_H,
@@ -145,27 +149,27 @@ class _LoginState extends State<Login> {
                       Spacer(),
                       ElevatedButton(
                         onPressed: () async {
-                          //checkRegister(
-                          //  emailcontroller.text,
-                          //  passwordcontroller.text,
-                          //);
                           if (_formKey.currentState != null &&
                               _formKey.currentState!.validate()) {
+                            setState(() {
+                              loading = true;
+                            });
+
                             dynamic result =
-                                await _auth.signInWithEmailAndPassword(
+                                await AuthService().signInWithEmailAndPassword(
                               emailcontroller.text,
                               passwordcontroller.text,
                             );
+
                             if (result == null) {
                               setState(() {
-                                errormessage =
-                                    'Wrong email or password.';
+                                errormessage = 'Invalid email or password';
                                 isError = true;
+                                loading = false;
                               });
                             } else {
                               Navigator.pop(context);
                             }
-
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -185,7 +189,8 @@ class _LoginState extends State<Login> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => SignUp()),
+                                  builder: (context) => ClientOrEmployee(),
+                                ),
                               );
                             },
                             child: Text(
