@@ -28,20 +28,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          'Profile',
-          style: headingStyle,
-        ),
-        centerTitle: true,
-      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -72,7 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   bottom: 0,
                   right: 0,
                   child: InkWell(
-                    onTap: PickImage, // Call the image picker
+                    onTap: PickImage,
                     child: CircleAvatar(
                       radius: 18,
                       backgroundColor: accent1,
@@ -105,40 +91,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     children: [
                       // Full Name
-                      _buildTextField("Full Name", "Enter your full name"),
-                      const SizedBox(height: 10),
+                      buildTextField("Full Name", "Enter your full name"),
+                      smallSizedBox_H,
 
                       // Gender
-                      _buildTextField("Gender", "Select your gender"),
-                      const SizedBox(height: 10),
+                      buildTextField("Gender", "Select your gender"),
+                      smallSizedBox_H,
 
                       // Birthdate
-                      _buildTextField("Birthdate", "Select your birthdate"),
-                      const SizedBox(height: 10),
+                      buildTextField("Birthdate", "Select your birthdate"),
+                      smallSizedBox_H,
 
                       // Phone Number
-                      _buildTextField(
-                          "Phone Number", "Enter your phone number"),
-                      const SizedBox(height: 10),
+                      buildTextField("Phone Number", "Enter your phone number"),
+                      smallSizedBox_H,
 
                       // Address
-                      _buildTextField("Address", "Enter your address"),
-                      const SizedBox(height: 10),
+                      buildTextField("Address", "Enter your address"),
+                      smallSizedBox_H,
 
                       // Email Address
-                      _buildTextField("Email Address", "Enter your email"),
-                      const SizedBox(height: 10),
+                      buildTextField("Email Address", "Enter your email"),
+                      smallSizedBox_H,
 
                       // Password Field
-                      _buildPasswordField("Password", "Enter your password"),
-                      const SizedBox(height: 20),
+                      buildPasswordField("Password", "Enter your password"),
+                      mediumSizedBox_H,
 
                       // Buttons
                       Column(
                         children: [
-                          SizedBox(
-                            height: 20, // Height margin before the buttons
-                          ),
+                          mediumSizedBox_H,
                           ElevatedButton(
                             onPressed: () {
                               // Implement save functionality
@@ -147,11 +130,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               minimumSize: Size.fromHeight(50),
                               foregroundColor: Colors.white,
                               backgroundColor: accent1,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
                             ),
                             child: Text("Save"),
                           ),
-                          const SizedBox(
-                              height: 20), // Space between the buttons
+                          smallSizedBox_H, // Space between the buttons
                           ElevatedButton(
                             onPressed: () {
                               // Implement logout functionality
@@ -160,6 +145,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               minimumSize: Size.fromHeight(50),
                               foregroundColor: Colors.white,
                               backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
                             ),
                             child: Text("Logout"),
                           ),
@@ -179,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //Get the users info and paste it in hintt
 
   // Helper method for text fields
-  Widget _buildTextField(String label, String hint) {
+  Widget buildTextField(String label, String hint) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -207,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // Helper method for password field
-  Widget _buildPasswordField(String label, String hint) {
+  Widget buildPasswordField(String label, String hint) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
