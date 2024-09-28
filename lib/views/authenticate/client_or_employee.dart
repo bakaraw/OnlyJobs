@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:only_job/views/authenticate/introduction.dart';
 import 'package:only_job/views/authenticate/sign_up_form.dart';
 import 'package:only_job/views/home/profileJS.dart';
+import 'package:only_job/views/authenticate/employer_signup_form.dart';
 
 class ClientOrEmployee extends StatelessWidget {
   const ClientOrEmployee({super.key});
@@ -64,7 +65,7 @@ class ClientOrEmployee extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => ProfileScreen(),
+                              builder: (context) => ClientSignupForm(),
                             ),
                           );
                         },
