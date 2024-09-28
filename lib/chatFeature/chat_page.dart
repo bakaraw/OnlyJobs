@@ -6,8 +6,9 @@ import 'package:only_job/chatFeature/displayMessage.dart';
 import '../services/auth.dart';
 
 class ChatPage extends StatefulWidget {
+  final Map<String, dynamic> user; // Accept user data as a parameter
 
-  const ChatPage({super.key});
+  const ChatPage({super.key, required this.user});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -89,7 +90,9 @@ class _ChatPageState extends State<ChatPage> {
                         firebaseFirestore.collection("Messages").add({
                           'message': messageController.text.trim(),
                           'time': DateTime.now(),
-                          'name': currentUserName ?? 'Unknown', // Use current user's name
+                          'name': currentUserName ?? 'Unknown',
+                          'receivername': widget.user['name'],
+
                         });
                         messageController.clear();
                       }

@@ -10,6 +10,7 @@ class UserListPage extends StatefulWidget {
 
 class _UserListPageState extends State<UserListPage> {
 
+
   final Stream<QuerySnapshot> userStream =
   FirebaseFirestore.instance.collection('ChatUser').snapshots();
 
@@ -37,13 +38,15 @@ class _UserListPageState extends State<UserListPage> {
               return ListTile(
                 title: Text(userData['name'] ?? 'No Name'),
                 subtitle: Text(userData['email'] ?? 'No Email'),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ChatPage(),
-                    ),
-                  );
-                },
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ChatPage(
+                          user: userData,
+                        ),
+                      ),
+                    );
+                  },
               );
             }).toList(),
           );
