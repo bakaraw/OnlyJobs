@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:developer';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/services/user_service.dart';
+import 'package:only_job/views/constants/constants.dart';
 
 class ClientSignupForm extends StatefulWidget {
   const ClientSignupForm({super.key});
@@ -83,12 +84,20 @@ class _ClientSignupFormState extends State<ClientSignupForm> {
                       log('something went wrong');
                     }
 
-                    await UserService(uid: result.uid).addEmployer(_nameController.text, _emailController.text, 'aeff', 'aesf');
+                    await UserService(uid: result.uid).addEmployer(
+                        _nameController.text,
+                        _emailController.text,
+                        'aeff',
+                        'aesf');
 
                     Navigator.pop(context);
                     Navigator.pop(context);
                   }
                 },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: accent1,
+                ),
                 child: Text('Submit'),
               ),
             ],
