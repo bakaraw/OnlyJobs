@@ -5,6 +5,7 @@ import 'package:only_job/views/authenticate/sign_up_form.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/home/homepageJS.dart';
 import 'package:only_job/views/home/profileJS.dart';
+import 'package:only_job/views/authenticate/employer_signup_form.dart';
 
 class ClientOrEmployee extends StatelessWidget {
   const ClientOrEmployee({super.key});
@@ -77,7 +78,7 @@ class ClientOrEmployee extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => HomePageJS(),
+                              builder: (context) => ClientSignupForm(),
                             ),
                           );
                         },
