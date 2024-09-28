@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'chatList.dart'; // Ensure UserListPage is defined in this file
+import 'package:only_job/chatFeature/userSearch.dart';
+import 'chatList.dart';
 import 'chat_page.dart';
 
 class MainChatPage extends StatefulWidget {
@@ -13,21 +15,20 @@ class MainChatPage extends StatefulWidget {
 
 class _MainChatPageState extends State<MainChatPage> {
   int _selectedIndex = 0;
-
   late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
     _pages = [
-      UserListPage(), // Add the UserListPage
-      ChatPage(user: widget.User), // Add the ChatPage with user parameter
+      UserListPage(),
+      ChatPage(),
     ];
   }
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index; // Update the selected index
+      _selectedIndex = index;
     });
   }
 
@@ -36,17 +37,28 @@ class _MainChatPageState extends State<MainChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Main Chat Page'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: UserSearchDelegate(),
+              );
+            },
+          ),
+        ],
       ),
-      body: _pages[_selectedIndex], // Show the selected page
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Users',
+            label: 'Chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
-            label: 'Chat',
+            label: 'Message',
           ),
         ],
         currentIndex: _selectedIndex,

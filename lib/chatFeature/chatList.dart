@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'chat_page.dart'; // Ensure this is the correct path to your ChatPage
-
+import '../views/constants/loading.dart';
+import 'chat_page.dart';
 class UserListPage extends StatefulWidget {
   @override
   _UserListPageState createState() => _UserListPageState();
@@ -10,7 +11,7 @@ class UserListPage extends StatefulWidget {
 class _UserListPageState extends State<UserListPage> {
 
   final Stream<QuerySnapshot> userStream =
-  FirebaseFirestore.instance.collection('User').snapshots();
+  FirebaseFirestore.instance.collection('ChatUser').snapshots();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,7 @@ class _UserListPageState extends State<UserListPage> {
             return Center(child: Text("An error occurred"));
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: Loading());
           }
 
           return ListView(
@@ -39,7 +40,7 @@ class _UserListPageState extends State<UserListPage> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => ChatPage(user: uid),
+                      builder: (context) => ChatPage(),
                     ),
                   );
                 },

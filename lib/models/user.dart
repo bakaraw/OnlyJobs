@@ -6,4 +6,5 @@ class User {
     this.name,
     this.uid,
   });
+
 }
