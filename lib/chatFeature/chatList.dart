@@ -9,19 +9,45 @@ class UserListPage extends StatefulWidget {
 }
 
 class _UserListPageState extends State<UserListPage> {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  List<String> contacts = [];
+  Stream<QuerySnapshot>? contactsStream;
+  @override
+  void initState() {
+    super.initState();
+    fetchContacts();
+  }
 
+  Future<void> fetchContacts() async {
+    String currentUserId = auth.currentUser!.uid;
 
-  final Stream<QuerySnapshot> userStream =
-  FirebaseFirestore.instance.collection('ChatUser').snapshots();
+    DocumentSnapshot userDoc = await firestore.collection('User').doc(currentUserId).get();
 
+    if (userDoc.exists) {
+      List<dynamic> contactList = userDoc.get('contacts') ?? [];
+      contacts = List<String>.from(contactList);
+
+      if (contacts.isNotEmpty) {
+        contactsStream = firestore
+            .collection('User')
+            .where(FieldPath.documentId, whereIn: contacts)
+            .snapshots();
+      }
+
+      setState(() {});
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User List'),
+        title: Text('User Contacts'),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: userStream,
+      body: contactsStream == null
+          ? Center(child: Text('No people added yet'))
+          : StreamBuilder<QuerySnapshot>(
+        stream: contactsStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text("An error occurred"));
@@ -30,6 +56,9 @@ class _UserListPageState extends State<UserListPage> {
             return Center(child: Loading());
           }
 
+          if (snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('No contacts found'));
+          }
           return ListView(
             children: snapshot.data!.docs.map((DocumentSnapshot document) {
               Map<String, dynamic> userData = document.data()! as Map<String, dynamic>;
@@ -38,15 +67,15 @@ class _UserListPageState extends State<UserListPage> {
               return ListTile(
                 title: Text(userData['name'] ?? 'No Name'),
                 subtitle: Text(userData['email'] ?? 'No Email'),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ChatPage(
-                          user: userData,
-                        ),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ChatPage(
+                        user: userData,
                       ),
-                    );
-                  },
+                    ),
+                  );
+                },
               );
             }).toList(),
           );
