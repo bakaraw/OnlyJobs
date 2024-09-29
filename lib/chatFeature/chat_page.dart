@@ -32,8 +32,15 @@ class _ChatPageState extends State<ChatPage> {
     currentUserName = await authService.getCurrentUserName();
     setState(() {});
   }
+
   @override
   Widget build(BuildContext context) {
+
+    //option 1 get the user name from the user data in ChatList page
+    String receiverName = widget.user['name'] ?? 'Unknown';
+
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Chat Page'),
@@ -91,8 +98,7 @@ class _ChatPageState extends State<ChatPage> {
                           'message': messageController.text.trim(),
                           'time': DateTime.now(),
                           'name': currentUserName ?? 'Unknown',
-                          'receivername': widget.user['name'],
-
+                          'receivername': receiverName,
                         });
                         messageController.clear();
                       }

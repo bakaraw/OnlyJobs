@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../views/constants/loading.dart';
 import 'chat_page.dart';
 class UserListPage extends StatefulWidget {
+
+
   @override
   _UserListPageState createState() => _UserListPageState();
 }
@@ -20,6 +22,7 @@ class _UserListPageState extends State<UserListPage> {
   }
 
   Future<void> fetchContacts() async {
+
     String currentUserId = auth.currentUser!.uid;
 
     DocumentSnapshot userDoc = await firestore.collection('User').doc(currentUserId).get();
@@ -29,11 +32,14 @@ class _UserListPageState extends State<UserListPage> {
       contacts = List<String>.from(contactList);
 
       if (contacts.isNotEmpty) {
-        contactsStream = firestore
+        setState(() {
+          contactsStream = firestore
             .collection('User')
             .where(FieldPath.documentId, whereIn: contacts)
             .snapshots();
-      }
+
+      } );
+            }
 
       setState(() {});
     }
@@ -70,9 +76,7 @@ class _UserListPageState extends State<UserListPage> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => ChatPage(
-                        user: userData,
-                      ),
+                      builder: (context) => ChatPage(user: userData,),
                     ),
                   );
                 },
