@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/home/profileJS.dart';
 
@@ -9,7 +9,7 @@ class HomePageJS extends StatefulWidget {
 }
 
 class _HomePageJSState extends State<HomePageJS> {
-  int _currentIndex = 0;
+  int _currentIndex = 1;
 
   final List<Widget> _pages = [
     ProfileScreen(),
@@ -21,25 +21,46 @@ class _HomePageJSState extends State<HomePageJS> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_currentIndex],
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.transparent,
-        color: accent1,
-        items: <Widget>[
-          Icon(Icons.person, size: 30, color: backgroundwhite),
-          Icon(Icons.chat, size: 30, color: backgroundwhite),
-          Icon(Icons.add, size: 30, color: backgroundwhite),
-        ],
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+      bottomNavigationBar: Container(
+        color: backgroundblack,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          child: GNav(
+            gap: 8,
+            iconSize: 24,
+            padding: EdgeInsets.all(16),
+            duration: Duration(milliseconds: 300),
+            tabBackgroundColor: Colors.grey.shade800,
+            color: backgroundwhite,
+            activeColor: backgroundwhite,
+            tabs: [
+              GButton(
+                icon: Icons.person,
+                text: 'Profile',
+              ),
+              GButton(
+                icon: Icons.chat,
+                text: 'Chat',
+              ),
+              GButton(
+                icon: Icons.add,
+                text: 'Add',
+              ),
+            ],
+            selectedIndex: _currentIndex,
+            onTabChange: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+          ),
+        ),
       ),
     );
   }
 }
 
-//checking the navigation
+// Checking the navigation
 class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

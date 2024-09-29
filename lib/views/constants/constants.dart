@@ -16,6 +16,12 @@ const TextStyle headingStyle = TextStyle(
   fontWeight: FontWeight.bold,
 );
 
+const TextStyle headingStyle_white = TextStyle(
+  fontSize: 24.0,
+  fontWeight: FontWeight.bold,
+  color: backgroundwhite,
+);
+
 const TextStyle bodyStyle = TextStyle(
   fontSize: 16.0,
   color: Color.fromARGB(255, 99, 99, 99),
