@@ -13,19 +13,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   final AuthService _auth = AuthService();
-  String currentUserId = '';
 
-  @override
-  void initState() {
-    super.initState();
-    _loadCurrentUserId();
-  }
-
-  void _loadCurrentUserId() {
-    setState(() {
-      currentUserId = _auth.getCurrentUserId() ?? ''; // Assign user ID or an empty string
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +35,7 @@ class _HomeState extends State<Home> {
                     Navigator.push(
                     context,
                   MaterialPageRoute(
-                  builder: (context) => MainChatPage(User: currentUserId), // Pass the user ID
+                  builder: (context) => MainChatPage(), // Pass the user ID
           ),
           );
       },
