@@ -37,7 +37,6 @@ class UserSearchDelegate extends SearchDelegate {
 
 
   Future<void> addUser(Map<String, dynamic> userData) async {
-
     await firestore.collection('ChatUser').add(userData);
   }
 
@@ -49,8 +48,6 @@ class UserSearchDelegate extends SearchDelegate {
       'contacts': FieldValue.arrayUnion([contactId]),
     });
   }
-
-
 
   @override
   Widget buildResults(BuildContext context) {

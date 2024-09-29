@@ -93,6 +93,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   IconButton(
                     onPressed: () {
+
                       if (messageController.text.isNotEmpty) {
                         firebaseFirestore.collection("Messages").add({
                           'message': messageController.text.trim(),
