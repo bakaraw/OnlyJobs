@@ -31,7 +31,6 @@ class _ClientHomePageState extends State<ClientHomePage> {
             _currentIndex = newIndex;
           });
 
-          // Navigate to the appropriate page
           switch (newIndex) {
             case 0:
               Navigator.push(

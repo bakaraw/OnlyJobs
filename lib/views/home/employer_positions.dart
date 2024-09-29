@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/home/employer_homepage.dart';
 import 'package:only_job/views/home/employer_profile.dart';
+import 'package:only_job/views/home/job_details.dart';
 
 class EmployerPositions extends StatefulWidget {
   const EmployerPositions({super.key});
@@ -17,54 +18,43 @@ class _EmployerPositionsState extends State<EmployerPositions> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Available Job Positions'), // App bar title
-      ), // AppBar end
-
-      // Main body of the page, wrapped in Padding for spacing
+        title: Text('Available Job Positions'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        // GridView to display job positions in boxes
         child: GridView.builder(
-          // Grid configuration: 2 columns, 10px spacing
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Number of boxes per row
-            crossAxisSpacing: 10.0, // Horizontal space between boxes
-            mainAxisSpacing: 10.0, // Vertical space between boxes
-          ), // SliverGridDelegateWithFixedCrossAxisCount end
-
-          itemCount: jobPositions.length, // Number of job boxes to display
+            crossAxisCount: 2,
+            crossAxisSpacing: 10.0,
+            mainAxisSpacing: 10.0,
+          ),
+          itemCount: jobPositions.length,
           itemBuilder: (context, index) {
             return GestureDetector(
-              // When a job box is tapped
               onTap: () {
-                // Navigate to JobDetailPage for the selected job
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => JobDetailPage(
-                      jobTitle: jobPositions[index], // Pass job title
+                      jobTitle: jobPositions[index],
                     ),
                   ),
-                ); // Navigator.push end
-              }, // onTap end
-
-              // Job position box
+                );
+              },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[300], // Box background color
-                  borderRadius: BorderRadius.circular(10.0), // Rounded corners
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10.0),
                   border: Border.all(
-                    color: Colors.blue, // Box border color (blue)
-                    width: 2.0, // Border width
-                  ), // Border end
-                ), // BoxDecoration end
-
-                // Center the text inside the job box
+                    color: Colors.blue,
+                    width: 2.0,
+                  ),
+                ),
                 child: Center(
                   child: Text(
-                    jobPositions[index], // Display job title
-                    style: const TextStyle(fontSize: 16), // Font size of text
-                    textAlign: TextAlign.center, // Center-align text
+                    jobPositions[index],
+                    style: const TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -78,8 +68,6 @@ class _EmployerPositionsState extends State<EmployerPositions> {
           setState(() {
             _currentIndex = newIndex;
           });
-
-          // Navigate to the appropriate page
           switch (newIndex) {
             case 0:
               Navigator.push(
@@ -142,42 +130,14 @@ class _EmployerPositionsState extends State<EmployerPositions> {
         ],
         fixedColor: Colors.black,
       ),
-
-      // FloatingActionButton to add new job positions
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // When the button is pressed, add a new job position
           setState(() {
             jobPositions.add('New Job Position ${jobPositions.length + 1}');
-          }); // setState end
-        }, // onPressed end
-
-        child: const Icon(Icons.add), // Plus icon inside button
-        backgroundColor: Colors.blue, // Background color of button
-      ), // FloatingActionButton end
-    ); // Scaffold end
-  } // build end
-} // _JobPositionPageState end
-
-// Page to show details for a selected job position
-class JobDetailPage extends StatelessWidget {
-  final String jobTitle; // The title of the job to display
-
-  const JobDetailPage({Key? key, required this.jobTitle}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(jobTitle), // Display the job title as the app bar title
-      ), // AppBar end
-
-      // Body displaying the details of the selected job
-      body: Center(
-        child: Text(
-          'Details for $jobTitle', // Display job details text
-          style: TextStyle(fontSize: 24), // Text size for details
-        ),
+          });
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blue,
       ),
     );
   }
