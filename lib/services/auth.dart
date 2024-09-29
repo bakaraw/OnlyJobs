@@ -68,8 +68,6 @@ class AuthService {
     return _auth.currentUser?.uid;
   }
 
-
-
   Future<String?> getCurrentUserName() async {
     final userId = _auth.currentUser?.uid;
     if (userId != null) {

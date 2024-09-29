@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:developer';
+import 'package:only_job/models/user.dart';
 
 class UserService {
   final String uid;
@@ -22,15 +24,32 @@ class UserService {
     });
   }
 
+  UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
+    return UserData(
+      uid: uid,
+      name: snapshot.get('name'),
+      email: snapshot.get('email'),
+      phone: snapshot.get('phone'),
+      address: snapshot.get('address'),
+      isJobSeeker: snapshot.get('isJobSeeker'),
+    );
+  }
+
   Future addEmployer(
       String name, String email, String phone, String address) async {
-    return await userCollection.doc(uid).set({
-      'name': name,
-      'email': email,
-      'phone': phone,
-      'address': address,
-      'isJobSeeker': true,
-      'contacts': [],
-    });
+    return await userCollection
+        .doc(uid)
+        .set({
+          'name': name,
+          'email': email,
+          'phone': phone,
+          'address': address,
+          'isJobSeeker': false,
+          'contacts': [],
+        });
+  }
+
+  Stream<UserData> get userData {
+    return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
   }
 }
