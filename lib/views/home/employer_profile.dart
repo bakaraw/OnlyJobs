@@ -1,8 +1,15 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:only_job/views/home/employer_homepage.dart';
+import 'package:only_job/views/home/employer_positions.dart';
 
-class EmployerProfile extends StatelessWidget {
+class EmployerProfile extends StatefulWidget {
+  @override
+  State<EmployerProfile> createState() => _EmployerProfileState();
+}
+
+class _EmployerProfileState extends State<EmployerProfile> {
   var listTileShape = RoundedRectangleBorder(
     side: BorderSide(
       color: Colors.grey,
@@ -10,6 +17,7 @@ class EmployerProfile extends StatelessWidget {
     ),
     borderRadius: BorderRadius.all(Radius.circular(8.0)),
   );
+  int _currentIndex = 4;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +38,7 @@ class EmployerProfile extends StatelessWidget {
           )
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -110,7 +118,7 @@ class EmployerProfile extends StatelessWidget {
               ),
               subtitle: Text("BILAT"),
             ),
-            const Spacer(),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {},
               child: Text(
@@ -136,6 +144,76 @@ class EmployerProfile extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (int newIndex) {
+          setState(() {
+            _currentIndex = newIndex;
+          });
+
+          // Navigate to the appropriate page
+          switch (newIndex) {
+            case 0:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ClientHomePage()),
+              );
+              break;
+            case 1:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EmployerPositions()),
+              );
+              break;
+            case 2:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EmployerProfile()),
+              );
+              break;
+            case 3:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EmployerProfile()),
+              );
+              break;
+            case 4:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EmployerProfile()),
+              );
+              break;
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(
+            backgroundColor: Colors.blue,
+            label: 'Home',
+            icon: Icon(Icons.home),
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: Colors.blue,
+            label: 'Positions',
+            icon: Icon(Icons.business_outlined),
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: Colors.blue,
+            label: 'Applicants',
+            icon: Icon(Icons.people),
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: Colors.blue,
+            label: 'Menu',
+            icon: Icon(Icons.menu),
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: Colors.blue,
+            label: 'Profile',
+            icon: Icon(Icons.person),
+          ),
+        ],
+        fixedColor: Colors.black,
       ),
     );
   }
