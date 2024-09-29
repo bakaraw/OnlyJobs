@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:only_job/views/constants/constants.dart';
-import 'package:only_job/views/home/profileJS.dart';
+import 'package:only_job/JS_view/profileJS.dart';
 
-class HomePageJS extends StatefulWidget {
+class NavJS extends StatefulWidget {
+  const NavJS({super.key});
   @override
-  _HomePageJSState createState() => _HomePageJSState();
+  State<NavJS> createState() => _NavJSState();
 }
 
-class _HomePageJSState extends State<HomePageJS> {
+class _NavJSState extends State<NavJS> {
   int _currentIndex = 1;
 
   final List<Widget> _pages = [
@@ -39,12 +40,12 @@ class _HomePageJSState extends State<HomePageJS> {
                 text: 'Profile',
               ),
               GButton(
-                icon: Icons.chat,
-                text: 'Chat',
+                icon: Icons.home,
+                text: 'Home',
               ),
               GButton(
-                icon: Icons.add,
-                text: 'Add',
+                icon: Icons.chat,
+                text: 'Chat',
               ),
             ],
             selectedIndex: _currentIndex,
