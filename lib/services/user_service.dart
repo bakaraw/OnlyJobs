@@ -18,6 +18,7 @@ class UserService {
       'phone': phone,
       'address': address,
       'isJobSeeker': true,
+      'contacts': [],
     });
   }
 
@@ -29,6 +30,7 @@ class UserService {
       'phone': phone,
       'address': address,
       'isJobSeeker': true,
+      'contacts': [],
     });
   }
 }

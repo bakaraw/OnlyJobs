@@ -36,6 +36,7 @@ class _DisplayMessageState extends State<DisplayMessage> {
             Timestamp time = qds['time'];
             DateTime dateTime = time.toDate();
 
+
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
               child: Column(

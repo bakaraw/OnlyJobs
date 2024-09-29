@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/authenticate/introduction.dart';
 import 'package:only_job/views/authenticate/login.dart';
+import 'package:only_job/views/authenticate/register_or_login.dart';
 import 'package:only_job/views/authenticate/sign_up_form.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/home/homepageJS.dart';
@@ -14,25 +15,37 @@ class ClientOrEmployee extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: primarycolor,
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => RegisterLogin(),
+              ),
+            );
           },
           icon: Icon(
             Icons.arrow_back,
             color: accent1,
           ),
         ),
-        title: Text('Choose Your Role'),
-        centerTitle: true,
       ),
+      backgroundColor: primarycolor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Spacer(),
+            Text(
+              'Choose your role',
+              style: headingStyle_white,
+            ),
+            extraLargeSizedBox_H,
+            extraLargeSizedBox_H,
+            extraLargeSizedBox_H,
             Card(
+              color: backgroundwhite,
               elevation: 4.0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
@@ -53,6 +66,10 @@ class ClientOrEmployee extends StatelessWidget {
                             ),
                           );
                         },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: accent1,
+                        ),
                         child: Text('Employee'),
                       ),
                     ),
@@ -62,6 +79,7 @@ class ClientOrEmployee extends StatelessWidget {
             ),
             mediumSizedBox_H,
             Card(
+              color: backgroundwhite,
               elevation: 4.0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
@@ -82,6 +100,10 @@ class ClientOrEmployee extends StatelessWidget {
                             ),
                           );
                         },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: accent1,
+                        ),
                         child: Text('Employer'),
                       ),
                     ),
@@ -93,7 +115,10 @@ class ClientOrEmployee extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Already Have an Account? "),
+                Text(
+                  "Already Have an Account? ",
+                  style: TextStyle(color: Colors.white),
+                ),
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -111,6 +136,7 @@ class ClientOrEmployee extends StatelessWidget {
                     ),
                   ),
                 ),
+                largeSizedBox_H,
               ],
             ),
           ],
