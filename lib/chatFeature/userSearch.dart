@@ -73,6 +73,9 @@ class UserSearchDelegate extends SearchDelegate {
               title: Text(userData['name']),
               subtitle: Text(userData['email']),
               onTap: () async {
+
+                String userName = userData['name'] ?? 'No Name'; // Name
+
                 final userExistNotPush = await firestore
                     .collection('ChatUser')
                     .where('name', isEqualTo: userData['name'])

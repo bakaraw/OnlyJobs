@@ -14,6 +14,7 @@ class UserListPage extends StatefulWidget {
 class _UserListPageState extends State<UserListPage> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
+
   List<String> contacts = [];
   Stream<QuerySnapshot>? contactsStream;
   @override
@@ -117,7 +118,7 @@ class _UserListPageState extends State<UserListPage> {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => ChatPage(user: userData),
+                          builder: (context) => ChatPage(user: {'uid': uid, 'name': userData['name']}),
                         ),
                       );
                     },

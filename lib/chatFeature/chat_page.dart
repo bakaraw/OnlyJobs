@@ -3,10 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/chatFeature/displayMessage.dart';
 
+import '../models/message.dart';
 import '../services/auth.dart';
 
 class ChatPage extends StatefulWidget {
-  final Map<String, dynamic> user; // Accept user data as a parameter
+  final Map<String, dynamic> user;
 
   const ChatPage({super.key, required this.user});
 
@@ -36,7 +37,6 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
 
-    //option 1 get the user name from the user data in ChatList page
     String receiverName = widget.user['name'] ?? 'Unknown';
 
 
@@ -61,7 +61,8 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.8,
-              child: DisplayMessage(user: currentUserName ?? 'User'),
+              child: DisplayMessage(user: currentUserName ?? 'user'),
+
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -92,20 +93,35 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {
-
+                    onPressed: () async {
                       if (messageController.text.isNotEmpty) {
-                        firebaseFirestore.collection("Messages").add({
-                          'message': messageController.text.trim(),
-                          'time': DateTime.now(),
-                          'name': currentUserName ?? 'Unknown',
-                          'receivername': receiverName,
-                        });
+                        // Create a Message object
+                        Message newMessage = Message(
+                          message: messageController.text.trim(),
+                          time: DateTime.now(),
+                          senderName: currentUserName ?? 'Unknown',
+                          receiver: receiverName,
+                        );
+
+                        String currentUserId = auth.currentUser?.uid ?? '';
+                        String receiverUserId = widget.user['uid'] ?? '';
+
+                        DocumentReference receiverDocRef = firebaseFirestore.collection('User').doc(receiverUserId);
+
+                        String messageId = DateTime.now().millisecondsSinceEpoch.toString();
+
+                        await receiverDocRef.collection('messages').doc(messageId).set(newMessage.toMap());
+
+                        DocumentReference senderDocRef = firebaseFirestore.collection('User').doc(currentUserId);
+                        await senderDocRef.collection('messages').doc(messageId).set(newMessage.toMap());
+
                         messageController.clear();
                       }
                     },
                     icon: Icon(Icons.send, size: 30, color: Colors.blue),
                   ),
+
+
                 ],
               ),
             ),
