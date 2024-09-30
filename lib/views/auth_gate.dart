@@ -3,6 +3,8 @@ import 'package:only_job/views/authenticate/register_or_login.dart';
 import 'package:only_job/views/home/temphome.dart';
 import 'package:provider/provider.dart';
 import 'package:only_job/models/user.dart';
+import 'package:only_job/views/home/homepageJS.dart';
+import 'dart:developer';
 
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
@@ -15,8 +17,9 @@ class _AuthGateState extends State<AuthGate> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User?>(context);
+    log(user.toString());
     if (user != null) {
-      return Home();
+      return Home(uid: user.uid!);
     } else {
       return RegisterLogin();
     }
