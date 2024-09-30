@@ -19,7 +19,7 @@ class _AuthGateState extends State<AuthGate> {
     final user = Provider.of<User?>(context);
     log(user.toString());
     if (user != null) {
-      return Home();
+      return Home(uid: user.uid!);
     } else {
       return RegisterLogin();
     }

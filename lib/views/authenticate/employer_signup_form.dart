@@ -94,13 +94,18 @@ class _ClientSignupFormState extends State<ClientSignupForm> {
                               loading = false;
                             });
                           } else {
-                              await UserService(uid: result.uid).addEmployer(
-                                  _nameController.text,
-                                  _emailController.text,
-                                  'aeff',
-                                  'aesf');
-                              Navigator.pop(context);
-                              Navigator.pop(context);
+                            await UserService(uid: result.uid)
+                                .addUser(
+                                    _nameController.text,
+                                    null,
+                                    null,
+                                    _emailController.text,
+                                    'aeff',
+                                    'aesf',
+                                    false);
+
+                            Navigator.pop(context);
+                            Navigator.pop(context);
                           }
                         }
                       },
