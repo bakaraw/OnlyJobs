@@ -5,9 +5,8 @@ import 'chatList.dart';
 import 'chat_page.dart';
 
 class MainChatPage extends StatefulWidget {
-  final String User;
 
-  const MainChatPage({super.key, required this.User});
+  const MainChatPage({super.key});
 
   @override
   State<MainChatPage> createState() => _MainChatPageState();
@@ -22,7 +21,7 @@ class _MainChatPageState extends State<MainChatPage> {
     super.initState();
     _pages = [
       UserListPage(),
-      ChatPage(),
+      ChatPage(user: {}),
     ];
   }
 
