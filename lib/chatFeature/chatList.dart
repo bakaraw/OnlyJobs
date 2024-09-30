@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/chatFeature/userSearch.dart';
+import '../models/message.dart';
 import '../views/constants/loading.dart';
 import 'chat_page.dart';
 class UserListPage extends StatefulWidget {
@@ -17,6 +18,7 @@ class _UserListPageState extends State<UserListPage> {
 
   List<String> contacts = [];
   Stream<QuerySnapshot>? contactsStream;
+
   @override
   void initState() {
     super.initState();
@@ -24,10 +26,10 @@ class _UserListPageState extends State<UserListPage> {
   }
 
   Future<void> fetchContacts() async {
-
     String currentUserId = auth.currentUser!.uid;
 
-    DocumentSnapshot userDoc = await firestore.collection('User').doc(currentUserId).get();
+    DocumentSnapshot userDoc = await firestore.collection('User').doc(
+        currentUserId).get();
 
     if (userDoc.exists) {
       List<dynamic> contactList = userDoc.get('contacts') ?? [];
@@ -36,26 +38,24 @@ class _UserListPageState extends State<UserListPage> {
       if (contacts.isNotEmpty) {
         setState(() {
           contactsStream = firestore
-            .collection('User')
-            .where(FieldPath.documentId, whereIn: contacts)
-            .snapshots();
-
-      } );
-            } else {
+              .collection('User')
+              .where(FieldPath.documentId, whereIn: contacts)
+              .snapshots();
+        });
+      } else {
         setState(() {
           contactsStream = null;
         });
       }
-
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Search People'),
         actions: [
-
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () async {
@@ -72,7 +72,9 @@ class _UserListPageState extends State<UserListPage> {
         ],
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: firestore.collection('User').doc(auth.currentUser!.uid).snapshots(),
+        stream: firestore.collection('User')
+            .doc(auth.currentUser!.uid)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text("An error occurred"));
@@ -109,26 +111,63 @@ class _UserListPageState extends State<UserListPage> {
               }
 
               return ListView(
-                children: contactSnapshot.data!.docs.map((DocumentSnapshot document) {
-                  Map<String, dynamic> userData = document.data()! as Map<String, dynamic>;
+                children: contactSnapshot.data!.docs.map((
+                    DocumentSnapshot document) {
+                  Map<String, dynamic> userData = document.data()! as Map<
+                      String,
+                      dynamic>;
                   String uid = document.id;
 
                   return ListTile(
                     title: Text(userData['name'] ?? 'No Name'),
                     subtitle: Text(userData['email'] ?? 'No Email'),
                     onTap: () async {
-                      // Add the selected user to the current user's contacts
                       String currentUserId = auth.currentUser!.uid;
-                      DocumentReference currentUserDoc = firestore.collection('User').doc(currentUserId);
+                      DocumentReference currentUserDoc = firestore.collection(
+                          'User').doc(currentUserId);
 
+                      // Update the contacts list
                       await currentUserDoc.update({
                         'contacts': FieldValue.arrayUnion([uid])
                       });
 
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ChatPage(user: {'uid': uid, 'name': userData['name']}),
-                        ),
+                      // Show dialog for accepting or rejecting message
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Incoming Message"),
+                            content: Text(
+                                "You have a new message from ${userData['name']}. Do you accept?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () async {
+                                  await _acceptMessage();
+                                  // Navigate to ChatPage after accepting
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatPage(user: {
+                                        'uid': uid,
+                                        'name': userData['name']
+                                      }),
+                                    ),
+                                  );
+                                },
+                                child: Text("Accept"),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  await _rejectMessage();
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Text("Reject"),
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
                   );
@@ -139,5 +178,34 @@ class _UserListPageState extends State<UserListPage> {
         },
       ),
     );
+  }
+
+
+  Future<void> _acceptMessage(Message message) async {
+    String currentUserId = auth.currentUser!.uid;
+
+    // Update Firestore to mark the message as accepted
+    await firestore
+        .collection('User')
+        .doc(currentUserId)
+        .collection('messages')
+        .doc(message.receiver)
+        .collection('chatMessages')
+        .doc(message.message)
+        .update({'accepted': true});
+  }
+
+  Future<void> _rejectMessage(Message message) async {
+    String currentUserId = auth.currentUser!.uid;
+
+    // Update Firestore to mark the message as rejected
+    await firestore
+        .collection('User')
+        .doc(currentUserId)
+        .collection('messages')
+        .doc(message.receiver) // Adjust based on your structure
+        .collection('chatMessages')
+        .doc(message.message) // Ensure you have a unique messageId
+        .update({'accepted': false});
   }
 }

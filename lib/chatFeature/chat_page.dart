@@ -113,6 +113,7 @@ class _ChatPageState extends State<ChatPage> {
                               .collection('messages').doc(receiverUserId);
 
                           await receiverDocRef.collection('chatMessages').add(newMessage.toMap());
+
                           await senderDocRef.collection('chatMessages').add(newMessage.toMap());
 
                           messageController.clear();
