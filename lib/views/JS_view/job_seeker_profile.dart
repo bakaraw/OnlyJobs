@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:only_job/views/JS_view/profileJS_pages/add_edit_certification.dart';
 import 'package:only_job/views/JS_view/profileJS_pages/add_edit_education.dart';
 import 'package:only_job/views/JS_view/profileJS_pages/add_edit_experience.dart';
+import 'package:only_job/views/JS_view/profileJS_pages/add_edit_skills.dart';
 import 'dart:io';
 import 'package:only_job/views/constants/constants.dart';
 
@@ -15,6 +17,10 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   List<Map<String, String>> educationList = []; // Store education entries
   List<Map<String, String>> experienceList = []; // Store experience entries
+  List<Map<String, String>> certificationList = [];
+  List<String> skills =
+      []; // Store selected skills // Store certification entries
+
   final ImagePicker _picker = ImagePicker();
   XFile? _profileImage;
 
@@ -70,6 +76,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       });
     }
+  }
+
+  // Method to add or edit certification entry
+  void AddOrEditCertification(
+      [Map<String, String>? certificationToEdit, int? index]) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            AddCertificationPage(certification: certificationToEdit),
+      ),
+    );
+    if (result != null && result is Map<String, String>) {
+      setState(() {
+        if (index != null) {
+          // Edit existing entry
+          certificationList[index] = result;
+        } else {
+          // Add new entry
+          certificationList.add(result);
+        }
+      });
+    }
+  }
+
+// Method to add or edit skills
+  void addOrEditSkills() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddSkillsPage(selectedSkills: skills),
+      ),
+    );
+    if (result != null && result is List<String>) {
+      setState(() {
+        skills = result; // Update skills with the selected ones
+      });
+    }
+  }
+
+  // Remove a skill from the profile
+  void removeSkill(String skill) {
+    setState(() {
+      skills.remove(skill);
+    });
   }
 
   @override
@@ -261,7 +312,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     smallSizedBox_H,
 
                     GestureDetector(
-                      onTap: AddOrEditExperience, // For adding new experience
+                      onTap: AddOrEditExperience,
                       child: Row(
                         children: [
                           Icon(
@@ -321,6 +372,136 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ],
                             ),
+                          );
+                        }).toList(),
+                      ),
+
+                    mediumSizedBox_H,
+                    Divider(thickness: 2),
+                    mediumSizedBox_H,
+
+                    // Certification Section
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Certifications",
+                        style: headingStyle,
+                      ),
+                    ),
+                    smallSizedBox_H,
+
+                    GestureDetector(
+                      onTap:
+                          AddOrEditCertification, // For adding new certification
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.add,
+                            color: Colors.blue,
+                            size: 24,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            "Add Certification",
+                            style: addinfotxtstyle,
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Display certification entries with labels and edit button
+                    smallSizedBox_H,
+                    if (certificationList.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                            certificationList.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          Map<String, String> certification = entry.value;
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      certification['certificationName'] ?? "",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      certification['year'] ?? "",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    if (certification['attachedFile'] != null)
+                                      Text(
+                                        "File attached",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.green.shade700),
+                                      ),
+                                  ],
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    // Edit the selected certification entry
+                                    AddOrEditCertification(
+                                        certification, index);
+                                  },
+                                  icon: Icon(Icons.edit, color: Colors.blue),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+
+                    mediumSizedBox_H,
+                    Divider(thickness: 2),
+                    mediumSizedBox_H,
+
+                    // Skills Section
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Skills",
+                        style: headingStyle,
+                      ),
+                    ),
+                    smallSizedBox_H,
+
+                    GestureDetector(
+                      onTap: addOrEditSkills, // Navigate to AddSkillsPage
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.add,
+                            color: Colors.blue,
+                            size: 24,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            "Add Skills",
+                            style: addinfotxtstyle,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    smallSizedBox_H,
+
+                    // Display added skills with remove buttons
+                    if (skills.isNotEmpty)
+                      Wrap(
+                        spacing: 10,
+                        children: skills.map((skill) {
+                          return Chip(
+                            label: Text(skill),
+                            backgroundColor: Colors.blue[100],
+                            deleteIcon: Icon(Icons.cancel, color: Colors.red),
+                            onDeleted: () => removeSkill(skill),
                           );
                         }).toList(),
                       ),
