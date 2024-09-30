@@ -61,8 +61,7 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.8,
-              child: DisplayMessage(user: currentUserName ?? 'user'),
-
+              child: DisplayMessage(user: auth.currentUser?.uid ?? ''),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -111,7 +110,6 @@ class _ChatPageState extends State<ChatPage> {
                         String messageId = DateTime.now().millisecondsSinceEpoch.toString();
 
                         await receiverDocRef.collection('messages').doc(messageId).set(newMessage.toMap());
-
                         DocumentReference senderDocRef = firebaseFirestore.collection('User').doc(currentUserId);
                         await senderDocRef.collection('messages').doc(messageId).set(newMessage.toMap());
 
