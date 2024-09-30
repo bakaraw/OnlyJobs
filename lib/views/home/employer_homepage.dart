@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:only_job/views/home/employer_positions.dart';
 import 'package:only_job/views/home/employer_profile.dart';
 
+import '../../chatFeature/mainChatPage.dart';
+
 class ClientHomePage extends StatefulWidget {
   const ClientHomePage({super.key});
 
@@ -17,8 +19,11 @@ class _ClientHomePageState extends State<ClientHomePage> {
     Icon(Icons.home),
     EmployerPositions(),
     Icon(Icons.people),
-    Icon(Icons.menu),
+    MainChatPage(),
     EmployerProfile(),
+    Icon(Icons.menu),
+
+
   ];
   @override
   Widget build(BuildContext context) {
@@ -52,13 +57,19 @@ class _ClientHomePageState extends State<ClientHomePage> {
           ),
           BottomNavigationBarItem(
             backgroundColor: Colors.blue,
-            label: 'Menu',
-            icon: Icon(Icons.menu),
+            label: 'Messenger',
+            icon: Icon(Icons.message),
           ),
+
           BottomNavigationBarItem(
             backgroundColor: Colors.blue,
             label: 'Profile',
             icon: Icon(Icons.person),
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: Colors.blue,
+            label: 'Menu',
+            icon: Icon(Icons.menu),
           ),
         ],
         fixedColor: Colors.black,

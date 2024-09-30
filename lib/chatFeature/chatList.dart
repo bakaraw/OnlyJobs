@@ -53,8 +53,9 @@ class _UserListPageState extends State<UserListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Contacts'),
+        title: Text('Search People'),
         actions: [
+
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () async {
@@ -115,7 +116,15 @@ class _UserListPageState extends State<UserListPage> {
                   return ListTile(
                     title: Text(userData['name'] ?? 'No Name'),
                     subtitle: Text(userData['email'] ?? 'No Email'),
-                    onTap: () {
+                    onTap: () async {
+                      // Add the selected user to the current user's contacts
+                      String currentUserId = auth.currentUser!.uid;
+                      DocumentReference currentUserDoc = firestore.collection('User').doc(currentUserId);
+
+                      await currentUserDoc.update({
+                        'contacts': FieldValue.arrayUnion([uid])
+                      });
+
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => ChatPage(user: {'uid': uid, 'name': userData['name']}),

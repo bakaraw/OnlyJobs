@@ -7,7 +7,7 @@ import '../models/message.dart';
 import '../services/auth.dart';
 
 class ChatPage extends StatefulWidget {
-  final Map<String, dynamic> user;
+  final Map<String, dynamic> user; // Map containing the user info
 
   const ChatPage({super.key, required this.user});
 
@@ -36,10 +36,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-
     String receiverName = widget.user['name'] ?? 'Unknown';
-
-
+    String receiverUserId = widget.user['uid'] ?? ''; // Ensure this is the receiver's UID
 
     return Scaffold(
       appBar: AppBar(
@@ -59,10 +57,13 @@ class _ChatPageState extends State<ChatPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // Display messages for the chat
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.8,
-              child: DisplayMessage(user: auth.currentUser?.uid ?? ''),
-            ),
+              child: DisplayMessage(
+                user: receiverName,
+                receiverUserId: receiverUserId, // Pass the receiver user ID
+              ),        ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Row(
@@ -92,34 +93,34 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () async {
-                      if (messageController.text.isNotEmpty) {
-                        // Create a Message object
-                        Message newMessage = Message(
-                          message: messageController.text.trim(),
-                          time: DateTime.now(),
-                          senderName: currentUserName ?? 'Unknown',
-                          receiver: receiverName,
-                        );
+                      onPressed: () async {
+                        if (messageController.text.isNotEmpty) {
+                          // Create a Message object
+                          Message newMessage = Message(
+                            message: messageController.text.trim(),
+                            time: DateTime.now(),
+                            senderName: currentUserName ?? 'Unknown',
+                            receiver: receiverName,
+                          );
 
-                        String currentUserId = auth.currentUser?.uid ?? '';
-                        String receiverUserId = widget.user['uid'] ?? '';
+                          String currentUserId = auth.currentUser?.uid ?? '';
+                          String receiverUserId = widget.user['uid'] ?? '';
 
-                        DocumentReference receiverDocRef = firebaseFirestore.collection('User').doc(receiverUserId);
+                          DocumentReference receiverDocRef = firebaseFirestore.collection('User').doc(receiverUserId)
+                              .collection('messages').doc(currentUserId);
 
-                        String messageId = DateTime.now().millisecondsSinceEpoch.toString();
+                          DocumentReference senderDocRef = firebaseFirestore.collection('User').doc(currentUserId)
+                              .collection('messages').doc(receiverUserId);
 
-                        await receiverDocRef.collection('messages').doc(messageId).set(newMessage.toMap());
-                        DocumentReference senderDocRef = firebaseFirestore.collection('User').doc(currentUserId);
-                        await senderDocRef.collection('messages').doc(messageId).set(newMessage.toMap());
+                          await receiverDocRef.collection('chatMessages').add(newMessage.toMap());
+                          await senderDocRef.collection('chatMessages').add(newMessage.toMap());
 
-                        messageController.clear();
-                      }
-                    },
+                          messageController.clear();
+                        }
+                      },
+
                     icon: Icon(Icons.send, size: 30, color: Colors.blue),
                   ),
-
-
                 ],
               ),
             ),

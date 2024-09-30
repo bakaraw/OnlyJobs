@@ -17,17 +17,17 @@ class Message {
     return {
       'message': message,
       'time': time,
-      'name': senderName,
+      'senderName': senderName,
       'receiver': receiver,
     };
   }
 
-  factory Message.fromMap(Map<String, dynamic> map) {
+  static Message fromMap(Map<String, dynamic> data) {
     return Message(
-      message: map['message'] ?? '',
-      time: (map['time'] as Timestamp).toDate(),
-      senderName: map['name'] ?? 'Unknown',
-      receiver: map['receivername'] ?? 'Unknown',
+      message: data['message'] as String,
+      time: (data['time'] as Timestamp).toDate(),
+      senderName: data['senderName'] as String,
+      receiver: data['receiver'] as String,
     );
   }
 }

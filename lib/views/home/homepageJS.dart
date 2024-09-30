@@ -3,6 +3,8 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/home/profileJS.dart';
 
+import '../../chatFeature/mainChatPage.dart';
+
 class HomePageJS extends StatefulWidget {
   @override
   _HomePageJSState createState() => _HomePageJSState();
@@ -64,9 +66,8 @@ class _HomePageJSState extends State<HomePageJS> {
 class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Chat Page'),
-    );
+    return MainChatPage();
+
   }
 }
 

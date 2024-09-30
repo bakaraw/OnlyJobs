@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/chatFeature/userSearch.dart';
+import '../views/home/profileJS.dart';
 import 'chatList.dart';
 import 'chat_page.dart';
 
@@ -35,17 +36,26 @@ class _MainChatPageState extends State<MainChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Main Chat Page'),
+        title: Center(
+          child: Text(
+            'Chat',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        backgroundColor: Color(0xFF3E595C),
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.person), // User icon
             onPressed: () {
-              showSearch(
-                context: context,
-                delegate: UserSearchDelegate(),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfileScreen()), // Replace UserProfile with your class
               );
             },
           ),
+
         ],
       ),
       body: _pages[_selectedIndex],

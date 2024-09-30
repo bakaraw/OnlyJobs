@@ -36,9 +36,7 @@ class UserSearchDelegate extends SearchDelegate {
   }
 
 
-  Future<void> addUser(Map<String, dynamic> userData) async {
-    await firestore.collection('ChatUser').add(userData);
-  }
+
 
   Future<void> _addContact(String contactId) async {
     String currentUserId = auth.currentUser!.uid;
@@ -77,7 +75,7 @@ class UserSearchDelegate extends SearchDelegate {
                 String userName = userData['name'] ?? 'No Name'; // Name
 
                 final userExistNotPush = await firestore
-                    .collection('ChatUser')
+                    .collection('messenges')
                     .where('name', isEqualTo: userData['name'])
                     .get();
 
