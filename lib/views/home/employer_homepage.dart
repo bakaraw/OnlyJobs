@@ -12,17 +12,20 @@ class ClientHomePage extends StatefulWidget {
 class _ClientHomePageState extends State<ClientHomePage> {
   int _currentIndex = 0;
 
-  List<Widget> body = const [
+  // pages to toggle when the BottomNavigationBarItem is clicked
+  final List<Widget> _pages = [
     Icon(Icons.home),
+    EmployerPositions(),
     Icon(Icons.people),
     Icon(Icons.menu),
-    Icon(Icons.person),
+    EmployerProfile(),
   ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: body[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -30,39 +33,6 @@ class _ClientHomePageState extends State<ClientHomePage> {
           setState(() {
             _currentIndex = newIndex;
           });
-
-          switch (newIndex) {
-            case 0:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ClientHomePage()),
-              );
-              break;
-            case 1:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EmployerPositions()),
-              );
-              break;
-            case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EmployerProfile()),
-              );
-              break;
-            case 3:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EmployerProfile()),
-              );
-              break;
-            case 4:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EmployerProfile()),
-              );
-              break;
-          }
         },
         items: const [
           BottomNavigationBarItem(

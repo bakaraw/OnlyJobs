@@ -72,7 +72,7 @@ class AuthService {
     final userId = _auth.currentUser?.uid;
     if (userId != null) {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('User').doc(userId).get();
-      return userDoc['name']; // Make sure 'name' is the correct field in your Firestore document.
+      return userDoc['name'];
     }
     return null;
   }

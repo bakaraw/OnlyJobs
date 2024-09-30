@@ -37,7 +37,6 @@ class UserSearchDelegate extends SearchDelegate {
 
 
   Future<void> addUser(Map<String, dynamic> userData) async {
-
     await firestore.collection('ChatUser').add(userData);
   }
 
@@ -49,8 +48,6 @@ class UserSearchDelegate extends SearchDelegate {
       'contacts': FieldValue.arrayUnion([contactId]),
     });
   }
-
-
 
   @override
   Widget buildResults(BuildContext context) {
@@ -76,6 +73,9 @@ class UserSearchDelegate extends SearchDelegate {
               title: Text(userData['name']),
               subtitle: Text(userData['email']),
               onTap: () async {
+
+                String userName = userData['name'] ?? 'No Name'; // Name
+
                 final userExistNotPush = await firestore
                     .collection('ChatUser')
                     .where('name', isEqualTo: userData['name'])
