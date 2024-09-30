@@ -4,8 +4,8 @@ import 'package:only_job/views/authenticate/login.dart';
 import 'package:only_job/views/authenticate/register_or_login.dart';
 import 'package:only_job/views/authenticate/sign_up_form.dart';
 import 'package:only_job/views/constants/constants.dart';
-import 'package:only_job/JS_view/Nav_JS.dart';
-import 'package:only_job/JS_view/profileJS.dart';
+import 'package:only_job/views/JS_view/Nav_JS.dart';
+import 'package:only_job/views/JS_view/profileJS.dart';
 import 'package:only_job/views/authenticate/employer_signup_form.dart';
 
 class ClientOrEmployee extends StatelessWidget {

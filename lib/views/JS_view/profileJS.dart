@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:only_job/JS_view/profileJS_pages/add_edit_education.dart';
+import 'package:only_job/views/JS_view/profileJS_pages/add_edit_education.dart';
+import 'package:only_job/views/JS_view/profileJS_pages/add_edit_experience.dart';
 import 'dart:io';
 import 'package:only_job/views/constants/constants.dart';
 
@@ -13,6 +14,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   List<Map<String, String>> educationList = []; // Store education entries
+  List<Map<String, String>> experienceList = []; // Store experience entries
   final ImagePicker _picker = ImagePicker();
   XFile? _profileImage;
 
@@ -27,7 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // Method to add or edit education entry
-  void _addOrEditEducation(
+  void AddOrEditEducation(
       [Map<String, String>? educationToEdit, int? index]) async {
     final result = await Navigator.push(
       context,
@@ -43,6 +45,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
         } else {
           // Add new entry
           educationList.add(result);
+        }
+      });
+    }
+  }
+
+  // Method to add or edit experience entry
+  void AddOrEditExperience(
+      [Map<String, String>? experienceToEdit, int? index]) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddExperiencePage(experience: experienceToEdit),
+      ),
+    );
+    if (result != null && result is Map<String, String>) {
+      setState(() {
+        if (index != null) {
+          // Edit existing entry
+          experienceList[index] = result;
+        } else {
+          // Add new entry
+          experienceList.add(result);
         }
       });
     }
@@ -158,9 +182,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     smallSizedBox_H,
-
                     GestureDetector(
-                      onTap: _addOrEditEducation, // For adding new education
+                      onTap: AddOrEditEducation,
                       child: Row(
                         children: [
                           Icon(
@@ -176,7 +199,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
-
                     // Display education entries with labels and edit button
                     smallSizedBox_H,
                     if (educationList.isNotEmpty)
@@ -214,7 +236,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 IconButton(
                                   onPressed: () {
                                     // Edit the selected education entry
-                                    _addOrEditEducation(education, index);
+                                    AddOrEditEducation(education, index);
+                                  },
+                                  icon: Icon(Icons.edit, color: Colors.blue),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+
+                    mediumSizedBox_H,
+                    Divider(thickness: 2),
+                    mediumSizedBox_H,
+
+                    // Experience Section
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Experience",
+                        style: headingStyle,
+                      ),
+                    ),
+                    smallSizedBox_H,
+
+                    GestureDetector(
+                      onTap: AddOrEditExperience, // For adding new experience
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.add,
+                            color: Colors.blue,
+                            size: 24,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            "Add Experience",
+                            style: addinfotxtstyle,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Display experience entries with labels and edit button
+                    smallSizedBox_H,
+                    if (experienceList.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: experienceList.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          Map<String, String> experience = entry.value;
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      experience['companyName'] ?? "",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      experience['position'] ?? "",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    Text(
+                                      "${experience['startDate']} - ${experience['endDate']}",
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey.shade700),
+                                    ),
+                                  ],
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    // Edit the selected experience entry
+                                    AddOrEditExperience(experience, index);
                                   },
                                   icon: Icon(Icons.edit, color: Colors.blue),
                                 ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:only_job/views/constants/constants.dart';
-import 'package:only_job/JS_view/profileJS.dart';
+import 'package:only_job/views/JS_view/profileJS.dart';
 
 class NavJS extends StatefulWidget {
   const NavJS({super.key});
