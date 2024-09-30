@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/home/employer_homepage.dart';
 import 'package:only_job/views/home/employer_positions.dart';
+import 'package:only_job/services/auth.dart';
 
 class EmployerProfile extends StatefulWidget {
   @override
@@ -10,6 +11,7 @@ class EmployerProfile extends StatefulWidget {
 }
 
 class _EmployerProfileState extends State<EmployerProfile> {
+  AuthService _auth = AuthService();
   var listTileShape = RoundedRectangleBorder(
     side: BorderSide(
       color: Colors.grey,
@@ -120,7 +122,10 @@ class _EmployerProfileState extends State<EmployerProfile> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                // pop all the screens and go to the login screen
+                await _auth.signOut();
+              },
               child: Text(
                 'Logout',
                 style: TextStyle(color: Colors.red),

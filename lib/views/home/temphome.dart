@@ -2,47 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:only_job/services/auth.dart';
 
 import '../../chatFeature/mainChatPage.dart';
+import 'package:provider/provider.dart';
+import 'package:only_job/models/user.dart';
+import 'package:only_job/services/user_service.dart';
+import 'package:only_job/views/constants/loading.dart';
+import 'package:only_job/views/home/homepageJS.dart';
+import 'package:only_job/views/home/employer_homepage.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  Home({super.key, required this.uid});
+  String uid;
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-
   final AuthService _auth = AuthService();
-
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Home"),
-      ),
-      body: Column(
-           children: [
-           ElevatedButton(
-                  child: const Text("Sign out"),
-                    onPressed: () async {
-                    _auth.signOut();
-                    },
-                    ),
-               ElevatedButton(
-                  child: const Text("Go to Chat"),
-                  onPressed: () {
-                    Navigator.push(
-                    context,
-                  MaterialPageRoute(
-                  builder: (context) => MainChatPage(), // Pass the user ID
-          ),
-          );
+    return StreamBuilder<UserData>(
+      stream: UserService(uid: widget.uid).userData,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Text("Error");
+        }
+
+        if (snapshot.hasData) {
+          UserData userData = snapshot.data!;
+          if (userData.isJobSeeker!) {
+            return HomePageJS();
+          }
+
+          return ClientHomePage();
+        }
+
+        return const Loading();
       },
-      ),
-    ],
-    ),
     );
   }
-
-  }
+}
