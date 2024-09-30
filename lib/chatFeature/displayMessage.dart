@@ -21,7 +21,8 @@ class _DisplayMessageState extends State<DisplayMessage> {
   @override
   void initState() {
     super.initState();
-   //Debugging
+
+   //para sa debug remove ni kung ma okay
     print('Fetching messages for user: ${widget.user}');
 
 
