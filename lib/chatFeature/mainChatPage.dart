@@ -21,7 +21,7 @@ class _MainChatPageState extends State<MainChatPage> {
   void initState() {
     super.initState();
     _pages = [
-      UserListPage(),
+      UserListPage(user: '',receiverUserId: ''),
       ChatPage(user: {}),
     ];
   }

@@ -5,6 +5,7 @@ import 'package:only_job/chatFeature/displayMessage.dart';
 
 import '../models/message.dart';
 import '../services/auth.dart';
+import 'chatList.dart';
 
 class ChatPage extends StatefulWidget {
   final Map<String, dynamic> user; // Map containing the user info
@@ -62,8 +63,11 @@ class _ChatPageState extends State<ChatPage> {
               height: MediaQuery.of(context).size.height * 0.8,
               child: DisplayMessage(
                 user: receiverName,
-                receiverUserId: receiverUserId, // Pass the receiver user ID
-              ),        ),
+                receiverUserId: receiverUserId,
+                // Pass the receiver user ID
+              ),
+            ),
+
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Row(
@@ -115,6 +119,14 @@ class _ChatPageState extends State<ChatPage> {
                           await receiverDocRef.collection('chatMessages').add(newMessage.toMap());
 
                           await senderDocRef.collection('chatMessages').add(newMessage.toMap());
+
+                          await firebaseFirestore.collection('User').doc(receiverUserId).update({
+                            'contacts': FieldValue.arrayUnion([currentUserId])
+                          });
+
+                          await firebaseFirestore.collection('User').doc(currentUserId).update({
+                            'contacts': FieldValue.arrayUnion([receiverUserId])
+                          });
 
                           messageController.clear();
                         }
