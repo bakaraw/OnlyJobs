@@ -182,24 +182,24 @@ class _EmployerProfileState extends State<EmployerProfile> {
               ListTile(
                 shape: listTileShape,
                 title: Row(
-                  children: [Text("Email "), Icon(Icons.email)],
+                  children: [Text("Address"), Icon(Icons.location_on)],
                 ),
-                subtitle: _editEmail
+                subtitle: _editAddress
                     ? TextFormField(
                         decoration: textFieldStyleSM,
-                        controller: _emailController,
+                        controller: _addressController,
                       )
-                    : Text(_emailController.text),
-                trailing: _loadingEmail
+                    : Text(_addressController.text),
+                trailing: _loadingAddress
                     ? CircularProgressIndicator()
                     : TextButton(
                         onPressed: () async {
                           setState(() {
-                            _loadingEmail = true;
+                            _loadingAddress = true;
                           });
                           // explain the logic here
                           // if the user is in edit mode, then save the data
-                          if (_editEmail) {
+                          if (_editAddress) {
                             await UserService(uid: userData.uid!)
                                 .updateUserData(
                                     _companyNameController.text,
@@ -209,11 +209,26 @@ class _EmployerProfileState extends State<EmployerProfile> {
                           }
 
                           setState(() {
-                            _editEmail = !_editEmail;
-                            _loadingEmail = false;
+                            _editAddress = !_editAddress;
+                            _loadingAddress = false;
                           });
                         },
-                        child: _editEmail ? Text("Save") : Text("Edit")),
+                        child: _editPhone ? Text("Save") : Text("Edit")),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              ListTile(
+                shape: listTileShape,
+                title: Row(
+                  children: [Text("Email "), Icon(Icons.email)],
+                ),
+                subtitle: _editEmail
+                    ? TextFormField(
+                        decoration: textFieldStyleSM,
+                        controller: _emailController,
+                      )
+                    : Text(_emailController.text),
               ),
               SizedBox(
                 height: 10,
