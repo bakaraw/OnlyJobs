@@ -62,7 +62,12 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    String jobTitle = _jobTitleController.text;
+                    Navigator.pop(context, jobTitle);
+                  }
+                },
                 child: Text('Create Job Opening'),
               ),
             ],

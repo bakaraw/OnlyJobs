@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class JobDetailsPage extends StatelessWidget {
-  JobDetailsPage();
+  final String jobTitle;
+
+  JobDetailsPage({required this.jobTitle});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Job Details'),
+        title: Text('Job Details '),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -25,9 +27,10 @@ class JobDetailsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Job Title: ',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Job Title: $jobTitle',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   SizedBox(height: 10),
                   Text('Salary Range: ', style: TextStyle(fontSize: 16)),
                   SizedBox(height: 10),
