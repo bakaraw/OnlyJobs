@@ -4,6 +4,7 @@ import 'package:only_job/views/JS_view/profileJS_pages/add_edit_certification.da
 import 'package:only_job/views/JS_view/profileJS_pages/add_edit_education.dart';
 import 'package:only_job/views/JS_view/profileJS_pages/add_edit_experience.dart';
 import 'package:only_job/views/JS_view/profileJS_pages/add_edit_skills.dart';
+import 'package:only_job/views/JS_view/profileJS_pages/edit_profile.dart';
 import 'dart:io';
 import 'package:only_job/views/constants/constants.dart';
 
@@ -17,9 +18,19 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   List<Map<String, String>> educationList = []; // Store education entries
   List<Map<String, String>> experienceList = []; // Store experience entries
-  List<Map<String, String>> certificationList = [];
-  List<String> skills =
-      []; // Store selected skills // Store certification entries
+  List<Map<String, String>> certificationList =
+      []; // Store certification entries
+  List<String> skills = []; // Store selected skills
+
+  // Stored Sample Job
+  Map<String, String> contactInfo = {
+    'name': 'John Doe',
+    'gender': 'Male',
+    'birthdate': '1990-01-01',
+    'phone': '123-456-7890',
+    'address': '123 Main St, City, Country',
+    'email': 'john.doe@example.com',
+  };
 
   final ImagePicker _picker = ImagePicker();
   XFile? _profileImage;
@@ -32,6 +43,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _profileImage = pickedFile;
       }
     });
+  }
+
+  // Method to edit contact information
+  void EditContactInfo() async {
+    final updatedContactInfo = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditContactInfoPage(contactInfo: contactInfo),
+      ),
+    );
+
+    if (updatedContactInfo != null &&
+        updatedContactInfo is Map<String, String>) {
+      setState(() {
+        contactInfo = updatedContactInfo;
+      });
+    }
   }
 
   // Method to add or edit education entry
@@ -186,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: headingStyle,
                         ),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: (EditContactInfo),
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.red,
@@ -198,28 +226,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         )
                       ],
                     ),
-                    // Full Name
-                    buildTextField("Full Name", "Name"),
-                    smallSizedBox_H,
-
-                    // Gender
-                    buildTextField("Gender", "gender"),
-                    smallSizedBox_H,
-
-                    // Birthdate
-                    buildTextField("Birthdate", "birthdate"),
-                    smallSizedBox_H,
-
-                    // Phone Number
-                    buildTextField("Phone Number", "phone number"),
-                    smallSizedBox_H,
-
-                    // Address
-                    buildTextField("Address", "address"),
-                    smallSizedBox_H,
-
-                    // Email Address
-                    buildTextField("Email Address", "email"),
+                    buildContactField('Full Name', contactInfo['name'] ?? ''),
+                    buildContactField('Gender', contactInfo['gender'] ?? ''),
+                    buildContactField(
+                        'Birthdate', contactInfo['birthdate'] ?? ''),
+                    buildContactField(
+                        'Phone Number', contactInfo['phone'] ?? ''),
+                    buildContactField('Address', contactInfo['address'] ?? ''),
+                    buildContactField('Email', contactInfo['email'] ?? ''),
 
                     mediumSizedBox_H,
                     Divider(thickness: 2),
@@ -369,7 +383,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     // Edit the selected experience entry
                                     AddOrEditExperience(experience, index);
                                   },
-                                  icon: Icon(Icons.edit, color: Colors.blue),
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: Colors.blue,
+                                  ),
                                 ),
                               ],
                             ),
@@ -535,28 +552,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Helper method for text fields
-  Widget buildTextField(String label, String hint) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(fontSize: 16)),
-        TextField(
-          decoration: InputDecoration(
-            enabled: false,
-            hintText: hint,
-            filled: true,
-            fillColor: Colors.grey[200],
-            border: InputBorder.none,
-            contentPadding:
-                EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.transparent),
+  // Helper method to build each contact field
+  Widget buildContactField(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontSize: 16)),
+          TextField(
+            enabled: false, // Non-editable text field for displaying data
+            decoration: InputDecoration(
+              enabled: false,
+              hintText: value,
+              filled: true,
+              fillColor: Colors.grey[200],
+              border: InputBorder.none,
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
