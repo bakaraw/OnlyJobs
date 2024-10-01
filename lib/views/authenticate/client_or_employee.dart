@@ -4,8 +4,8 @@ import 'package:only_job/views/authenticate/login.dart';
 import 'package:only_job/views/authenticate/register_or_login.dart';
 import 'package:only_job/views/authenticate/sign_up_form.dart';
 import 'package:only_job/views/constants/constants.dart';
-import 'package:only_job/views/home/homepageJS.dart';
-import 'package:only_job/views/home/profileJS.dart';
+import 'package:only_job/views/JS_view/job_seeker_nav.dart';
+import 'package:only_job/views/JS_view/job_seeker_profile.dart';
 import 'package:only_job/views/authenticate/employer_signup_form.dart';
 
 class ClientOrEmployee extends StatelessWidget {
@@ -62,7 +62,7 @@ class ClientOrEmployee extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => SignUpForm(),
+                             builder: (context) => SignUpForm(),
                             ),
                           );
                         },
