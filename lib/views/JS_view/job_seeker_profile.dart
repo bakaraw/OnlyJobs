@@ -225,6 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Divider(thickness: 2),
                     mediumSizedBox_H,
 
+                    // Education Section
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
@@ -500,8 +501,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           return Chip(
                             label: Text(skill),
                             backgroundColor: Colors.blue[100],
-                            deleteIcon: Icon(Icons.cancel, color: Colors.red),
-                            onDeleted: () => removeSkill(skill),
+
+                            //For displaying cancel button on each skills
+                            // deleteIcon: Icon(Icons.cancel, color: Colors.red),
+                            // onDeleted: () => removeSkill(skill),
                           );
                         }).toList(),
                       ),
