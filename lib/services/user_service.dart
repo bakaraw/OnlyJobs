@@ -30,6 +30,22 @@ class UserService {
     }
   }
 
+  // update user data
+  Future updateUserData(
+      String name, String email, String phone, String address) async {
+    try {
+      return await userCollection.doc(uid).update({
+        'name': name, 
+        'email': email, 
+        'phone': phone, 
+        'address': address
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
     log(snapshot.get('name'));
     if (snapshot.get('isJobSeeker') == true) {
