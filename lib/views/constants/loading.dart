@@ -15,3 +15,15 @@ class Loading extends StatelessWidget {
     );
   }
 }
+
+class LoadingSmall extends StatelessWidget {
+  const LoadingSmall({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SpinKitRing(
+      color: primarycolor,
+      size: 5,
+    );
+  }
+}
