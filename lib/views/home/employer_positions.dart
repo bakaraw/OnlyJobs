@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:only_job/views/home/employer_homepage.dart';
 import 'package:only_job/views/home/employer_profile.dart';
 import 'package:only_job/views/home/job_details.dart';
+import 'package:only_job/views/home/job_opening.dart';
 
 class EmployerPositions extends StatefulWidget {
   const EmployerPositions({super.key});
@@ -35,7 +36,8 @@ class _EmployerPositionsState extends State<EmployerPositions> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => JobDetailsPage(),
+                    builder: (context) =>
+                        JobDetailsPage(jobTitle: jobPositions[index]),
                   ),
                 );
               },
@@ -61,10 +63,16 @@ class _EmployerPositionsState extends State<EmployerPositions> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            jobPositions.add('New Job Position ${jobPositions.length + 1}');
-          });
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => JobOpeningForm()),
+          );
+          if (result != null) {
+            setState(() {
+              jobPositions.add(result);
+            });
+          }
         },
         child: const Icon(Icons.add),
         backgroundColor: Colors.blue,
