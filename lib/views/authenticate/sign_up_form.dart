@@ -158,7 +158,8 @@ class _SignUpFormState extends State<SignUpForm> {
                                 _selectedDate!,
                                 _emailController.text,
                                 _phoneController.text,
-                                _addressController.text);
+                                _addressController.text,
+                                true);
 
                             // pops this page
                             Navigator.pop(context);
