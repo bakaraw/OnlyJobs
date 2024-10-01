@@ -7,6 +7,7 @@ import 'package:only_job/services/user_service.dart';
 import 'package:only_job/views/constants/loading.dart';
 // import 'package:only_job/views/home/homepageJS.dart';
 import 'package:only_job/views/home/employer_homepage.dart';
+import 'package:only_job/views/JS_view/job_seeker_nav.dart';
 
 class Home extends StatefulWidget {
   Home({super.key, required this.uid});
@@ -31,7 +32,7 @@ class _HomeState extends State<Home> {
         if (snapshot.hasData) {
           UserData userData = snapshot.data!;
           if (userData.isJobSeeker!) {
-            // return HomePageJS();
+             return NavJS();
           }
 
           return ClientHomePage();
