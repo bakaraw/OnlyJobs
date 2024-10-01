@@ -34,6 +34,12 @@ const TextStyle errortxtstyle = TextStyle(
   fontSize: 18,
 );
 
+const TextStyle addinfotxtstyle = TextStyle(
+  fontWeight: FontWeight.w500,
+  color: Colors.blue,
+  fontSize: 16,
+);
+
 /// Size Constants (Padding and Margins)
 const double smallPadding = 8.0;
 const double mediumPadding = 16.0;
