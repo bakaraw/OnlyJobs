@@ -9,7 +9,9 @@ import 'package:only_job/views/JS_view/job_seeker_profile.dart';
 import 'package:only_job/views/authenticate/employer_signup_form.dart';
 
 class ClientOrEmployee extends StatelessWidget {
-  const ClientOrEmployee({super.key});
+  ClientOrEmployee({super.key, required this.changePage});
+
+  Function changePage;
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +20,7 @@ class ClientOrEmployee extends StatelessWidget {
         backgroundColor: primarycolor,
         leading: IconButton(
           onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => RegisterLogin(),
-              ),
-            );
+            changePage(0);
           },
           icon: Icon(
             Icons.arrow_back,
@@ -121,12 +119,7 @@ class ClientOrEmployee extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Login(),
-                      ),
-                    );
+                    changePage(2);
                   },
                   child: Text(
                     "Sign in",

@@ -32,9 +32,8 @@ class _HomeState extends State<Home> {
         if (snapshot.hasData) {
           UserData userData = snapshot.data!;
           if (userData.isJobSeeker!) {
-             return NavJS();
+            return NavJS();
           }
-
           return ClientHomePage();
         }
 
