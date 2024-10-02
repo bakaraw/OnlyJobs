@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class EditContactInfoPage extends StatefulWidget {
   final Map<String, String> contactInfo;
 
-  const EditContactInfoPage({Key? key, required this.contactInfo})
+  const EditContactInfoPage({required this.contactInfo, Key? key})
       : super(key: key);
 
   @override
@@ -11,88 +11,98 @@ class EditContactInfoPage extends StatefulWidget {
 }
 
 class _EditContactInfoPageState extends State<EditContactInfoPage> {
-  late TextEditingController nameController;
-  late TextEditingController phoneController;
-  late TextEditingController addressController;
-  late TextEditingController emailController;
+  late TextEditingController _nameController;
+  late TextEditingController _genderController;
+  late TextEditingController _birthdateController;
+  late TextEditingController _phoneController;
+  late TextEditingController _addressController;
+  late TextEditingController _emailController;
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: widget.contactInfo['name']);
-    phoneController = TextEditingController(text: widget.contactInfo['phone']);
-    addressController =
+    // Initialize controllers with current contact information
+    _nameController = TextEditingController(text: widget.contactInfo['name']);
+    _genderController =
+        TextEditingController(text: widget.contactInfo['gender']);
+    _birthdateController =
+        TextEditingController(text: widget.contactInfo['birthdate']);
+    _phoneController = TextEditingController(text: widget.contactInfo['phone']);
+    _addressController =
         TextEditingController(text: widget.contactInfo['address']);
-    emailController = TextEditingController(text: widget.contactInfo['email']);
+    _emailController = TextEditingController(text: widget.contactInfo['email']);
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    phoneController.dispose();
-    addressController.dispose();
-    emailController.dispose();
+    _nameController.dispose();
+    _genderController.dispose();
+    _birthdateController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
-  // Save the updated contact info and return it to the previous page
-  void saveContactInfo() {
-    Navigator.pop(context, {
-      'name': nameController.text,
-      'phone': phoneController.text,
-      'address': addressController.text,
-      'email': emailController.text,
-    });
+  void _saveContactInfo() {
+    // Collect updated contact information
+    final updatedContactInfo = {
+      'name': _nameController.text,
+      'gender': _genderController.text,
+      'birthdate': _birthdateController.text,
+      'phone': _phoneController.text,
+      'address': _addressController.text,
+      'email': _emailController.text,
+    };
+
+    // Return updated contact information to the previous screen
+    Navigator.pop(context, updatedContactInfo);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Contact Info'),
+        title: Text('Edit Contact Information'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.save),
+            onPressed: _saveContactInfo, // Save updated contact info
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: ListView(
           children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Full Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _buildTextField('Full Name', _nameController),
             SizedBox(height: 16),
-            TextField(
-              controller: phoneController,
-              decoration: InputDecoration(
-                labelText: 'Phone Number',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _buildTextField('Gender', _genderController),
             SizedBox(height: 16),
-            TextField(
-              controller: addressController,
-              decoration: InputDecoration(
-                labelText: 'Address',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _buildTextField('Birthdate', _birthdateController),
             SizedBox(height: 16),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: saveContactInfo,
-              child: Text('Save'),
-            ),
+            _buildTextField('Phone Number', _phoneController,
+                keyboardType: TextInputType.phone),
+            SizedBox(height: 16),
+            _buildTextField('Address', _addressController),
+            SizedBox(height: 16),
+            _buildTextField('Email', _emailController,
+                keyboardType: TextInputType.emailAddress),
           ],
         ),
+      ),
+    );
+  }
+
+  // Helper method to create text fields for each contact information field
+  Widget _buildTextField(String label, TextEditingController controller,
+      {TextInputType keyboardType = TextInputType.text}) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
       ),
     );
   }

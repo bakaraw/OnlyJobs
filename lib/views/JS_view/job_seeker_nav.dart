@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:only_job/views/JS_view/job_seeker_home.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/JS_view/job_seeker_profile.dart';
 
@@ -14,7 +15,7 @@ class _NavJSState extends State<NavJS> {
 
   final List<Widget> _pages = [
     ProfileScreen(),
-    ChatPage(),
+    HomePage(),
     AddPage(),
   ];
 
@@ -57,16 +58,6 @@ class _NavJSState extends State<NavJS> {
           ),
         ),
       ),
-    );
-  }
-}
-
-// Checking the navigation
-class ChatPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Chat Page'),
     );
   }
 }

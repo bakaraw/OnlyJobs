@@ -16,11 +16,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  List<Map<String, String>> educationList = []; // Store education entries
-  List<Map<String, String>> experienceList = []; // Store experience entries
-  List<Map<String, String>> certificationList =
-      []; // Store certification entries
-  List<String> skills = []; // Store selected skills
+  List<Map<String, String>> educationList = [];
+  List<Map<String, String>> experienceList = [];
+  List<Map<String, String>> certificationList = [];
+  List<String> skills = [];
 
   // Stored Sample Job
   Map<String, String> contactInfo = {
@@ -210,7 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Contact Information",
+                          "Profile Information",
                           style: headingStyle,
                         ),
                         ElevatedButton(
@@ -561,7 +560,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Text(label, style: TextStyle(fontSize: 16)),
           TextField(
-            enabled: false, // Non-editable text field for displaying data
+            enabled: false,
             decoration: InputDecoration(
               enabled: false,
               hintText: value,
