@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:only_job/services/auth.dart';
+import 'package:only_job/services/user_service.dart';
 
 class JobOpeningForm extends StatefulWidget {
   @override
@@ -6,6 +8,8 @@ class JobOpeningForm extends StatefulWidget {
 }
 
 class _JobOpeningFormState extends State<JobOpeningForm> {
+  late AuthService _auth;
+  late String uid;
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _jobTitleController = TextEditingController();
@@ -16,6 +20,20 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
   final TextEditingController _jobDescriptionController =
       TextEditingController();
   final TextEditingController _requirementsController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _auth = AuthService();
+    uid = _auth.getCurrentUserId()!;
+  }
+
+  String? _validator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Enter Value';
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +48,7 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
           child: ListView(
             children: [
               TextFormField(
+                validator: _validator,
                 controller: _jobTitleController,
                 decoration: InputDecoration(labelText: 'Job Title'),
               ),
@@ -50,6 +69,7 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
               ),
               SizedBox(height: 16),
               TextFormField(
+                validator: _validator,
                 controller: _jobDescriptionController,
                 maxLines: 5,
                 decoration: InputDecoration(labelText: 'Job Description'),
@@ -63,8 +83,19 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
+                  if (_formKey.currentState != null &&
+                      _formKey.currentState!.validate()) {
                     String jobTitle = _jobTitleController.text;
+                    UserService(uid: uid).addJobOpening(
+                      _jobTitleController.text,
+                      _jobDescriptionController.text,
+                      20,
+                      49,
+                      'Remote',
+                      'IT',
+                      List<String>.from(['Python', 'Dart']),
+                    );
+
                     Navigator.pop(context, jobTitle);
                   }
                 },

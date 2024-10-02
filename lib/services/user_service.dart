@@ -3,13 +3,14 @@ import 'dart:developer';
 import 'package:only_job/models/user.dart';
 
 class UserService {
-  final String uid;
+  UserService({required this.uid});
 
+  final String uid;
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection('User');
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  UserService({required this.uid});
+  DocumentReference get _userRef => userCollection.doc(uid);
 
   Future addUser(String name, String? gender, DateTime? birthDate, String email,
       String phone, String address, bool isJobSeeker) async {
@@ -35,12 +36,8 @@ class UserService {
   Future updateUserData(
       String name, String email, String phone, String address) async {
     try {
-      return await userCollection.doc(uid).update({
-        'name': name, 
-        'email': email, 
-        'phone': phone, 
-        'address': address
-      });
+      return await userCollection.doc(uid).update(
+          {'name': name, 'email': email, 'phone': phone, 'address': address});
     } catch (e) {
       log(e.toString());
       rethrow;
@@ -85,6 +82,26 @@ class UserService {
       birthDate: null,
       gender: null,
     );
+  }
+
+  // make a sub-collection for job openings
+  Future<void> addJobOpening(String title, String description, int minSalary,
+      int maxSalary, String jobType, String jobCategory, List<String> skillsRequired) async {
+    try {
+      await _userRef.collection('JobOpenings').add({
+        'jobTitle': title,
+        'description': description,
+        'minimumSalary': minSalary,
+        'maximumSalary': maxSalary,
+        'jobType': jobType,
+        'jobCategory': jobCategory,
+        'skillsRequired': skillsRequired,
+        'isOpened': true,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
   }
 
   Stream<UserData> get userData {
