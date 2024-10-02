@@ -7,6 +7,7 @@ import 'package:only_job/services/user_service.dart';
 import 'package:only_job/views/constants/loading.dart';
 import 'package:only_job/models/user.dart';
 import 'dart:developer';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EmployerProfile extends StatefulWidget {
   @override
@@ -19,16 +20,19 @@ class _EmployerProfileState extends State<EmployerProfile> {
   bool _editAddress = false;
   bool _editPhone = false;
   bool _editEmail = false;
+  bool _editWebsite = false;
 
   bool _loadingName = false;
   bool _loadingAddress = false;
   bool _loadingPhone = false;
   bool _loadingEmail = false;
+  bool _loadingWebsite = false;
 
   TextEditingController _companyNameController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
+  TextEditingController _websiteController = TextEditingController();
 
   var listTileShape = RoundedRectangleBorder(
     side: BorderSide(
@@ -123,7 +127,22 @@ class _EmployerProfileState extends State<EmployerProfile> {
                     ? CircularProgressIndicator()
                     : TextButton(
                         onPressed: () async {
-                          _updateUserData(userData.uid!);
+                          if (_editCompanyName) {
+                            setState(() {
+                              _loadingName = true;
+                            });
+                            await UserService(uid: userData.uid!)
+                                .updateUserData(
+                                    _companyNameController.text,
+                                    _emailController.text,
+                                    _phoneController.text,
+                                    _addressController.text);
+                          }
+
+                          setState(() {
+                            _editCompanyName = !_editCompanyName;
+                            _loadingName = false;
+                          });
                         },
                         child: _editCompanyName ? Text("Save") : Text("Edit")),
               ),
@@ -135,7 +154,32 @@ class _EmployerProfileState extends State<EmployerProfile> {
                 title: Row(
                   children: [Text("Website "), Icon(Icons.public)],
                 ),
-                subtitle: Text("Not Specified"),
+                subtitle: _editWebsite
+                    ? TextFormField(
+                        decoration: textFieldStyleSM,
+                        controller: _websiteController,
+                      )
+                    : websiteLink(userData),
+                trailing: _loadingWebsite
+                    ? CircularProgressIndicator()
+                    : TextButton(
+                        onPressed: () async {
+                          setState(() {
+                            _loadingWebsite = true;
+                          });
+
+                          if (_editWebsite) {
+                            await UserService(uid: userData.uid!)
+                                .updateWebsite(_websiteController.text);
+                          }
+
+                          setState(() {
+                            _editWebsite = !_editWebsite;
+                            _loadingWebsite = false;
+                          });
+                        },
+                        child: _editWebsite ? Text("Save") : Text("Edit"),
+                      ),
               ),
               SizedBox(
                 height: 10,
@@ -194,12 +238,12 @@ class _EmployerProfileState extends State<EmployerProfile> {
                     ? CircularProgressIndicator()
                     : TextButton(
                         onPressed: () async {
-                          setState(() {
-                            _loadingAddress = true;
-                          });
                           // explain the logic here
                           // if the user is in edit mode, then save the data
                           if (_editAddress) {
+                            setState(() {
+                              _loadingAddress = true;
+                            });
                             await UserService(uid: userData.uid!)
                                 .updateUserData(
                                     _companyNameController.text,
@@ -213,7 +257,7 @@ class _EmployerProfileState extends State<EmployerProfile> {
                             _loadingAddress = false;
                           });
                         },
-                        child: _editPhone ? Text("Save") : Text("Edit")),
+                        child: _editAddress ? Text("Save") : Text("Edit")),
               ),
               SizedBox(
                 height: 10,
@@ -229,6 +273,48 @@ class _EmployerProfileState extends State<EmployerProfile> {
                         controller: _emailController,
                       )
                     : Text(_emailController.text),
+                trailing: _loadingEmail
+                    ? CircularProgressIndicator()
+                    : TextButton(
+                        onPressed: () async {
+                          // explain the logic here
+                          // if the user is in edit mode, then save the data
+                          if (_editEmail) {
+                            setState(() {
+                              _loadingEmail = true;
+                            });
+
+                            try {
+                              _auth.updateEmail(_emailController.text);
+                              UserService(uid: userData.uid!).updateUserData(
+                                  _companyNameController.text,
+                                  _emailController.text,
+                                  _phoneController.text,
+                                  _addressController.text);
+                            } catch (e) {
+                              if (e is FirebaseAuthException) {
+                                log('Failed to update email: ${e.message}');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          'Failed to update email: ${e.message}')),
+                                );
+                              } else {
+                                log('An error occurred: $e');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('An error occurred: $e')),
+                                );
+                              }
+                            }
+                          }
+
+                          setState(() {
+                            _editEmail = !_editEmail;
+                            _loadingEmail = false;
+                          });
+                        },
+                        child: _editEmail ? Text("Save") : Text("Edit")),
               ),
               SizedBox(
                 height: 10,
@@ -271,24 +357,10 @@ class _EmployerProfileState extends State<EmployerProfile> {
           ),
         ),
       );
-
-  void _updateUserData(String uid) async {
-    setState(() {
-      _loadingName = true;
-    });
-    // explain the logic here
-    // if the user is in edit mode, then save the data
-    if (_editCompanyName) {
-      await UserService(uid: uid).updateUserData(
-          _companyNameController.text,
-          _emailController.text,
-          _phoneController.text,
-          _addressController.text);
+  Widget websiteLink(UserData userData) {
+    if (userData.website == null || userData.website!.isEmpty) {
+      return Text('Website not Specified');
     }
-
-    setState(() {
-      _editCompanyName = !_editCompanyName;
-      _loadingName = false;
-    });
+    return Text(userData.website!);
   }
 }

@@ -26,15 +26,14 @@ class _HomeState extends State<Home> {
       stream: UserService(uid: widget.uid).userData,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const Text("Error");
+          return Text("Error: ${snapshot.error}");
         }
 
         if (snapshot.hasData) {
           UserData userData = snapshot.data!;
           if (userData.isJobSeeker!) {
-             return NavJS();
+            return NavJS();
           }
-
           return ClientHomePage();
         }
 

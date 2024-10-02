@@ -123,7 +123,6 @@ class _ClientSignupFormState extends State<ClientSignupForm> {
                                     false);
 
                             Navigator.pop(context);
-                            Navigator.pop(context);
                           }
                         }
                       },
