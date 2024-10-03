@@ -43,6 +43,8 @@ dependencies:
   image_picker: ^1.1.2
   curved_navigation_bar: ^1.0.6
   google_nav_bar: ^5.0.6
+  flutter_typeahead: ^5.2.0
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:

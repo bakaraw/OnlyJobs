@@ -85,12 +85,13 @@ class UserService {
   }
 
   // make a sub-collection for job openings
-  Future<void> addJobOpening(String title, String description, int minSalary,
+  Future<void> addJobOpening(String title, String description, String location, int minSalary,
       int maxSalary, String jobType, String jobCategory, List<String> skillsRequired) async {
     try {
       await _userRef.collection('JobOpenings').add({
         'jobTitle': title,
         'description': description,
+        'location': location,
         'minimumSalary': minSalary,
         'maximumSalary': maxSalary,
         'jobType': jobType,
