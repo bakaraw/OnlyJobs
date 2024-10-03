@@ -71,7 +71,7 @@ class _EmployerPositionsState extends State<EmployerPositions> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    JobDetailsPage(jobTitle: job.jobTitle!),
+                    JobDetailsPage(jobData: job),
               ),
             );
           },
