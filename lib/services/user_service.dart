@@ -3,13 +3,14 @@ import 'dart:developer';
 import 'package:only_job/models/user.dart';
 
 class UserService {
-  final String uid;
+  UserService({required this.uid});
 
+  final String uid;
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection('User');
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  UserService({required this.uid});
+  DocumentReference get _userRef => userCollection.doc(uid);
 
   Future addUser(String name, String? gender, DateTime? birthDate, String email,
       String phone, String address, bool isJobSeeker) async {
@@ -35,12 +36,8 @@ class UserService {
   Future updateUserData(
       String name, String email, String phone, String address) async {
     try {
-      return await userCollection.doc(uid).update({
-        'name': name, 
-        'email': email, 
-        'phone': phone, 
-        'address': address
-      });
+      return await userCollection.doc(uid).update(
+          {'name': name, 'email': email, 'phone': phone, 'address': address});
     } catch (e) {
       log(e.toString());
       rethrow;
@@ -87,6 +84,7 @@ class UserService {
     );
   }
 
+  // make a sub-collection for job openings
   Stream<UserData> get userData {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
   }
