@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'dart:developer';
 import 'package:only_job/services/retrieve_skills.dart';
 import 'package:only_job/views/home/common/search_skills.dart';
+import 'package:only_job/services/job_service.dart';
 
 class JobOpeningForm extends StatefulWidget {
   @override
@@ -172,7 +173,7 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
                   if (_formKey.currentState != null &&
                       _formKey.currentState!.validate() && selectedSkills.isNotEmpty) {
                     String jobTitle = _jobTitleController.text;
-                    UserService(uid: uid).addJobOpening(
+                    JobService(uid: uid).addJobOpening(
                       _jobTitleController.text,
                       _jobDescriptionController.text,
                       _locationController.text,

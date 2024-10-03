@@ -85,26 +85,6 @@ class UserService {
   }
 
   // make a sub-collection for job openings
-  Future<void> addJobOpening(String title, String description, String location, int minSalary,
-      int maxSalary, String jobType, String jobCategory, List<String> skillsRequired) async {
-    try {
-      await _userRef.collection('JobOpenings').add({
-        'jobTitle': title,
-        'description': description,
-        'location': location,
-        'minimumSalary': minSalary,
-        'maximumSalary': maxSalary,
-        'jobType': jobType,
-        'jobCategory': jobCategory,
-        'skillsRequired': skillsRequired,
-        'isOpened': true,
-      });
-    } catch (e) {
-      log(e.toString());
-      rethrow;
-    }
-  }
-
   Stream<UserData> get userData {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
   }
