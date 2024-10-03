@@ -7,7 +7,9 @@ import 'package:only_job/services/auth.dart';
 import 'package:only_job/views/constants/loading.dart';
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  const Login({super.key, required this.changePage});
+
+  final Function changePage;
 
   @override
   State<Login> createState() => _LoginState();
@@ -56,11 +58,7 @@ class _LoginState extends State<Login> {
             appBar: AppBar(
               leading: IconButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => RegisterLogin(),
-                    ),
-                  );
+                  widget.changePage(0);
                 },
                 icon: Icon(
                   Icons.arrow_back,
@@ -175,8 +173,6 @@ class _LoginState extends State<Login> {
                                       isError = true;
                                       loading = false;
                                     });
-                                  } else {
-                                    Navigator.pop(context);
                                   }
                                 }
                               },
@@ -194,13 +190,7 @@ class _LoginState extends State<Login> {
                                 Text("Don't have an account? "),
                                 GestureDetector(
                                   onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ClientOrEmployee(),
-                                      ),
-                                    );
+                                    widget.changePage(1);
                                   },
                                   child: Text(
                                     "Sign up",

@@ -40,6 +40,12 @@ const TextStyle addinfotxtstyle = TextStyle(
   fontSize: 16,
 );
 
+const InputDecoration textFieldStyleSM = InputDecoration(
+  border: OutlineInputBorder(),
+  hintText: 'Enter Email Address',
+  contentPadding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 3), // Adjust the vertical padding as needed
+);
+
 /// Size Constants (Padding and Margins)
 const double smallPadding = 8.0;
 const double mediumPadding = 16.0;

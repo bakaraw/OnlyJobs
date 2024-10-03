@@ -163,8 +163,6 @@ class _SignUpFormState extends State<SignUpForm> {
 
                             // pops this page
                             Navigator.pop(context);
-                            // pops the employee_or_employer.dart
-                            Navigator.pop(context);
                           }
                         }
                       },

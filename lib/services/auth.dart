@@ -64,6 +64,7 @@ class AuthService {
       return null;
     }
   }
+
   String? getCurrentUserId() {
     return _auth.currentUser?.uid;
   }
@@ -71,10 +72,24 @@ class AuthService {
   Future<String?> getCurrentUserName() async {
     final userId = _auth.currentUser?.uid;
     if (userId != null) {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('User').doc(userId).get();
+      DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance.collection('User').doc(userId).get();
       return userDoc['name'];
     }
     return null;
   }
 
+  Future<void> updateEmail(String newEmail) async {
+    try {
+      fb_auth.User? user = _auth.currentUser;
+      if (user != null) {
+        await user.updateEmail(newEmail);
+        log('Email updated successfully');
+      } else {
+        log('No user is currently signed in');
+      }
+    } catch (e) {
+      log(e.toString());
+    }
+  }
 }

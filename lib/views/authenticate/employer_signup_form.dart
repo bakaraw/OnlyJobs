@@ -18,6 +18,7 @@ class _ClientSignupFormState extends State<ClientSignupForm> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -46,6 +47,23 @@ class _ClientSignupFormState extends State<ClientSignupForm> {
                         }
                         return null;
                       },
+                    ),
+                    TextFormField(
+                      controller: _addressController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(labelText: 'Address'),
+                      validator: (value) => value != null && value.isEmpty
+                          ? 'Please enter the Company Address'
+                          : null,
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(labelText: 'Phone Number'),
+                      validator: (value) => value != null && value.isEmpty
+                          ? 'Please enter the Company Phone Number'
+                          : null,
                     ),
                     SizedBox(height: 16),
                     TextFormField(
@@ -100,11 +118,10 @@ class _ClientSignupFormState extends State<ClientSignupForm> {
                                     null,
                                     null,
                                     _emailController.text,
-                                    'aeff',
-                                    'aesf',
+                                    _phoneController.text,
+                                    _addressController.text,
                                     false);
 
-                            Navigator.pop(context);
                             Navigator.pop(context);
                           }
                         }

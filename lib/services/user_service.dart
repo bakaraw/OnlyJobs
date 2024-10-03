@@ -23,6 +23,34 @@ class UserService {
         'address': address,
         'isJobSeeker': isJobSeeker,
         'contacts': [],
+        'website': null,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  // update user data
+  Future updateUserData(
+      String name, String email, String phone, String address) async {
+    try {
+      return await userCollection.doc(uid).update({
+        'name': name, 
+        'email': email, 
+        'phone': phone, 
+        'address': address
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> updateWebsite(String website) async {
+    try {
+      return await userCollection.doc(uid).update({
+        'website': website,
       });
     } catch (e) {
       log(e.toString());
@@ -42,6 +70,7 @@ class UserService {
         isJobSeeker: snapshot.get('isJobSeeker'),
         birthDate: snapshot.get('birth_date').toDate(),
         gender: snapshot.get('gender'),
+        website: snapshot.get('website') ?? '',
       );
     }
 
@@ -52,6 +81,7 @@ class UserService {
       phone: snapshot.get('phone'),
       address: snapshot.get('address'),
       isJobSeeker: snapshot.get('isJobSeeker'),
+      website: snapshot.get('website') ?? '',
       birthDate: null,
       gender: null,
     );

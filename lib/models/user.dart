@@ -15,6 +15,7 @@ class UserData {
   final String? phone;
   final String? address;
   final bool? isJobSeeker;
+  final String? website;
 
   UserData({
     required this.uid,
@@ -25,5 +26,6 @@ class UserData {
     required this.phone,
     required this.address,
     required this.isJobSeeker,
+    required this.website,
   });
 }
