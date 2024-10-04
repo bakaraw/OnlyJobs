@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/home/employer_homepage.dart';
 import 'package:only_job/views/home/employer_profile.dart';
 import 'package:only_job/views/home/job_details.dart';
@@ -55,7 +56,7 @@ class _EmployerPositionsState extends State<EmployerPositions> {
     );
   }
 
-  Widget _buildJobPositions(List<JobData> jobPositions) { 
+  Widget _buildJobPositions(List<JobData> jobPositions) {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -65,32 +66,79 @@ class _EmployerPositionsState extends State<EmployerPositions> {
       itemCount: jobPositions.length,
       itemBuilder: (context, index) {
         final job = jobPositions[index];
+        final int notificationCount = 5;
+
         return GestureDetector(
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    JobDetailsPage(jobData: job),
+                builder: (context) => JobDetailsPage(jobData: job),
               ),
             );
           },
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(10.0),
-              border: Border.all(
-                color: Colors.blue,
-                width: 2.0,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  padding: EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10.0),
+                    border: Border.all(
+                      color: Colors.blue,
+                      width: 2.0,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Job Title: ' + job.jobTitle!,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 10),
+                      Expanded(
+                        child: Text(
+                          job.jobDescription!,
+                          style: TextStyle(fontSize: 16),
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            child: Center(
-              child: Text(
-                job.jobTitle!,
-                style: const TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
+              Positioned(
+                top: -10,
+                right: -10,
+                child: notificationCount > 0
+                    ? Container(
+                        padding: EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '$notificationCount',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    : Container(),
               ),
-            ),
+            ],
           ),
         );
       },
