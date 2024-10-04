@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
+import 'package:only_job/services/user_service.dart';
+import 'package:only_job/services/auth.dart';
 
 class IntroPage extends StatefulWidget {
+  const IntroPage({super.key, required this.setUserNotNew});
+  final Function setUserNotNew;
   @override
   _IntroPageState createState() => _IntroPageState();
 }
 
 class _IntroPageState extends State<IntroPage> {
   PageController _pageController = PageController();
+  final AuthService _auth = AuthService();
   int _currentPage = 0;
 
   @override
@@ -69,12 +74,9 @@ class _IntroPageState extends State<IntroPage> {
               left: 20,
               right: 20,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => NextScreen(),
-                    ),
-                  );
+                onPressed: () async {
+                  await UserService(uid: _auth.getCurrentUserId()!).setUserNotNew();
+                  widget.setUserNotNew();
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size.fromHeight(50),

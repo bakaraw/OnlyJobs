@@ -25,6 +25,7 @@ class UserService {
         'isJobSeeker': isJobSeeker,
         'contacts': [],
         'website': null,
+        'isUserNew': true,
       });
     } catch (e) {
       log(e.toString());
@@ -68,6 +69,7 @@ class UserService {
         birthDate: snapshot.get('birth_date').toDate(),
         gender: snapshot.get('gender'),
         website: snapshot.get('website') ?? '',
+        isUserNew: snapshot.get('isUserNew'),
       );
     }
 
@@ -81,7 +83,17 @@ class UserService {
       website: snapshot.get('website') ?? '',
       birthDate: null,
       gender: null,
+      isUserNew: snapshot.get('isUserNew'),
     );
+  }
+
+  Future<void> setUserNotNew() async {
+    try {
+      return await userCollection.doc(uid).update({'isUserNew': false});
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
   }
 
   // make a sub-collection for job openings
