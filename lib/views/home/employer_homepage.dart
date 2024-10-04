@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/home/employer_positions.dart';
 import 'package:only_job/views/home/employer_profile.dart';
+import 'package:only_job/services/skills_uploader.dart';
 
 class ClientHomePage extends StatefulWidget {
   const ClientHomePage({super.key});
@@ -16,7 +17,7 @@ class _ClientHomePageState extends State<ClientHomePage> {
   final List<Widget> _pages = [
     Icon(Icons.home),
     EmployerPositions(),
-    Icon(Icons.people),
+    SkillsUploader(),
     Icon(Icons.menu),
     EmployerProfile(),
   ];

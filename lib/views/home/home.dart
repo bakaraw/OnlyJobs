@@ -8,6 +8,7 @@ import 'package:only_job/views/constants/loading.dart';
 // import 'package:only_job/views/home/homepageJS.dart';
 import 'package:only_job/views/home/employer_homepage.dart';
 import 'package:only_job/views/JS_view/job_seeker_nav.dart';
+import 'package:only_job/views/authenticate/introduction.dart';
 
 class Home extends StatefulWidget {
   Home({super.key, required this.uid});
@@ -19,6 +20,13 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final AuthService _auth = AuthService();
+  bool isUserNew = true;
+  
+  void setUserNotNew() {
+    setState(() {
+      isUserNew = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +39,14 @@ class _HomeState extends State<Home> {
 
         if (snapshot.hasData) {
           UserData userData = snapshot.data!;
+          if (userData.isUserNew!) {
+            return IntroPage(setUserNotNew: setUserNotNew);
+          }
+
           if (userData.isJobSeeker!) {
             return NavJS();
           }
+
           return ClientHomePage();
         }
 

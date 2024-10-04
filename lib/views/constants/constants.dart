@@ -42,7 +42,7 @@ const TextStyle addinfotxtstyle = TextStyle(
 
 const InputDecoration textFieldStyleSM = InputDecoration(
   border: OutlineInputBorder(),
-  hintText: 'Enter Email Address',
+  hintText: 'Enter a value',
   contentPadding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 3), // Adjust the vertical padding as needed
 );
 

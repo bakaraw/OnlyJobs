@@ -3,13 +3,14 @@ import 'dart:developer';
 import 'package:only_job/models/user.dart';
 
 class UserService {
-  final String uid;
+  UserService({required this.uid});
 
+  final String uid;
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection('User');
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  UserService({required this.uid});
+  DocumentReference get _userRef => userCollection.doc(uid);
 
   Future addUser(String name, String? gender, DateTime? birthDate, String email,
       String phone, String address, bool isJobSeeker) async {
@@ -24,6 +25,7 @@ class UserService {
         'isJobSeeker': isJobSeeker,
         'contacts': [],
         'website': null,
+        'isUserNew': true,
       });
     } catch (e) {
       log(e.toString());
@@ -35,12 +37,8 @@ class UserService {
   Future updateUserData(
       String name, String email, String phone, String address) async {
     try {
-      return await userCollection.doc(uid).update({
-        'name': name, 
-        'email': email, 
-        'phone': phone, 
-        'address': address
-      });
+      return await userCollection.doc(uid).update(
+          {'name': name, 'email': email, 'phone': phone, 'address': address});
     } catch (e) {
       log(e.toString());
       rethrow;
@@ -71,6 +69,7 @@ class UserService {
         birthDate: snapshot.get('birth_date').toDate(),
         gender: snapshot.get('gender'),
         website: snapshot.get('website') ?? '',
+        isUserNew: snapshot.get('isUserNew'),
       );
     }
 
@@ -84,9 +83,20 @@ class UserService {
       website: snapshot.get('website') ?? '',
       birthDate: null,
       gender: null,
+      isUserNew: snapshot.get('isUserNew'),
     );
   }
 
+  Future<void> setUserNotNew() async {
+    try {
+      return await userCollection.doc(uid).update({'isUserNew': false});
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  // make a sub-collection for job openings
   Stream<UserData> get userData {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
   }
