@@ -42,6 +42,7 @@ class _EmployerProfileState extends State<EmployerProfile> {
 
   Uint8List? _webImage;
   String? _imageLink;
+  bool _isImageLoaded = false;
 
   @override
   void initState() {
@@ -74,7 +75,12 @@ class _EmployerProfileState extends State<EmployerProfile> {
           _phoneController.text = snapshot.data!.phone ?? '';
           _addressController.text = snapshot.data!.address ?? '';
           _imageLink = snapshot.data!.profilePicture ?? '';
-          _loadImage();
+
+          if (!_isImageLoaded) {
+            _loadImage();
+            _isImageLoaded = true;
+          }
+
           return profilePage(snapshot.data!);
         }
 
@@ -90,15 +96,17 @@ class _EmployerProfileState extends State<EmployerProfile> {
     return null;
   }
 
-void _loadImage() async {
-  Uint8List? imageData = await _userService.fetchImageBytes(_imageLink ?? '');
-  if (imageData != null) {
-    _webImage = imageData;
-    print('Image loaded successfully with ${imageData.length} bytes.');
-  } else {
-    print('Failed to load image data.');
+  void _loadImage() async {
+    Uint8List? imageData = await _userService.fetchImageBytes(_imageLink!);
+    if (imageData != null) {
+      setState(() {
+        _webImage = imageData;
+      });
+      print('Image loaded successfully with ${imageData.length} bytes.');
+    } else {
+      print('Failed to load image data.');
+    }
   }
-}
 
   Widget profilePage(UserData userData) {
     return Scaffold(
