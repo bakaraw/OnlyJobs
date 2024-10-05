@@ -72,8 +72,8 @@ class UserSearchDelegate extends SearchDelegate {
             final String userEmail = userData['email'] ?? 'No Email';
 
             return ListTile(
-              title: Text(userName),
-              subtitle: Text(userEmail),
+              title: Text(userName, style: usernameStyle,),
+              subtitle: Text(userEmail, style: emailStyle,),
               onTap: () async {
                 final userExistNotPush = await firestore
                     .collection('User')
@@ -119,8 +119,8 @@ class UserSearchDelegate extends SearchDelegate {
             final String userEmail = userData['email'] ?? 'No Email';
 
             return ListTile(
-              title: Text(userName),
-              subtitle: Text(userEmail),
+              title: Text(userName, style: usernameStyle,),
+              subtitle: Text(userEmail, style: emailStyle,),
               onTap: () async {
                 final userExistNotPush = await firestore
                     .collection('User')
