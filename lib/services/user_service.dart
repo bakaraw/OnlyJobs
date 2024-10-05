@@ -33,6 +33,7 @@ class UserService {
         'contacts': [],
         'website': null,
         'isUserNew': true,
+        'pending'
         'profile_picture': _defaultPfp,
       });
     } catch (e) {
