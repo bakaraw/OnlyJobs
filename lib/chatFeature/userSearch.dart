@@ -92,6 +92,48 @@ class UserSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return Container();
+    if (query.isEmpty) {
+      return Center(child: Text('Enter a name to search'));
+    }
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: firestore
+          .collection('User')
+          .where('name', isGreaterThanOrEqualTo: query)
+          .where('name', isLessThanOrEqualTo: query + '\uf8ff')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: Loading());
+        }
+        final users = snapshot.data!.docs;
+
+        return ListView.builder(
+          itemCount: users.length,
+          itemBuilder: (context, index) {
+            final userDoc = users[index];
+            final userData = userDoc.data() as Map<String, dynamic>;
+
+            final String userName = userData['name'] ?? 'No Name';
+            final String userEmail = userData['email'] ?? 'No Email';
+
+            return ListTile(
+              title: Text(userName),
+              subtitle: Text(userEmail),
+              onTap: () async {
+                final userExistNotPush = await firestore
+                    .collection('User')
+                    .where('name', isEqualTo: userName)
+                    .get();
+
+                await _addContact(userDoc.id);
+                close(context, userData);
+              },
+
+            );
+          },
+        );
+      },
+    );
   }
 }

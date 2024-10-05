@@ -8,7 +8,7 @@ import '../services/auth.dart';
 import 'chatList.dart';
 
 class ChatPage extends StatefulWidget {
-  final Map<String, dynamic> user; // Map containing the user info
+  final Map<String, dynamic> user;
 
   const ChatPage({super.key, required this.user});
 
