@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/models/user.dart';
 import 'package:only_job/services/auth.dart';
+import 'package:only_job/views/constants/constants.dart';
 import '../views/constants/loading.dart';
 
 class UserSearchDelegate extends SearchDelegate {
@@ -93,7 +94,7 @@ class UserSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     if (query.isEmpty) {
-      return Center(child: Text('Enter a name to search'));
+      return Center(child: Text('Enter a name to search', style: usernameStyle,));
     }
 
     return StreamBuilder<QuerySnapshot>(

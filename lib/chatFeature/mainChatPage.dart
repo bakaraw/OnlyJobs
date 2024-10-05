@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/chatFeature/userSearch.dart';
+import 'package:only_job/views/constants/constants.dart';
 import 'chatList.dart';
 import 'chat_page.dart';
 
@@ -21,8 +22,10 @@ class _MainChatPageState extends State<MainChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Main Chat Page'),
-        actions: [],
+        title: const Text('Chat Page', style: headingStyle_white,
+        ),
+        centerTitle: true,
+        backgroundColor: primarycolor,
       ),
       body:UserListPage(user: '', receiverUserId: '',),
 

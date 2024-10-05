@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/chatFeature/userSearch.dart';
+import 'package:only_job/views/constants/constants.dart';
 import '../views/constants/loading.dart';
 import 'chat_page.dart';
 
@@ -120,7 +121,8 @@ class _UserListPageState extends State<UserListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Search People'),
+        title: Text('Search People', style: usernameStyle,),
+        backgroundColor: secondarycolor,
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -143,13 +145,13 @@ class _UserListPageState extends State<UserListPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Pending Requests', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text('Pending Requests', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primarycolor)),
                     pendingStream != null
                         ? StreamBuilder<QuerySnapshot>(
                       stream: pendingStream,
                       builder: (context, pendingSnapshot) {
                         if (pendingSnapshot.hasError) {
-                          return Center(child: Text("Error loading pending requests"));
+                          return Center(child: Text("Error loading pending requests", style: errortxtstyle,));
                         }
                         if (pendingSnapshot.connectionState == ConnectionState.waiting) {
                           return Center(child: Loading());
@@ -165,17 +167,17 @@ class _UserListPageState extends State<UserListPage> {
                             String uid = document.id;
 
                             return ListTile(
-                              title: Text(userData?['name'] ?? 'No Name'),  // Null-safe access
-                              subtitle: Text(userData?['email'] ?? 'No Email'),  // Null-safe access
+                              title: Text(userData?['name'] ?? 'No Name', style: usernameStyle,),  // Null-safe access
+                              subtitle: Text(userData?['email'] ?? 'No Email', style: emailStyle,),  // Null-safe access
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: Icon(Icons.check, color: Colors.green),
+                                    icon: Icon(Icons.check, color: primarycolor),
                                     onPressed: () => acceptContact(uid),
                                   ),
                                   IconButton(
-                                    icon: Icon(Icons.close, color: Colors.red),
+                                    icon: Icon(Icons.close, color: Colors.blueGrey),
                                     onPressed: () => rejectContact(uid),
                                   ),
                                 ],
@@ -185,7 +187,7 @@ class _UserListPageState extends State<UserListPage> {
                         );
                       },
                     )
-                        : Center(child: Text('No pending requests.')),
+                        : Center(child: Text('No pending requests.', style: emailStyle)),
                   ],
                 ),
               ),
@@ -198,14 +200,14 @@ class _UserListPageState extends State<UserListPage> {
               stream: contactsStream,
               builder: (context, contactSnapshot) {
                 if (contactSnapshot.hasError) {
-                  return Center(child: Text("An error occurred"));
+                  return Center(child: Text("An error occurred", style: errortxtstyle,));
                 }
                 if (contactSnapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: Loading());
                 }
 
                 if (contactSnapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('No contacts found. You can add users through search.'));
+                  return Center(child: Text('No contacts found. You can add users through search.', style: emailStyle,));
                 }
 
                 return ListView(
@@ -215,8 +217,8 @@ class _UserListPageState extends State<UserListPage> {
                     String uid = document.id;
 
                     return ListTile(
-                      title: Text(userData?['name'] ?? 'No Name'),  // Null-safe access
-                      subtitle: Text(userData?['email'] ?? 'No Email'),  // Null-safe access
+                      title: Text(userData?['name'] ?? 'No Name', style: usernameStyle,),  // Null-safe access
+                      subtitle: Text(userData?['email'] ?? 'No Email', style: emailStyle,),  // Null-safe access
                       onTap: () {
                         Navigator.push(
                           context,
@@ -230,7 +232,7 @@ class _UserListPageState extends State<UserListPage> {
                 );
               },
             )
-                : Center(child: Text('No contacts found.')),
+                : Center(child: Text('No contacts found.', style: emailStyle,)),
           ],
         ),
       ),
