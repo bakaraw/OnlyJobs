@@ -7,6 +7,7 @@ import 'package:only_job/views/JS_view/profileJS_pages/add_edit_skills.dart';
 import 'package:only_job/views/JS_view/profileJS_pages/edit_profile.dart';
 import 'dart:io';
 import 'package:only_job/views/constants/constants.dart';
+import 'package:only_job/services/auth.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,6 +17,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  AuthService _auth = AuthService();
   List<Map<String, String>> educationList = [];
   List<Map<String, String>> experienceList = [];
   List<Map<String, String>> certificationList = [];
@@ -530,6 +532,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ElevatedButton(
                       onPressed: () {
                         // Implement logout functionality
+                        _auth.signOut();
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size.fromHeight(50),
