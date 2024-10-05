@@ -31,6 +31,7 @@ class UserService {
         'address': address,
         'isJobSeeker': isJobSeeker,
         'contacts': [],
+        'pending': [],
         'website': null,
         'isUserNew': true,
         'profile_picture': _defaultPfp,
