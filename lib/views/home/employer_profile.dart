@@ -131,11 +131,18 @@ class _EmployerProfileState extends State<EmployerProfile> {
               children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundImage: kIsWeb ? MemoryImage(_webImage!) : showPFP(),
+                  backgroundImage: kIsWeb ? _webImage != null ? MemoryImage(_webImage!) : null : showPFP(),
                   child: _imageLink == null || _imageLink!.isEmpty
                       ? Icon(Icons.person, size: 50)
                       : null,
                 ),
+                if (_webImage == null)
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
                 Positioned(
                   bottom: 0,
                   right: 0,
