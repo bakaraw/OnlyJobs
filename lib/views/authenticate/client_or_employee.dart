@@ -60,7 +60,7 @@ class ClientOrEmployee extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => NavJS(),
+                              builder: (context) => SignUpForm(),
                             ),
                           );
                         },
