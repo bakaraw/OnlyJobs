@@ -45,6 +45,8 @@ dependencies:
   google_nav_bar: ^5.0.6
   flutter_typeahead: ^5.2.0
   http: ^1.2.2
+  firebase_storage: ^12.3.2
+  gallery_picker: ^0.5.1
 
 dev_dependencies:
   flutter_test:

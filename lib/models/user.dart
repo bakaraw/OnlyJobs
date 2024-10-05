@@ -17,6 +17,7 @@ class UserData {
   final bool? isJobSeeker;
   final String? website;
   final bool? isUserNew;
+  final String? profilePicture;
 
   UserData({
     required this.uid,
@@ -29,5 +30,6 @@ class UserData {
     required this.isJobSeeker,
     required this.website,
     required this.isUserNew,
+    required this.profilePicture,
   });
 }
