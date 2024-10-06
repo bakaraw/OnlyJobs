@@ -48,7 +48,6 @@ class _ChatPageState extends State<ChatPage> {
           IconButton(
             color: Colors.blueAccent,
             onPressed: () {
-              auth.signOut();
             },
             icon: Icon(Icons.menu_open, color: primarycolor,),
           ),
