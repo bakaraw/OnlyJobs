@@ -121,7 +121,7 @@ class _UserListPageState extends State<UserListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Search People', style: usernameStyle,),
+        title: Text('Search People', style: usernameStyle, ),
         backgroundColor: secondarycolor,
         actions: [
           IconButton(
@@ -129,7 +129,7 @@ class _UserListPageState extends State<UserListPage> {
             onPressed: () async {
               final result = await showSearch(context: context, delegate: UserSearchDelegate());
               if (result != null) {
-                await fetchContactsAndPending(); // To refresh the contact list display
+               await fetchContactsAndPending(); // To refresh the contact list display
               }
             },
           ),
@@ -145,7 +145,7 @@ class _UserListPageState extends State<UserListPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Pending Requests', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primarycolor)),
+                    Text('Pending Requests', style: TextStyle(fontSize: 18, color: primarycolor)),
                     pendingStream != null
                         ? StreamBuilder<QuerySnapshot>(
                       stream: pendingStream,

@@ -76,8 +76,8 @@ class _DisplayMessageState extends State<DisplayMessage> {
 
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-              child: SingleChildScrollView( // Moved this line to be a child of Padding
-                child: Center( // Centering the content
+              child: SingleChildScrollView(
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -88,6 +88,9 @@ class _DisplayMessageState extends State<DisplayMessage> {
                             side: BorderSide(color: primarycolor),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
+                          // Set the background color based on the sender ID
+                          tileColor: message.senderName == widget.receiverUserId
+                              ? primarycolor : secondarycolor,
                           title: Text(
                             message.senderName,
                             style: usernameStyle,
@@ -112,7 +115,6 @@ class _DisplayMessageState extends State<DisplayMessage> {
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                         textAlign: TextAlign.center,
                       ),
-
                     ],
                   ),
                 ),

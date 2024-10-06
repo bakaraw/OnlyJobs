@@ -20,7 +20,8 @@ class UserSearchDelegate extends SearchDelegate {
       IconButton(
         icon: Icon(Icons.clear),
         onPressed: () {
-          query = '';
+          close(context, null);
+
         },
       ),
     ];

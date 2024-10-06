@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/chatFeature/displayMessage.dart';
+import 'package:only_job/views/constants/constants.dart';
 
 import '../models/message.dart';
 import '../services/auth.dart';
@@ -42,16 +43,14 @@ class _ChatPageState extends State<ChatPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat Page'),
+        title: Text(widget.user['name'] ?? 'Unknown', style: usernameStyle,),
         actions: [
-          MaterialButton(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+          IconButton(
             color: Colors.blueAccent,
             onPressed: () {
-              // Sign out functionality
               auth.signOut();
             },
-            child: Text('Sign out'),
+            icon: Icon(Icons.menu_open, color: primarycolor,),
           ),
         ],
       ),
@@ -80,11 +79,11 @@ class _ChatPageState extends State<ChatPage> {
                         hintText: "Message",
                         contentPadding: EdgeInsets.only(left: 15, bottom: 8, top: 8),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
+                          borderSide: BorderSide(color: primarycolor),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.blue),
+                          borderSide: BorderSide(color: primarycolor),
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
@@ -130,12 +129,12 @@ class _ChatPageState extends State<ChatPage> {
 
                           // Update the sender's contacts and the receiver's pending list
                           await firebaseFirestore.collection('User').doc(currentUserId).set({
-                            'contacts': FieldValue.arrayUnion([receiverUserId]), // Add to sender's contacts
+                           'contacts': FieldValue.arrayUnion([receiverUserId]), // Add to sender's contacts
                           }, SetOptions(merge: true));
 
-                          await firebaseFirestore.collection('User').doc(receiverUserId).set({
-                            'contacts': FieldValue.arrayUnion([currentUserId]), // Add to sender's contacts
-                          }, SetOptions(merge: true));
+                      //    await firebaseFirestore.collection('User').doc(receiverUserId).set({
+                       //     'contacts': FieldValue.arrayUnion([currentUserId]), // Add to sender's contacts
+                        //  }, SetOptions(merge: true));
 
 
                           await firebaseFirestore.collection('User').doc(receiverUserId).set({
@@ -150,7 +149,7 @@ class _ChatPageState extends State<ChatPage> {
                         }
                       }
                     },
-                    icon: Icon(Icons.send, size: 30, color: Colors.blue),
+                    icon: Icon(Icons.send, size: 30, color: primarycolor),
                   ),
 
                 ],
