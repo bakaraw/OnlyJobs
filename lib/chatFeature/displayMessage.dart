@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:only_job/views/constants/constants.dart';
+import 'package:only_job/views/constants/loading.dart';
 
 import '../models/message.dart';
 
@@ -50,17 +52,17 @@ class _DisplayMessageState extends State<DisplayMessage> {
       builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
         // Error handling
         if (snapshot.hasError) {
-          return Center(child: Text("An error occurred"));
+          return Center(child: Text("An error occurred", style: errortxtstyle,));
         }
 
         // Loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: Loading());
         }
 
         // Check if there are no messages
         if (snapshot.data == null || snapshot.data!.isEmpty) {
-          return Center(child: Text("No messages found"));
+          return Center(child: Text("No messages found", style: usernameStyle,));
         }
 
         // Building the message list
@@ -71,49 +73,54 @@ class _DisplayMessageState extends State<DisplayMessage> {
           itemBuilder: (context, index) {
             Message message = snapshot.data![index];
 
+
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 300,
-                    child: ListTile(
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.red),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                      ),
-                      title: Text(
-                        message.senderName,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              message.message,
-                              softWrap: true,
-                              style: TextStyle(fontSize: 15, color: Colors.black),
-                            ),
+              child: SingleChildScrollView(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 300, // Limit the width of each ListTile
+                        child: ListTile(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(color: primarycolor),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
-                        ],
+                          // Set the background color based on the sender ID
+                          tileColor: message.senderName == widget.receiverUserId
+                              ? primarycolor : secondarycolor,
+                          title: Text(
+                            message.senderName,
+                            style: usernameStyle,
+                            textAlign: TextAlign.center, // Centering the title text
+                          ),
+                          subtitle: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  message.message,
+                                  softWrap: true,
+                                  style: TextStyle(fontSize: 15, color: Colors.black),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                      SizedBox(height: 8), // Add some space between ListTile and time
+                      Text(
+                        '${message.time.hour}:${message.time.minute.toString().padLeft(2, '0')}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
-                  Text(
-                    '${message.time.hour}:${message.time.minute.toString().padLeft(2, '0')}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
+                ),
               ),
             );
+
           },
         );
       },

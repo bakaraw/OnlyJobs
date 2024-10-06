@@ -22,6 +22,18 @@ const TextStyle headingStyle_white = TextStyle(
   color: backgroundwhite,
 );
 
+const TextStyle usernameStyle = TextStyle(
+  fontSize: 16,
+  fontWeight: FontWeight.bold,
+  color: primarycolor, // Using your primary color
+);
+
+// Constant style for email in user listing
+const TextStyle emailStyle = TextStyle(
+  fontSize: 14,
+  color: Colors.grey, // Customize this color as needed
+);
+
 const TextStyle bodyStyle = TextStyle(
   fontSize: 16.0,
   color: Color.fromARGB(255, 99, 99, 99),
@@ -39,11 +51,45 @@ const TextStyle addinfotxtstyle = TextStyle(
   color: Colors.blue,
   fontSize: 16,
 );
+const TextStyle noMessagesFoundStyle = TextStyle(
+  fontSize: 16,
+  color: Colors.grey,
+  fontWeight: FontWeight.w300,
+  fontStyle: FontStyle.italic,
+);
+
+const TextStyle messageTimeStyle = TextStyle(
+  fontSize: 12,
+  color: Colors.black, // You can customize this color as needed
+  fontWeight: FontWeight.w300,
+);
+
+// Constant style for chat messages
+const TextStyle chatMessageTextStyle = TextStyle(
+  fontSize: 16,
+  color: Colors.white,
+  fontWeight: FontWeight.w400,
+);
+
+
 
 const InputDecoration textFieldStyleSM = InputDecoration(
   border: OutlineInputBorder(),
   hintText: 'Enter a value',
   contentPadding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 3), // Adjust the vertical padding as needed
+);
+
+const TextStyle emailTextStyle = TextStyle(
+  fontSize: 16,
+  color: Colors.blueGrey,
+  fontWeight: FontWeight.w400,
+);
+
+// Constant style for name
+const TextStyle nameTextStyle = TextStyle(
+  fontSize: 18,
+  color: Colors.black87,
+  fontWeight: FontWeight.bold,
 );
 
 /// Size Constants (Padding and Margins)

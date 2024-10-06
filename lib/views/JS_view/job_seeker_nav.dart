@@ -4,6 +4,8 @@ import 'package:only_job/views/JS_view/job_seeker_home.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/JS_view/job_seeker_profile.dart';
 
+import '../../chatFeature/mainChatPage.dart';
+
 class NavJS extends StatefulWidget {
   const NavJS({super.key});
   @override
@@ -16,7 +18,7 @@ class _NavJSState extends State<NavJS> {
   final List<Widget> _pages = [
     ProfileScreen(),
     HomePage(),
-    AddPage(),
+    MainChatPage(),
   ];
 
   @override
@@ -45,7 +47,7 @@ class _NavJSState extends State<NavJS> {
                 text: 'Home',
               ),
               GButton(
-                icon: Icons.chat,
+                icon: Icons.messenger_outline_rounded,
                 text: 'Chat',
               ),
             ],
@@ -62,11 +64,4 @@ class _NavJSState extends State<NavJS> {
   }
 }
 
-class AddPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Add Page'),
-    );
-  }
-}
+
