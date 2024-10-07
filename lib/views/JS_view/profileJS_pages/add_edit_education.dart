@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
+import 'package:only_job/services/auth.dart';
+import 'package:only_job/services/education_service.dart';
+import 'package:only_job/models/education.dart';
 
 class AddEducationPage extends StatefulWidget {
-  final Map<String, String>? education; // Optional existing education entry
+  final Education? education; // Optional existing education entry
 
   const AddEducationPage({Key? key, this.education}) : super(key: key);
 
@@ -12,23 +15,36 @@ class AddEducationPage extends StatefulWidget {
 
 class _AddEducationPageState extends State<AddEducationPage> {
   final _formKey = GlobalKey<FormState>();
+  late AuthService _auth;
+  late EducationService _educationService;
 
   // Controllers for the text fields
   late TextEditingController _degreeController;
   late TextEditingController _institutionController;
   late TextEditingController _yearController;
 
+  DateTime? _selectedDate;
+  late FocusNode _yearFocusNode;
+
   @override
   void initState() {
     super.initState();
+    _auth = AuthService();
+    _educationService = EducationService(uid: _auth.getCurrentUserId()!);
 
     // Initialize controllers with existing data if editing
     _degreeController =
-        TextEditingController(text: widget.education?['degree'] ?? '');
+        TextEditingController(text: widget.education?.degree ?? '');
     _institutionController =
-        TextEditingController(text: widget.education?['institution'] ?? '');
+        TextEditingController(text: widget.education?.university ?? '');
     _yearController =
-        TextEditingController(text: widget.education?['year'] ?? '');
+        TextEditingController(text: widget.education?.year ?? '');
+    _yearFocusNode = FocusNode();
+    _yearFocusNode.addListener(() {
+      if(!_yearFocusNode.hasFocus) {
+        _selectYear(context);
+      }
+    });
   }
 
   @override
@@ -41,7 +57,12 @@ class _AddEducationPageState extends State<AddEducationPage> {
 
   // Save the education entry and return it to the previous screen
   void _saveEducation() {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      _educationService.addEducation(
+        _institutionController.text,
+        _degreeController.text,
+        _selectedDate == null ? _yearController.text : _selectedDate!.year.toString(),
+      );
       final educationData = {
         'institution': _institutionController.text,
         'degree': _degreeController.text,
@@ -119,12 +140,17 @@ class _AddEducationPageState extends State<AddEducationPage> {
                 },
               ),
               mediumSizedBox_H,
-
               // Year field
               TextFormField(
-                controller: _yearController,
+                controller: TextEditingController(
+                  text: _selectedDate == null
+                      ? _yearController.text
+                      : _selectedDate!.year.toString(),
+                ),
                 decoration: InputDecoration(labelText: 'Year of Graduation'),
                 keyboardType: TextInputType.number,
+                onTap: () => _selectYear(context),
+                focusNode: _yearFocusNode,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the year of graduation';
@@ -175,5 +201,33 @@ class _AddEducationPageState extends State<AddEducationPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _selectYear(BuildContext context) async {
+    final DateTime? pickedYear = await showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            height: 300,
+            child: YearPicker(
+              firstDate: DateTime(1900),
+              lastDate: DateTime.now(),
+              initialDate: _selectedDate ?? DateTime.now(),
+              selectedDate: _selectedDate ?? DateTime.now(),
+              onChanged: (DateTime dateTime) {
+                Navigator.pop(context, dateTime);
+              },
+            ),
+          ),
+        );
+      },
+    );
+
+    if (pickedYear != null && pickedYear != _selectedDate) {
+      setState(() {
+        _selectedDate = pickedYear;
+      });
+    }
   }
 }
