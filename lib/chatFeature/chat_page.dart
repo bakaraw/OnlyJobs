@@ -62,6 +62,7 @@ class _ChatPageState extends State<ChatPage> {
               child: DisplayMessage(
                 user: receiverName,
                 receiverUserId: receiverUserId,
+                senderUserId: auth.currentUser?.uid ?? '',
                 // Pass the receiver user ID
               ),
             ),

@@ -9,8 +9,8 @@ import '../models/message.dart';
 class DisplayMessage extends StatefulWidget {
   final String user; // Receiver's name
   final String receiverUserId; // Receiver's user ID
-
-  const DisplayMessage({super.key, required this.user, required this.receiverUserId});
+  final String senderUserId;
+  const DisplayMessage({super.key, required this.user, required this.receiverUserId, required this.senderUserId});
 
   @override
   State<DisplayMessage> createState() => _DisplayMessageState();
@@ -42,18 +42,27 @@ class _DisplayMessageState extends State<DisplayMessage> {
     });
   }
 
-  Future<String?> receiverProfilePicture(String receiverUserId) async {
+  Future<String?> receiverProfilePicture(String receiverUserId, String senderUserId) async {
     try {
       // Fetching the receiver's document from Firestore
-      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore.instance
-          .collection('Users')
-          .doc(receiverUserId) // Use receiverUserId directly
+      DocumentSnapshot<Map<String, dynamic>> receiverId = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(widget.receiverUserId)
           .get();
 
+      DocumentSnapshot<Map<String, dynamic>> senderId = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(widget.senderUserId)
+          .get();
+
+
+
       // Check if the user exists and retrieve the profile picture
-      if (userSnapshot.exists) {
-        Map<String, dynamic>? userData = userSnapshot.data();
-        return userData?['profile_picture'] ?? null; // Return profile picture URL or null
+      if (receiverId.exists && senderId.exists) {
+        Map<String, dynamic>? receiverData = receiverId.data();
+        Map<String, dynamic>? senderData = senderId.data();
+
+        return receiverData?['profile_picture'] ?? senderData?['profile_picture'];
       } else {
         return null; // Return null if user does not exist
       }
@@ -63,6 +72,26 @@ class _DisplayMessageState extends State<DisplayMessage> {
     }
   }
 
+  Future<String?> getProfilePicture(String userId) async {
+    try {
+      // Fetching the user's document from Firestore
+      DocumentSnapshot<Map<String, dynamic>> userDoc = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(userId)
+          .get();
+
+      // Check if the user exists and retrieve the profile picture
+      if (userDoc.exists) {
+        Map<String, dynamic>? userData = userDoc.data();
+        return userData?['profile_picture']; // Return the profile picture
+      } else {
+        return null; // Return null if user does not exist
+      }
+    } catch (e) {
+      print('Error getting profile picture: $e');
+      return null; // Handle errors by returning null
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,21 +134,20 @@ class _DisplayMessageState extends State<DisplayMessage> {
                             side: BorderSide(color: primarycolor),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
-                          // Set the background color based on the sender ID
-                          tileColor: message.senderName == widget.receiverUserId
-                              ? primarycolor : secondarycolor,
-
-                          // Add profile picture in the leading section
                           leading: FutureBuilder<String?>(
-                            future: receiverProfilePicture(message.senderName), // Use receiverUserId from the message
+                            future: getProfilePicture(
+                                message.receiver == widget.receiverUserId
+                                    ? widget.senderUserId // If the message is from the sender, show sender's profile
+                                    : widget.senderUserId // If the message is from the receiver, show receiver's profile
+                            ),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState == ConnectionState.waiting) {
-                                return CircularProgressIndicator(); // Loading indicator while fetching the image
+                                return CircularProgressIndicator(); // Show loading spinner while waiting
                               }
                               if (snapshot.hasData && snapshot.data != null) {
                                 return CircleAvatar(
                                   backgroundImage: NetworkImage(snapshot.data!),
-                                ); // Display the profile picture
+                                ); // Display the profile picture if it exists
                               } else {
                                 return CircleAvatar(
                                   child: Icon(Icons.person),
@@ -127,7 +155,6 @@ class _DisplayMessageState extends State<DisplayMessage> {
                               }
                             },
                           ),
-
                           title: Text(
                             message.senderName,
                             style: usernameStyle,
