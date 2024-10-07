@@ -207,4 +207,59 @@ class UserService {
   Stream<UserData> get userData {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
   }
+
+  Future addEducation(String school, String degree, String endDate) async {
+    try {
+      return await userCollection.doc(uid).collection('education').add({
+        'university': school,
+        'degree': degree,
+        'year': endDate,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> updateEducation(
+      String school, String degree, String endDate, String docId) async {
+    try {
+      return await userCollection
+          .doc(uid)
+          .collection('education')
+          .doc(docId)
+          .update({
+        'university': school,
+        'degree': degree,
+        'year': endDate,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> deleteEducation(String docId) async {
+    try {
+      return await userCollection.doc(uid).collection('education').doc(docId).delete();
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Education _educationFromSnapshot(DocumentSnapshot snapshot) {
+    return Education(
+      uid: snapshot.id,
+      university: snapshot.get('university'),
+      degree: snapshot.get('degree'),
+      year: snapshot.get('year'),
+    );
+  }
+
+  Stream<List<Education>> get education {
+    return userCollection.doc(uid).collection('education').snapshots().map(
+        (snapshot) =>
+            snapshot.docs.map((doc) => _educationFromSnapshot(doc)).toList());
+  }
 }

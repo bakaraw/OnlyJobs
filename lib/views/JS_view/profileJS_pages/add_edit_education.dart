@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/services/auth.dart';
-import 'package:only_job/services/education_service.dart';
 import 'package:only_job/models/education.dart';
+import 'package:only_job/services/user_service.dart';
 
 class AddEducationPage extends StatefulWidget {
-  final Education? education; // Optional existing education entry
+  Education? education;
+  String? uid;
 
-  const AddEducationPage({Key? key, this.education}) : super(key: key);
+  AddEducationPage({Key? key, this.education, this.uid}) : super(key: key);
 
   @override
   _AddEducationPageState createState() => _AddEducationPageState();
@@ -16,7 +17,7 @@ class AddEducationPage extends StatefulWidget {
 class _AddEducationPageState extends State<AddEducationPage> {
   final _formKey = GlobalKey<FormState>();
   late AuthService _auth;
-  late EducationService _educationService;
+  late UserService _userService;
 
   // Controllers for the text fields
   late TextEditingController _degreeController;
@@ -30,18 +31,16 @@ class _AddEducationPageState extends State<AddEducationPage> {
   void initState() {
     super.initState();
     _auth = AuthService();
-    _educationService = EducationService(uid: _auth.getCurrentUserId()!);
-
+    _userService = UserService(uid: _auth.getCurrentUserId()!);
     // Initialize controllers with existing data if editing
     _degreeController =
         TextEditingController(text: widget.education?.degree ?? '');
     _institutionController =
         TextEditingController(text: widget.education?.university ?? '');
-    _yearController =
-        TextEditingController(text: widget.education?.year ?? '');
+    _yearController = TextEditingController(text: widget.education?.year ?? '');
     _yearFocusNode = FocusNode();
     _yearFocusNode.addListener(() {
-      if(!_yearFocusNode.hasFocus) {
+      if (!_yearFocusNode.hasFocus) {
         _selectYear(context);
       }
     });
@@ -58,17 +57,29 @@ class _AddEducationPageState extends State<AddEducationPage> {
   // Save the education entry and return it to the previous screen
   void _saveEducation() {
     if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-      _educationService.addEducation(
+      _userService.addEducation(
         _institutionController.text,
         _degreeController.text,
-        _selectedDate == null ? _yearController.text : _selectedDate!.year.toString(),
+        _selectedDate == null
+            ? _yearController.text
+            : _selectedDate!.year.toString(),
       );
-      final educationData = {
-        'institution': _institutionController.text,
-        'degree': _degreeController.text,
-        'year': _yearController.text,
-      };
-      Navigator.pop(context, educationData); // Return the data
+      Navigator.pop(context); // Return the data
+    }
+  }
+
+  void _updateEducation() {
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      _userService.updateEducation(
+        _institutionController.text,
+        _degreeController.text,
+        _selectedDate == null
+            ? _yearController.text
+            : _selectedDate!.year.toString(),
+        widget.education!.uid!,
+      );
+
+      Navigator.pop(context); // Return the data
     }
   }
 
@@ -89,9 +100,10 @@ class _AddEducationPageState extends State<AddEducationPage> {
               child: Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
+                await _userService.deleteEducation(widget.education!.uid!);
                 Navigator.pop(context);
-                Navigator.pop(context, null);
+                Navigator.pop(context);
               },
               child: Text('Delete', style: TextStyle(color: Colors.red)),
             ),
@@ -165,42 +177,60 @@ class _AddEducationPageState extends State<AddEducationPage> {
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Delete button (only visible if editing an existing entry)
-                  if (widget.education != null)
-                    ElevatedButton(
-                      onPressed: _deleteEducation,
-                      child: Text('Delete'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: backgroundwhite,
-                        minimumSize: Size(100, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  smallSizedBox_W,
-                  // Save button
-                  ElevatedButton(
-                    onPressed: _saveEducation,
-                    child: Text('Save'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: backgroundwhite,
-                      minimumSize: Size(100, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ],
+                children: _buildButtons(),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  List<Widget> _buildButtons() {
+    if (widget.education != null) {
+      return [
+        ElevatedButton(
+          onPressed: _deleteEducation,
+          child: Text('Delete'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: backgroundwhite,
+            minimumSize: Size(100, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+        smallSizedBox_W,
+        ElevatedButton(
+          onPressed: _updateEducation,
+          child: Text('Save'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: backgroundwhite,
+            minimumSize: Size(100, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ];
+    } else {
+      return [
+        ElevatedButton(
+          onPressed: _saveEducation,
+          child: Text('Save'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: backgroundwhite,
+            minimumSize: Size(100, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ];
+    }
   }
 
   Future<void> _selectYear(BuildContext context) async {

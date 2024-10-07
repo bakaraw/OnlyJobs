@@ -191,51 +191,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     // Display education entries with labels and edit button
                     smallSizedBox_H,
-                    if (educationList.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: educationList.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          Education education = entry.value;
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      education.university ?? "",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      education.degree ?? "",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                    Text(
-                                      education.year ?? "",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey.shade700),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    // Edit the selected education entry
-                                    AddOrEditEducation(education, index);
-                                  },
-                                  icon: Icon(Icons.edit, color: Colors.blue),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                    StreamBuilder<List<Education>>(
+                      stream: _userService.education,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return const Text("Error");
+                        }
 
+                        if (snapshot.hasData) {
+                          educationList = snapshot.data!;
+                          return Column(
+                              children: buildEducationList(snapshot.data!));
+                        }
+
+                        return const Loading();
+                      },
+                    ),
                     mediumSizedBox_H,
                     Divider(thickness: 2),
                     mediumSizedBox_H,
@@ -523,17 +494,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // Method to add or edit education entry
-  void AddOrEditEducation([Education? educationToEdit, int? index]) async {
+  void AddOrEditEducation([Education? educationToEdit, String? uid]) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEducationPage(education: educationToEdit),
+        builder: (context) => AddEducationPage(education: educationToEdit, uid: uid),
       ),
     );
     if (result != null && result is Education) {
       Education resultEducation = result;
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
@@ -602,5 +572,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       skills.remove(skill);
     });
+  }
+
+  List<Widget> buildEducationList(List<Education> educationList) {
+    return [
+      for (Education education in educationList)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        education.university ?? "",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        education.degree ?? "",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        education.year ?? "",
+                        style: TextStyle(
+                            fontSize: 16, color: Colors.grey.shade700),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      // Edit the selected education entry
+                      AddOrEditEducation(education, education.uid!);
+                    },
+                    icon: Icon(Icons.edit, color: Colors.blue),
+                  ),
+                ],
+              ),
+            ),
+        ],
+    )
+    ];
   }
 }
