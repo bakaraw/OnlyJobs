@@ -27,9 +27,6 @@ class _DisplayMessageState extends State<DisplayMessage> {
 
   void _getMessages() {
     String currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
-
-
     messageStream = FirebaseFirestore.instance
         .collection('User')
         .doc(currentUserId)
@@ -44,6 +41,28 @@ class _DisplayMessageState extends State<DisplayMessage> {
       }).toList();
     });
   }
+
+  Future<String?> receiverProfilePicture(String receiverUserId) async {
+    try {
+      // Fetching the receiver's document from Firestore
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(receiverUserId) // Use receiverUserId directly
+          .get();
+
+      // Check if the user exists and retrieve the profile picture
+      if (userSnapshot.exists) {
+        Map<String, dynamic>? userData = userSnapshot.data();
+        return userData?['profile_picture'] ?? null; // Return profile picture URL or null
+      } else {
+        return null; // Return null if user does not exist
+      }
+    } catch (e) {
+      print('Error getting profile picture: $e');
+      return null; // Handle errors by returning null
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,8 +91,6 @@ class _DisplayMessageState extends State<DisplayMessage> {
           shrinkWrap: true,
           itemBuilder: (context, index) {
             Message message = snapshot.data![index];
-
-
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
               child: SingleChildScrollView(
@@ -91,10 +108,30 @@ class _DisplayMessageState extends State<DisplayMessage> {
                           // Set the background color based on the sender ID
                           tileColor: message.senderName == widget.receiverUserId
                               ? primarycolor : secondarycolor,
+
+                          // Add profile picture in the leading section
+                          leading: FutureBuilder<String?>(
+                            future: receiverProfilePicture(message.senderName), // Use receiverUserId from the message
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return CircularProgressIndicator(); // Loading indicator while fetching the image
+                              }
+                              if (snapshot.hasData && snapshot.data != null) {
+                                return CircleAvatar(
+                                  backgroundImage: NetworkImage(snapshot.data!),
+                                ); // Display the profile picture
+                              } else {
+                                return CircleAvatar(
+                                  child: Icon(Icons.person),
+                                ); // Default avatar when there's no profile picture
+                              }
+                            },
+                          ),
+
                           title: Text(
                             message.senderName,
                             style: usernameStyle,
-                            textAlign: TextAlign.center, // Centering the title text
+                            textAlign: TextAlign.left, // Centering the title text
                           ),
                           subtitle: Row(
                             children: [
@@ -120,7 +157,6 @@ class _DisplayMessageState extends State<DisplayMessage> {
                 ),
               ),
             );
-
           },
         );
       },

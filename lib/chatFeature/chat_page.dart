@@ -97,6 +97,9 @@ class _ChatPageState extends State<ChatPage> {
                   IconButton(
                     onPressed: () async {
                       if (messageController.text.isNotEmpty) {
+
+
+
                         // Create the message object
                         Message newMessage = Message(
                           message: messageController.text.trim(),
