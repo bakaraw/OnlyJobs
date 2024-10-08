@@ -3,6 +3,8 @@ import 'package:only_job/views/home/employer_positions.dart';
 import 'package:only_job/views/home/employer_profile.dart';
 import 'package:only_job/services/skills_uploader.dart';
 
+import '../../chatFeature/mainChatPage.dart';
+
 class ClientHomePage extends StatefulWidget {
   const ClientHomePage({super.key});
 
@@ -18,7 +20,7 @@ class _ClientHomePageState extends State<ClientHomePage> {
     Icon(Icons.home),
     EmployerPositions(),
     SkillsUploader(),
-    Icon(Icons.menu),
+    MainChatPage(),
     EmployerProfile(),
   ];
   @override
@@ -54,7 +56,7 @@ class _ClientHomePageState extends State<ClientHomePage> {
           BottomNavigationBarItem(
             backgroundColor: Colors.blue,
             label: 'Menu',
-            icon: Icon(Icons.menu),
+            icon: Icon(Icons.messenger_outline_rounded),
           ),
           BottomNavigationBarItem(
             backgroundColor: Colors.blue,

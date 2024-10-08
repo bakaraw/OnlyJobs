@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:only_job/models/education.dart';
 
 class UserService {
   UserService({required this.uid});
@@ -31,8 +32,10 @@ class UserService {
         'address': address,
         'isJobSeeker': isJobSeeker,
         'contacts': [],
+        'pending': [],
         'website': null,
         'isUserNew': true,
+        'skills': [],
         'profile_picture': _defaultPfp,
       });
     } catch (e) {
@@ -65,7 +68,6 @@ class UserService {
   }
 
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
-    log(snapshot.get('name'));
     if (snapshot.get('isJobSeeker') == true) {
       return UserData(
         uid: uid,
@@ -79,6 +81,7 @@ class UserService {
         website: snapshot.get('website') ?? '',
         isUserNew: snapshot.get('isUserNew'),
         profilePicture: snapshot.get('profile_picture'),
+        skills: snapshot.get('skills') ?? [],
       );
     }
 
@@ -165,8 +168,98 @@ class UserService {
     }
   }
 
+  Future<void> addSkills(String skill) async {
+    try {
+      return await userCollection.doc(uid).update({
+        'skills': FieldValue.arrayUnion([skill]),
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> removeSkill(String skill) async {
+    try {
+      return await userCollection.doc(uid).update({
+        'skills': FieldValue.arrayRemove([skill]),
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List<Education>> getEducationList() async {
+    try {
+      final QuerySnapshot snapshot =
+          await userCollection.doc(uid).collection('education').get();
+      final List<Education> educationList =
+          snapshot.docs.map((doc) => Education.fromDocument(doc)).toList();
+      return educationList;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
   // make a sub-collection for job openings
   Stream<UserData> get userData {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  Future addEducation(String school, String degree, String endDate) async {
+    try {
+      return await userCollection.doc(uid).collection('education').add({
+        'university': school,
+        'degree': degree,
+        'year': endDate,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> updateEducation(
+      String school, String degree, String endDate, String docId) async {
+    try {
+      return await userCollection
+          .doc(uid)
+          .collection('education')
+          .doc(docId)
+          .update({
+        'university': school,
+        'degree': degree,
+        'year': endDate,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> deleteEducation(String docId) async {
+    try {
+      return await userCollection.doc(uid).collection('education').doc(docId).delete();
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Education _educationFromSnapshot(DocumentSnapshot snapshot) {
+    return Education(
+      uid: snapshot.id,
+      university: snapshot.get('university'),
+      degree: snapshot.get('degree'),
+      year: snapshot.get('year'),
+    );
+  }
+
+  Stream<List<Education>> get education {
+    return userCollection.doc(uid).collection('education').snapshots().map(
+        (snapshot) =>
+            snapshot.docs.map((doc) => _educationFromSnapshot(doc)).toList());
   }
 }

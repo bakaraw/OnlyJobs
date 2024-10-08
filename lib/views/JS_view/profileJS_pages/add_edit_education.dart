@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
+import 'package:only_job/services/auth.dart';
+import 'package:only_job/models/education.dart';
+import 'package:only_job/services/user_service.dart';
 
 class AddEducationPage extends StatefulWidget {
-  final Map<String, String>? education; // Optional existing education entry
+  Education? education;
+  String? uid;
 
-  const AddEducationPage({Key? key, this.education}) : super(key: key);
+  AddEducationPage({Key? key, this.education, this.uid}) : super(key: key);
 
   @override
   _AddEducationPageState createState() => _AddEducationPageState();
@@ -12,23 +16,34 @@ class AddEducationPage extends StatefulWidget {
 
 class _AddEducationPageState extends State<AddEducationPage> {
   final _formKey = GlobalKey<FormState>();
+  late AuthService _auth;
+  late UserService _userService;
 
   // Controllers for the text fields
   late TextEditingController _degreeController;
   late TextEditingController _institutionController;
   late TextEditingController _yearController;
 
+  DateTime? _selectedDate;
+  late FocusNode _yearFocusNode;
+
   @override
   void initState() {
     super.initState();
-
+    _auth = AuthService();
+    _userService = UserService(uid: _auth.getCurrentUserId()!);
     // Initialize controllers with existing data if editing
     _degreeController =
-        TextEditingController(text: widget.education?['degree'] ?? '');
+        TextEditingController(text: widget.education?.degree ?? '');
     _institutionController =
-        TextEditingController(text: widget.education?['institution'] ?? '');
-    _yearController =
-        TextEditingController(text: widget.education?['year'] ?? '');
+        TextEditingController(text: widget.education?.university ?? '');
+    _yearController = TextEditingController(text: widget.education?.year ?? '');
+    _yearFocusNode = FocusNode();
+    _yearFocusNode.addListener(() {
+      if (!_yearFocusNode.hasFocus) {
+        _selectYear(context);
+      }
+    });
   }
 
   @override
@@ -41,13 +56,30 @@ class _AddEducationPageState extends State<AddEducationPage> {
 
   // Save the education entry and return it to the previous screen
   void _saveEducation() {
-    if (_formKey.currentState!.validate()) {
-      final educationData = {
-        'institution': _institutionController.text,
-        'degree': _degreeController.text,
-        'year': _yearController.text,
-      };
-      Navigator.pop(context, educationData); // Return the data
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      _userService.addEducation(
+        _institutionController.text,
+        _degreeController.text,
+        _selectedDate == null
+            ? _yearController.text
+            : _selectedDate!.year.toString(),
+      );
+      Navigator.pop(context); // Return the data
+    }
+  }
+
+  void _updateEducation() {
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      _userService.updateEducation(
+        _institutionController.text,
+        _degreeController.text,
+        _selectedDate == null
+            ? _yearController.text
+            : _selectedDate!.year.toString(),
+        widget.education!.uid!,
+      );
+
+      Navigator.pop(context); // Return the data
     }
   }
 
@@ -68,9 +100,10 @@ class _AddEducationPageState extends State<AddEducationPage> {
               child: Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
+                await _userService.deleteEducation(widget.education!.uid!);
                 Navigator.pop(context);
-                Navigator.pop(context, null);
+                Navigator.pop(context);
               },
               child: Text('Delete', style: TextStyle(color: Colors.red)),
             ),
@@ -119,12 +152,17 @@ class _AddEducationPageState extends State<AddEducationPage> {
                 },
               ),
               mediumSizedBox_H,
-
               // Year field
               TextFormField(
-                controller: _yearController,
+                controller: TextEditingController(
+                  text: _selectedDate == null
+                      ? _yearController.text
+                      : _selectedDate!.year.toString(),
+                ),
                 decoration: InputDecoration(labelText: 'Year of Graduation'),
                 keyboardType: TextInputType.number,
+                onTap: () => _selectYear(context),
+                focusNode: _yearFocusNode,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the year of graduation';
@@ -139,41 +177,87 @@ class _AddEducationPageState extends State<AddEducationPage> {
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Delete button (only visible if editing an existing entry)
-                  if (widget.education != null)
-                    ElevatedButton(
-                      onPressed: _deleteEducation,
-                      child: Text('Delete'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: backgroundwhite,
-                        minimumSize: Size(100, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  smallSizedBox_W,
-                  // Save button
-                  ElevatedButton(
-                    onPressed: _saveEducation,
-                    child: Text('Save'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: backgroundwhite,
-                      minimumSize: Size(100, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ],
+                children: _buildButtons(),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  List<Widget> _buildButtons() {
+    if (widget.education != null) {
+      return [
+        ElevatedButton(
+          onPressed: _deleteEducation,
+          child: Text('Delete'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: backgroundwhite,
+            minimumSize: Size(100, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+        smallSizedBox_W,
+        ElevatedButton(
+          onPressed: _updateEducation,
+          child: Text('Save'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: backgroundwhite,
+            minimumSize: Size(100, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ];
+    } else {
+      return [
+        ElevatedButton(
+          onPressed: _saveEducation,
+          child: Text('Save'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: backgroundwhite,
+            minimumSize: Size(100, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ];
+    }
+  }
+
+  Future<void> _selectYear(BuildContext context) async {
+    final DateTime? pickedYear = await showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            height: 300,
+            child: YearPicker(
+              firstDate: DateTime(1900),
+              lastDate: DateTime.now(),
+              initialDate: _selectedDate ?? DateTime.now(),
+              selectedDate: _selectedDate ?? DateTime.now(),
+              onChanged: (DateTime dateTime) {
+                Navigator.pop(context, dateTime);
+              },
+            ),
+          ),
+        );
+      },
+    );
+
+    if (pickedYear != null && pickedYear != _selectedDate) {
+      setState(() {
+        _selectedDate = pickedYear;
+      });
+    }
   }
 }
