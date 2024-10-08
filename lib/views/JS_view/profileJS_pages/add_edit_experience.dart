@@ -101,7 +101,8 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
     if (picked != null && picked != _selectedEndDate) {
       setState(() {
         _selectedEndDate = picked;
-        _endDateController.text = "${picked.day}/${picked.month}/${picked.year}";
+        _endDateController.text =
+            "${picked.day}/${picked.month}/${picked.year}";
       });
     }
   }
@@ -269,7 +270,7 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
   List<Widget> buildButtons() {
     if (widget.experience == null) {
       return [
-        Center(
+        Flexible(
           child: ElevatedButton(
             onPressed: _saveExperience,
             child: Text('Save'),
@@ -283,9 +284,10 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
     } else {
       log('Editing experience');
       return [
-        ElevatedButton(
+        Flexible(
+            child: ElevatedButton(
           onPressed: _deleteExperience,
-          child: Text('Delete animal'),
+          child: Text('Delete'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             foregroundColor: backgroundwhite,
@@ -294,9 +296,10 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-        ),
+        )),
         smallSizedBox_W,
-        ElevatedButton(
+        Flexible(
+            child: ElevatedButton(
           onPressed: _updateExperience,
           child: Text('Save'),
           style: ElevatedButton.styleFrom(
@@ -307,7 +310,7 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-        ),
+        )),
       ];
     }
   }
