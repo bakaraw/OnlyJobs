@@ -8,6 +8,11 @@ import 'package:only_job/views/JS_view/profileJS_pages/edit_profile.dart';
 import 'dart:io';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/services/auth.dart';
+import 'package:only_job/services/user_service.dart';
+import 'package:only_job/models/user.dart';
+import 'package:only_job/views/constants/loading.dart';
+import 'package:intl/intl.dart';
+import 'package:only_job/models/education.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,143 +22,56 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  AuthService _auth = AuthService();
-  List<Map<String, String>> educationList = [];
+  late AuthService _auth;
+  late UserService _userService;
+  List<Education> educationList = [];
   List<Map<String, String>> experienceList = [];
   List<Map<String, String>> certificationList = [];
   List<String> skills = [];
 
   // Stored Sample Job
-  Map<String, String> contactInfo = {
-    'name': 'John Doe',
-    'gender': 'Male',
-    'birthdate': '1990-01-01',
-    'phone': '123-456-7890',
-    'address': '123 Main St, City, Country',
-    'email': 'john.doe@example.com',
-  };
-
   final ImagePicker _picker = ImagePicker();
   XFile? _profileImage;
 
-  // Allows user to pick image from the gallery
-  Future<void> PickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  @override
+  void initState() {
+    super.initState();
+    _auth = AuthService();
+    _userService = UserService(uid: _auth.getCurrentUserId()!);
+    fetchEducationData();
+  }
+
+  Future<void> fetchEducationData() async {
+    List<Education> fetchedEducationList =
+        await _userService.getEducationList();
     setState(() {
-      if (pickedFile != null) {
-        _profileImage = pickedFile;
-      }
-    });
-  }
-
-  // Method to edit contact information
-  void EditContactInfo() async {
-    final updatedContactInfo = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditContactInfoPage(contactInfo: contactInfo),
-      ),
-    );
-
-    if (updatedContactInfo != null &&
-        updatedContactInfo is Map<String, String>) {
-      setState(() {
-        contactInfo = updatedContactInfo;
-      });
-    }
-  }
-
-  // Method to add or edit education entry
-  void AddOrEditEducation(
-      [Map<String, String>? educationToEdit, int? index]) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddEducationPage(education: educationToEdit),
-      ),
-    );
-    if (result != null && result is Map<String, String>) {
-      setState(() {
-        if (index != null) {
-          // Edit existing entry
-          educationList[index] = result;
-        } else {
-          // Add new entry
-          educationList.add(result);
-        }
-      });
-    }
-  }
-
-  // Method to add or edit experience entry
-  void AddOrEditExperience(
-      [Map<String, String>? experienceToEdit, int? index]) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddExperiencePage(experience: experienceToEdit),
-      ),
-    );
-    if (result != null && result is Map<String, String>) {
-      setState(() {
-        if (index != null) {
-          // Edit existing entry
-          experienceList[index] = result;
-        } else {
-          // Add new entry
-          experienceList.add(result);
-        }
-      });
-    }
-  }
-
-  // Method to add or edit certification entry
-  void AddOrEditCertification(
-      [Map<String, String>? certificationToEdit, int? index]) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            AddCertificationPage(certification: certificationToEdit),
-      ),
-    );
-    if (result != null && result is Map<String, String>) {
-      setState(() {
-        if (index != null) {
-          // Edit existing entry
-          certificationList[index] = result;
-        } else {
-          // Add new entry
-          certificationList.add(result);
-        }
-      });
-    }
-  }
-
-// Method to add or edit skills
-  void addOrEditSkills() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddSkillsPage(selectedSkills: skills),
-      ),
-    );
-    if (result != null && result is List<String>) {
-      setState(() {
-        skills = result; // Update skills with the selected ones
-      });
-    }
-  }
-
-  // Remove a skill from the profile
-  void removeSkill(String skill) {
-    setState(() {
-      skills.remove(skill);
+      educationList = fetchedEducationList;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<UserData>(
+        stream: _userService.userData,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Text("Error");
+          }
+
+          if (snapshot.hasData) {
+            skills = snapshot.data!.skills!.cast<String>();
+            return buildPage(snapshot.data!);
+          }
+
+          return const Loading();
+        });
+  }
+
+  Widget buildPage(UserData userData) {
+    String formattedBirthdate = userData.birthDate != null
+        ? DateFormat('MMMM d, yyyy').format(userData.birthDate!)
+        : '';
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
@@ -215,7 +133,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: headingStyle,
                         ),
                         ElevatedButton(
-                          onPressed: (EditContactInfo),
+                          onPressed: () {
+                            EditContactInfo(userData);
+                          },
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.red,
@@ -227,14 +147,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         )
                       ],
                     ),
-                    buildContactField('Full Name', contactInfo['name'] ?? ''),
-                    buildContactField('Gender', contactInfo['gender'] ?? ''),
+                    buildContactField('Full Name', userData.name ?? ''),
+                    buildContactField('Gender', userData.gender ?? ''),
+                    buildContactField('Birthdate', formattedBirthdate ?? ''),
+                    buildContactField('Phone Number', userData.phone ?? ''),
+                    buildContactField('Address', userData.address ?? ''),
                     buildContactField(
-                        'Birthdate', contactInfo['birthdate'] ?? ''),
-                    buildContactField(
-                        'Phone Number', contactInfo['phone'] ?? ''),
-                    buildContactField('Address', contactInfo['address'] ?? ''),
-                    buildContactField('Email', contactInfo['email'] ?? ''),
+                        'Website',
+                        userData.website?.isNotEmpty == true
+                            ? userData.website!
+                            : 'Not set'),
+                    buildContactField('Email', userData.email ?? ''),
 
                     mediumSizedBox_H,
                     Divider(thickness: 2),
@@ -268,51 +191,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     // Display education entries with labels and edit button
                     smallSizedBox_H,
-                    if (educationList.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: educationList.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          Map<String, String> education = entry.value;
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      education['institution'] ?? "",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      education['degree'] ?? "",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                    Text(
-                                      education['year'] ?? "",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey.shade700),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    // Edit the selected education entry
-                                    AddOrEditEducation(education, index);
-                                  },
-                                  icon: Icon(Icons.edit, color: Colors.blue),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                    StreamBuilder<List<Education>>(
+                      stream: _userService.education,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return const Text("Error");
+                        }
 
+                        if (snapshot.hasData) {
+                          educationList = snapshot.data!;
+                          return Column(
+                              children: buildEducationList(snapshot.data!));
+                        }
+
+                        return const Loading();
+                      },
+                    ),
                     mediumSizedBox_H,
                     Divider(thickness: 2),
                     mediumSizedBox_H,
@@ -577,5 +471,151 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  // Allows user to pick image from the gallery
+  Future<void> PickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      if (pickedFile != null) {
+        _profileImage = pickedFile;
+      }
+    });
+  }
+
+  // Method to edit contact information
+  void EditContactInfo(UserData userData) async {
+    final updatedContactInfo = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditContactInfoPage(userData: userData),
+      ),
+    );
+  }
+
+  // Method to add or edit education entry
+  void AddOrEditEducation([Education? educationToEdit, String? uid]) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEducationPage(education: educationToEdit, uid: uid),
+      ),
+    );
+    if (result != null && result is Education) {
+      Education resultEducation = result;
+      setState(() {});
+    }
+  }
+
+  // Method to add or edit experience entry
+  void AddOrEditExperience(
+      [Map<String, String>? experienceToEdit, int? index]) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddExperiencePage(experience: experienceToEdit),
+      ),
+    );
+    if (result != null && result is Map<String, String>) {
+      setState(() {
+        if (index != null) {
+          // Edit existing entry
+          experienceList[index] = result;
+        } else {
+          // Add new entry
+          experienceList.add(result);
+        }
+      });
+    }
+  }
+
+  // Method to add or edit certification entry
+  void AddOrEditCertification(
+      [Map<String, String>? certificationToEdit, int? index]) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            AddCertificationPage(certification: certificationToEdit),
+      ),
+    );
+    if (result != null && result is Map<String, String>) {
+      setState(() {
+        if (index != null) {
+          // Edit existing entry
+          certificationList[index] = result;
+        } else {
+          // Add new entry
+          certificationList.add(result);
+        }
+      });
+    }
+  }
+
+// Method to add or edit skills
+  void addOrEditSkills() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddSkillsPage(selectedSkills: skills),
+      ),
+    );
+    if (result != null && result is List<String>) {
+      setState(() {
+        skills = result; // Update skills with the selected ones
+      });
+    }
+  }
+
+  // Remove a skill from the profile
+  void removeSkill(String skill) {
+    setState(() {
+      skills.remove(skill);
+    });
+  }
+
+  List<Widget> buildEducationList(List<Education> educationList) {
+    return [
+      for (Education education in educationList)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        education.university ?? "",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        education.degree ?? "",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        education.year ?? "",
+                        style: TextStyle(
+                            fontSize: 16, color: Colors.grey.shade700),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      // Edit the selected education entry
+                      AddOrEditEducation(education, education.uid!);
+                    },
+                    icon: Icon(Icons.edit, color: Colors.blue),
+                  ),
+                ],
+              ),
+            ),
+        ],
+    )
+    ];
   }
 }
