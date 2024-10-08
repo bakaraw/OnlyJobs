@@ -13,6 +13,7 @@ import 'package:only_job/models/user.dart';
 import 'package:only_job/views/constants/loading.dart';
 import 'package:intl/intl.dart';
 import 'package:only_job/models/education.dart';
+import 'package:only_job/models/experience.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -24,8 +25,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late AuthService _auth;
   late UserService _userService;
-  List<Education> educationList = [];
-  List<Map<String, String>> experienceList = [];
   List<Map<String, String>> certificationList = [];
   List<String> skills = [];
 
@@ -38,15 +37,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _auth = AuthService();
     _userService = UserService(uid: _auth.getCurrentUserId()!);
-    fetchEducationData();
-  }
-
-  Future<void> fetchEducationData() async {
-    List<Education> fetchedEducationList =
-        await _userService.getEducationList();
-    setState(() {
-      educationList = fetchedEducationList;
-    });
   }
 
   @override
@@ -199,7 +189,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         }
 
                         if (snapshot.hasData) {
-                          educationList = snapshot.data!;
                           return Column(
                               children: buildEducationList(snapshot.data!));
                         }
@@ -241,53 +230,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     // Display experience entries with labels and edit button
                     smallSizedBox_H,
-                    if (experienceList.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: experienceList.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          Map<String, String> experience = entry.value;
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      experience['companyName'] ?? "",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      experience['position'] ?? "",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                    Text(
-                                      "${experience['startDate']} - ${experience['endDate']}",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey.shade700),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    // Edit the selected experience entry
-                                    AddOrEditExperience(experience, index);
-                                  },
-                                  icon: Icon(
-                                    Icons.edit,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                    StreamBuilder<List<Experience>>(
+                      stream: _userService.experience,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return const Text("Error");
+                        }
+
+                        if (snapshot.hasData) {
+                          return Column(
+                              children: buildExperienceList(snapshot.data!));
+                        }
+
+                        return const Loading();
+                      },
+                    ),
 
                     mediumSizedBox_H,
                     Divider(thickness: 2),
@@ -498,34 +455,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEducationPage(education: educationToEdit, uid: uid),
+        builder: (context) =>
+            AddEducationPage(education: educationToEdit),
       ),
     );
-    if (result != null && result is Education) {
-      Education resultEducation = result;
-      setState(() {});
-    }
+    if (result != null && result is Education) {}
   }
 
   // Method to add or edit experience entry
-  void AddOrEditExperience(
-      [Map<String, String>? experienceToEdit, int? index]) async {
+  void AddOrEditExperience([Experience? experienceToEdit, String? uid ]) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AddExperiencePage(experience: experienceToEdit),
       ),
     );
-    if (result != null && result is Map<String, String>) {
-      setState(() {
-        if (index != null) {
-          // Edit existing entry
-          experienceList[index] = result;
-        } else {
-          // Add new entry
-          experienceList.add(result);
-        }
-      });
+    if (result != null && result is Education) {
+      //setState(() {
+      //  if (index != null) {
+      //    // Edit existing entry
+      //    experienceList[index] = result;
+      //  } else {
+      //    // Add new entry
+      //    experienceList.add(result);
+      //  }
+      //});
     }
   }
 
@@ -614,8 +568,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-        ],
-    )
+          ],
+        )
     ];
+  }
+
+  List<Widget> buildExperienceList(List<Experience> experienceList) {
+    return [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: experienceList.asMap().entries.map((entry) {
+          int index = entry.key;
+          Experience? experience = entry.value;
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      experience.company ?? "",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      experience.title ?? "",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    Text(
+                      "${formatDate(experience.startDate!)} - ${formatDate(experience.endDate!)}",
+                      style:
+                          TextStyle(fontSize: 16, color: Colors.grey.shade700),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  onPressed: () {
+                    // Edit the selected experience entry
+                    AddOrEditExperience(experience, experience.uid!);
+                  },
+                  icon: Icon(
+                    Icons.edit,
+                    color: Colors.blue,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    ];
+  }
+
+  String formatDate(DateTime date) {
+    final DateFormat formatter = DateFormat('MMM. d, yyyy');
+    return formatter.format(date);
   }
 }

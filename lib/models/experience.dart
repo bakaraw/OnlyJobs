@@ -1,16 +1,20 @@
 class Experience {
-  final String? title;
+  final String? uid;
   final String? company;
-  final String? location;
-  final DateTime? date;
+  final String? title;
   final String? description;
+  final String? location;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
   Experience({
-    required this.title,
+    required this.uid,
     required this.company,
-    required this.location,
-    required this.date,
+    required this.title,
     required this.description,
+    required this.location,
+    required this.startDate,
+    required this.endDate,
   });
   
 }
