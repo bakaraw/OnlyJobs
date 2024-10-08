@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:only_job/models/education.dart';
+import 'package:only_job/models/experience.dart';
 
 class UserService {
   UserService({required this.uid});
@@ -208,6 +209,7 @@ class UserService {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
   }
 
+  // methods for adding education
   Future addEducation(String school, String degree, String endDate) async {
     try {
       return await userCollection.doc(uid).collection('education').add({
@@ -241,7 +243,11 @@ class UserService {
 
   Future<void> deleteEducation(String docId) async {
     try {
-      return await userCollection.doc(uid).collection('education').doc(docId).delete();
+      return await userCollection
+          .doc(uid)
+          .collection('education')
+          .doc(docId)
+          .delete();
     } catch (e) {
       log(e.toString());
       rethrow;
@@ -261,5 +267,75 @@ class UserService {
     return userCollection.doc(uid).collection('education').snapshots().map(
         (snapshot) =>
             snapshot.docs.map((doc) => _educationFromSnapshot(doc)).toList());
+  }
+
+  // methods for adding experience
+  Future<void> addExperience(String company, String title, String description,
+      String location, DateTime startDate, DateTime endDate) async {
+    try {
+      // Ensure the date fields are stored correctly
+       await userCollection.doc(uid).collection('experience').add({
+        'company': company,
+        'title': title,
+        'description': description,
+        'location': location,
+        'startDate': startDate,
+        'endDate': endDate,
+      });
+    } catch (e) {
+      // Log the error with additional context
+      log("Error adding experience for user $uid: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateExperience(String company, String title, String description,
+      String location, DateTime startDate, DateTime endDate, String docId) async {
+    try {
+      // Ensure the date fields are stored correctly
+      await userCollection.doc(uid).collection('experience').doc(docId).update({
+        'company': company,
+        'title': title,
+        'description': description,
+        'location': location,
+        'startDate': startDate,
+        'endDate': endDate,
+      });
+    } catch (e) {
+      // Log the error with additional context
+      log("Error updating experience for user $uid: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteExperience(String docId) async {
+    try {
+      return await userCollection
+          .doc(uid)
+          .collection('experience')
+          .doc(docId)
+          .delete();
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Experience _experienceFromSnapshot(DocumentSnapshot snapshot) {
+    return Experience(
+      uid: snapshot.id,
+      company: snapshot.get('company'),
+      title: snapshot.get('title'),
+      description: snapshot.get('description'),
+      location: snapshot.get('location'),
+      startDate: snapshot.get('startDate').toDate(),
+      endDate: snapshot.get('endDate').toDate(),
+    );
+  }
+
+  Stream<List<Experience>> get experience {
+    return userCollection.doc(uid).collection('experience').snapshots().map(
+        (snapshot) =>
+            snapshot.docs.map((doc) => _experienceFromSnapshot(doc)).toList());
   }
 }

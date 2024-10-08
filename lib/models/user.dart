@@ -1,4 +1,5 @@
 import 'package:only_job/models/education.dart';
+import 'package:only_job/models/experience.dart';
 
 class User {
   final String? uid;
@@ -22,6 +23,7 @@ class UserData {
   final String? profilePicture;
   List<dynamic>? skills; 
   List<Education>? education;
+  List<Experience>? experience;
 
   UserData({
     required this.uid,
@@ -37,5 +39,6 @@ class UserData {
     required this.profilePicture,
     this.skills,
     this.education,
+    this.experience,
   });
 }

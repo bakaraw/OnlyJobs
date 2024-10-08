@@ -38,12 +38,12 @@ class _AddEducationPageState extends State<AddEducationPage> {
     _institutionController =
         TextEditingController(text: widget.education?.university ?? '');
     _yearController = TextEditingController(text: widget.education?.year ?? '');
-    _yearFocusNode = FocusNode();
-    _yearFocusNode.addListener(() {
-      if (!_yearFocusNode.hasFocus) {
-        _selectYear(context);
-      }
-    });
+    //_yearFocusNode = FocusNode();
+    //_yearFocusNode.addListener(() {
+    //  if (!_yearFocusNode.hasFocus) {
+    //    _selectYear(context);
+    //  }
+    //});
   }
 
   @override
@@ -101,7 +101,7 @@ class _AddEducationPageState extends State<AddEducationPage> {
             ),
             TextButton(
               onPressed: () async {
-                await _userService.deleteEducation(widget.education!.uid!);
+                _userService.deleteEducation(widget.education!.uid!);
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
@@ -162,7 +162,6 @@ class _AddEducationPageState extends State<AddEducationPage> {
                 decoration: InputDecoration(labelText: 'Year of Graduation'),
                 keyboardType: TextInputType.number,
                 onTap: () => _selectYear(context),
-                focusNode: _yearFocusNode,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the year of graduation';
