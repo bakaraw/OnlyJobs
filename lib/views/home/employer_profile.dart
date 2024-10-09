@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/services/user_service.dart';
-import 'package:only_job/views/constants/loading.dart';
 import 'package:only_job/models/user.dart';
 import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,7 +11,6 @@ import 'dart:io';
 import 'package:only_job/utils/image_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
-import 'package:http/http.dart' as http;
 
 class EmployerProfile extends StatefulWidget {
   @override

@@ -5,6 +5,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:only_job/models/education.dart';
+import 'package:only_job/models/experience.dart';
+import 'package:only_job/models/certification.dart';
 
 class UserService {
   UserService({required this.uid});
@@ -34,6 +37,7 @@ class UserService {
         'pending': [],
         'website': null,
         'isUserNew': true,
+        'skills': [],
         'profile_picture': _defaultPfp,
       });
     } catch (e) {
@@ -66,7 +70,6 @@ class UserService {
   }
 
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
-    log(snapshot.get('name'));
     if (snapshot.get('isJobSeeker') == true) {
       return UserData(
         uid: uid,
@@ -80,6 +83,7 @@ class UserService {
         website: snapshot.get('website') ?? '',
         isUserNew: snapshot.get('isUserNew'),
         profilePicture: snapshot.get('profile_picture'),
+        skills: snapshot.get('skills') ?? [],
       );
     }
 
@@ -114,6 +118,23 @@ class UserService {
       final timeStamp = DateTime.now().millisecondsSinceEpoch;
       final uploadRef =
           storageRef.child("$uid/uploads/$timeStamp-profile-picture.$fileExt");
+
+      await uploadRef.putFile(file);
+      return uploadRef.getDownloadURL();
+    } catch (e) {
+      log("Error uploading image");
+      log(e.toString());
+    }
+    return null;
+  }
+
+  // upload a file or an image
+  Future<String?> uploadFile(File file) async {
+    try {
+      final storageRef = FirebaseStorage.instance.ref();
+      final fileExt = file.path.split('.').last;
+      final timeStamp = DateTime.now().millisecondsSinceEpoch;
+      final uploadRef = storageRef.child("$uid/uploads/$timeStamp.$fileExt");
 
       await uploadRef.putFile(file);
       return uploadRef.getDownloadURL();
@@ -166,8 +187,227 @@ class UserService {
     }
   }
 
+  Future<void> addSkills(String skill) async {
+    try {
+      return await userCollection.doc(uid).update({
+        'skills': FieldValue.arrayUnion([skill]),
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> removeSkill(String skill) async {
+    try {
+      return await userCollection.doc(uid).update({
+        'skills': FieldValue.arrayRemove([skill]),
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List<Education>> getEducationList() async {
+    try {
+      final QuerySnapshot snapshot =
+          await userCollection.doc(uid).collection('education').get();
+      final List<Education> educationList =
+          snapshot.docs.map((doc) => Education.fromDocument(doc)).toList();
+      return educationList;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
   // make a sub-collection for job openings
   Stream<UserData> get userData {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  // methods for adding education
+  Future addEducation(String school, String degree, String endDate) async {
+    try {
+      return await userCollection.doc(uid).collection('education').add({
+        'university': school,
+        'degree': degree,
+        'year': endDate,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> updateEducation(
+      String school, String degree, String endDate, String docId) async {
+    try {
+      return await userCollection
+          .doc(uid)
+          .collection('education')
+          .doc(docId)
+          .update({
+        'university': school,
+        'degree': degree,
+        'year': endDate,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> deleteEducation(String docId) async {
+    try {
+      return await userCollection
+          .doc(uid)
+          .collection('education')
+          .doc(docId)
+          .delete();
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Education _educationFromSnapshot(DocumentSnapshot snapshot) {
+    return Education(
+      uid: snapshot.id,
+      university: snapshot.get('university'),
+      degree: snapshot.get('degree'),
+      year: snapshot.get('year'),
+    );
+  }
+
+  Stream<List<Education>> get education {
+    return userCollection.doc(uid).collection('education').snapshots().map(
+        (snapshot) =>
+            snapshot.docs.map((doc) => _educationFromSnapshot(doc)).toList());
+  }
+
+  // methods for adding experience
+  Future<void> addExperience(String company, String title, String description,
+      String location, DateTime startDate, DateTime endDate) async {
+    try {
+      // Ensure the date fields are stored correctly
+      await userCollection.doc(uid).collection('experience').add({
+        'company': company,
+        'title': title,
+        'description': description,
+        'location': location,
+        'startDate': startDate,
+        'endDate': endDate,
+      });
+    } catch (e) {
+      // Log the error with additional context
+      log("Error adding experience for user $uid: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateExperience(
+      String company,
+      String title,
+      String description,
+      String location,
+      DateTime startDate,
+      DateTime endDate,
+      String docId) async {
+    try {
+      // Ensure the date fields are stored correctly
+      await userCollection.doc(uid).collection('experience').doc(docId).update({
+        'company': company,
+        'title': title,
+        'description': description,
+        'location': location,
+        'startDate': startDate,
+        'endDate': endDate,
+      });
+    } catch (e) {
+      // Log the error with additional context
+      log("Error updating experience for user $uid: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteExperience(String docId) async {
+    try {
+      return await userCollection
+          .doc(uid)
+          .collection('experience')
+          .doc(docId)
+          .delete();
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Experience _experienceFromSnapshot(DocumentSnapshot snapshot) {
+    return Experience(
+      uid: snapshot.id,
+      company: snapshot.get('company'),
+      title: snapshot.get('title'),
+      description: snapshot.get('description'),
+      location: snapshot.get('location'),
+      startDate: snapshot.get('startDate').toDate(),
+      endDate: snapshot.get('endDate').toDate(),
+    );
+  }
+
+  Stream<List<Experience>> get experience {
+    return userCollection.doc(uid).collection('experience').snapshots().map(
+        (snapshot) =>
+            snapshot.docs.map((doc) => _experienceFromSnapshot(doc)).toList());
+  }
+
+  Future<void> addCertification(
+      String certificationName, String date, String? attachedFile) async {
+    try {
+      await userCollection.doc(uid).collection('certifications').add({
+        'certificationName': certificationName,
+        'date': date,
+        'attachedFile': attachedFile,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Certification _certificationFromSnapshot(DocumentSnapshot snapshot) {
+    return Certification(
+      uid: snapshot.id,
+      certificationName: snapshot.get('certificationName'),
+      date: snapshot.get('date'),
+      attachedFile: snapshot.get('attachedFile'),
+    );
+  }
+
+  // delete certification and the attached file
+  Future<void> deleteCertification(String docId, String? attachedFile) async {
+    try {
+      if (attachedFile != null) {
+        final storageRef = FirebaseStorage.instance.refFromURL(attachedFile);
+        await storageRef.delete();
+      }
+      return await userCollection
+          .doc(uid)
+          .collection('certifications')
+          .doc(docId)
+          .delete();
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Stream<List<Certification>> get certifications {
+    return userCollection.doc(uid).collection('certifications').snapshots().map(
+        (snapshot) => snapshot.docs
+            .map((doc) => _certificationFromSnapshot(doc))
+            .toList());
   }
 }

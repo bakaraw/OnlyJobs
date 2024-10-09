@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:only_job/services/retrieve_skills.dart';
+import 'package:only_job/services/user_service.dart';
+import 'package:only_job/services/auth.dart';
 
 class AddSkillsPage extends StatefulWidget {
   final List<String>? selectedSkills;
-
   AddSkillsPage({this.selectedSkills = const []});
 
   @override
@@ -10,27 +12,24 @@ class AddSkillsPage extends StatefulWidget {
 }
 
 class _AddSkillsPageState extends State<AddSkillsPage> {
+  late AuthService _auth;
+  late UserService _userService;
   final TextEditingController _searchController = TextEditingController();
-  List<String> allSkills = [
-    'Programming',
-    'Project Management',
-    'Data Analysis',
-    'Communication',
-    'Design',
-    'Marketing',
-    'Leadership',
-    'Problem Solving',
-    'Teamwork',
-    'Time Management',
-  ]; // Predefined list of skills
+  late List<String> allSkills;
   List<String> filteredSkills = [];
   List<String> addedSkills = [];
+
+  void _loadSkills() async {
+    allSkills = await RetrieveSkills().retrieveSkillsFromFirestore();
+  }
 
   @override
   void initState() {
     super.initState();
+    _auth = AuthService();
+    _userService = UserService(uid: _auth.getCurrentUserId()!);
+    _loadSkills();
     addedSkills = widget.selectedSkills ?? [];
-    // Initially, no skills are visible until user starts typing
     filteredSkills = [];
   }
 
@@ -60,12 +59,18 @@ class _AddSkillsPageState extends State<AddSkillsPage> {
 
   // Remove skill from the added list
   void _removeSkill(String skill) {
+    _userService.removeSkill(skill); // Remove skill from profile
     setState(() {
       addedSkills.remove(skill);
     });
   }
 
-  void _saveSkills() {
+  void _saveSkills() async{
+
+    for (String skill in addedSkills) {
+      await UserService(uid: _auth.getCurrentUserId()!).addSkills(skill); // Add selected skills to profile
+    }
+
     Navigator.pop(
         context, addedSkills); // Return the selected skills to profile
   }
