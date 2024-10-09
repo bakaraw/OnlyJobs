@@ -14,6 +14,7 @@ import 'package:only_job/views/constants/loading.dart';
 import 'package:intl/intl.dart';
 import 'package:only_job/models/education.dart';
 import 'package:only_job/models/experience.dart';
+import 'package:only_job/models/certification.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -251,7 +252,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mediumSizedBox_H,
 
                     // Certification Section
-                    Align(
+                    const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "Certifications",
@@ -263,7 +264,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     GestureDetector(
                       onTap:
                           AddOrEditCertification, // For adding new certification
-                      child: Row(
+                      child: const Row(
                         children: [
                           Icon(
                             Icons.add,
@@ -280,60 +281,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     // Display certification entries with labels and edit button
                     smallSizedBox_H,
-                    if (certificationList.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children:
-                            certificationList.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          Map<String, String> certification = entry.value;
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      certification['certificationName'] ?? "",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      certification['year'] ?? "",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                    if (certification['attachedFile'] != null)
-                                      Text(
-                                        "File attached",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.green.shade700),
-                                      ),
-                                  ],
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    // Edit the selected certification entry
-                                    AddOrEditCertification(
-                                        certification, index);
-                                  },
-                                  icon: Icon(Icons.edit, color: Colors.blue),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
+
+                    // Certification Section
+                    StreamBuilder<List<Certification>>(
+                      stream: _userService.certifications,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Text("Error: ${snapshot.error}");
+                        }
+
+                        if (snapshot.hasData) {
+                          return Column(
+                              children: buildCertificationList(snapshot.data!));
+                        }
+
+                        return const Loading();
+                      },
+                    ),
 
                     mediumSizedBox_H,
-                    Divider(thickness: 2),
+                    const Divider(thickness: 2),
                     mediumSizedBox_H,
 
                     // Skills Section
-                    Align(
+                    const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "Skills",
@@ -455,15 +426,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            AddEducationPage(education: educationToEdit),
+        builder: (context) => AddEducationPage(education: educationToEdit),
       ),
     );
     if (result != null && result is Education) {}
   }
 
   // Method to add or edit experience entry
-  void AddOrEditExperience([Experience? experienceToEdit, String? uid ]) async {
+  void AddOrEditExperience([Experience? experienceToEdit, String? uid]) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -485,7 +455,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // Method to add or edit certification entry
   void AddOrEditCertification(
-      [Map<String, String>? certificationToEdit, int? index]) async {
+      [Certification? certificationToEdit, int? index]) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -493,16 +463,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             AddCertificationPage(certification: certificationToEdit),
       ),
     );
-    if (result != null && result is Map<String, String>) {
-      setState(() {
-        if (index != null) {
-          // Edit existing entry
-          certificationList[index] = result;
-        } else {
-          // Add new entry
-          certificationList.add(result);
-        }
-      });
+    if (result != null && result is Certification) {
+      //setState(() {
+      //  if (index != null) {
+      //    // Edit existing entry
+      //    certificationList = result;
+      //  } else {
+      //    // Add new entry
+      //    certificationList.add(result);
+      //  }
+      //});
     }
   }
 
@@ -614,6 +584,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: Colors.blue,
                   ),
                 ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    ];
+  }
+
+  List<Widget> buildCertificationList(List<Certification> certificationList) {
+    bool loading = false;
+    return [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: certificationList.asMap().entries.map((entry) {
+          int index = entry.key;
+          Certification? certification = entry.value;
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      certification.certificationName ?? "",
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      certification.date!,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    if (certification.attachedFile != null)
+                      Text(
+                        "File attached",
+                        style: TextStyle(
+                            fontSize: 16, color: Colors.green.shade700),
+                      ),
+                  ],
+                ),
+                loading ? const CircularProgressIndicator() : IconButton(
+                  onPressed: () async {
+                    // Edit the selected certification entry
+                    setState(() {
+                      loading = true;
+                    });
+                    await _userService.deleteCertification(
+                        certification.uid!, certification.attachedFile);
+                  },
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                ), 
               ],
             ),
           );

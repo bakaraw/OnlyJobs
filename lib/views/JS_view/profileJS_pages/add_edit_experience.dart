@@ -273,11 +273,11 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
         Flexible(
           child: ElevatedButton(
             onPressed: _saveExperience,
-            child: Text('Save'),
             style: ElevatedButton.styleFrom(
-              minimumSize: Size.fromHeight(50),
+              minimumSize: const Size.fromHeight(50),
               backgroundColor: Colors.blue,
             ),
+            child: const Text('Save'),
           ),
         ),
       ];
@@ -287,7 +287,6 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
         Flexible(
             child: ElevatedButton(
           onPressed: _deleteExperience,
-          child: Text('Delete'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             foregroundColor: backgroundwhite,
@@ -296,20 +295,21 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
+          child: const Text('Delete'),
         )),
         smallSizedBox_W,
         Flexible(
             child: ElevatedButton(
           onPressed: _updateExperience,
-          child: Text('Save'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue,
             foregroundColor: backgroundwhite,
-            minimumSize: Size(100, 50),
+            minimumSize: const Size(100, 50),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
           ),
+          child: const Text('Save'),
         )),
       ];
     }

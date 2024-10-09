@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:only_job/models/certification.dart';
+import 'package:only_job/services/auth.dart';
+import 'package:only_job/services/user_service.dart';
+import 'dart:typed_data';
+import 'package:only_job/utils/file_uploader.dart';
+import 'package:only_job/views/constants/constants.dart';
 
 class AddCertificationPage extends StatefulWidget {
-  final Map<String, String>?
-      certification; // For editing existing certification
+  final Certification? certification; // For editing existing certification
 
   AddCertificationPage({this.certification});
 
@@ -14,49 +17,63 @@ class AddCertificationPage extends StatefulWidget {
 
 class _AddCertificationPageState extends State<AddCertificationPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _certificationNameController =
-      TextEditingController();
-  final TextEditingController _yearController = TextEditingController();
-  File? _attachedFile;
-  final ImagePicker _picker = ImagePicker();
+  late TextEditingController _certificationNameController;
+  late TextEditingController _yearController;
+  //final ImagePicker _picker = ImagePicker();
+  late AuthService _authService;
+  late UserService _userService;
+
+  FileUploader _fileUploader = FileUploader();
+
+  dynamic _attachedFile;
+
+  bool loading = false;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
     super.initState();
-
     // If an existing certification is passed for editing, pre-populate the fields
     if (widget.certification != null) {
-      _certificationNameController.text =
-          widget.certification!['certificationName'] ?? '';
-      _yearController.text = widget.certification!['year'] ?? '';
-      if (widget.certification!['attachedFile'] != null) {
-        _attachedFile = File(widget.certification!['attachedFile']!);
-      }
-    }
-  }
+      _certificationNameController = TextEditingController();
+      _yearController = TextEditingController();
 
-  // Pick file for certification (can be an image or PDF)
-  Future<void> pickFile() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _attachedFile = File(pickedFile.path);
-      });
+      _certificationNameController.text =
+          widget.certification!.certificationName ?? '';
+      _yearController.text = widget.certification!.date! ?? '';
+
+      if (widget.certification!.attachedFile != null) {
+        _attachedFile = widget.certification!.attachedFile!;
+      }
+    } else {
+      _certificationNameController = TextEditingController();
+      _yearController = TextEditingController();
     }
+
+    _authService = AuthService();
+    _userService = UserService(uid: _authService.getCurrentUserId()!);
   }
 
   // Save the certification details
-  void saveCertification() {
+  void saveCertification() async {
     if (_formKey.currentState!.validate()) {
       // Create a certification map with the entered data
-      Map<String, String> certification = {
-        'certificationName': _certificationNameController.text,
-        'year': _yearController.text,
-        'attachedFile': _attachedFile?.path ?? ''
-      };
+      setState(() {
+        loading = true;
+      });
 
-      // Pop and return the certification data back to the ProfileScreen
-      Navigator.pop(context, certification);
+      String? downloadUrl = await _fileUploader
+          .uploadFileToFirebase(_authService.getCurrentUserId()!);
+
+      String year = _selectedDate?.year.toString() ?? _yearController.text;
+      await _userService.addCertification(
+          _certificationNameController.text, year, downloadUrl);
+
+      setState(() {
+        loading = false;
+      });
+
+      Navigator.pop(context);
     }
   }
 
@@ -67,12 +84,6 @@ class _AddCertificationPageState extends State<AddCertificationPage> {
         title: Text(widget.certification == null
             ? 'Add Certification'
             : 'Edit Certification'),
-        actions: [
-          IconButton(
-            onPressed: saveCertification,
-            icon: Icon(Icons.save),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -98,12 +109,17 @@ class _AddCertificationPageState extends State<AddCertificationPage> {
 
               // Year
               TextFormField(
-                controller: _yearController,
-                decoration: InputDecoration(
+                controller: TextEditingController(
+                  text: _selectedDate == null
+                      ? _yearController.text
+                      : _selectedDate!.year.toString(),
+                ),
+                decoration: const InputDecoration(
                   labelText: 'Year',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
+                onTap: () => _selectYear(context),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the year';
@@ -114,55 +130,164 @@ class _AddCertificationPageState extends State<AddCertificationPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Attach File
               Row(
                 children: [
                   ElevatedButton.icon(
-                    onPressed: pickFile,
+                    onPressed: () async {
+                      if(_attachedFile == null){
+                        _attachedFile = await _fileUploader.selectFile();
+                      } 
+
+                      if (_attachedFile is String){
+                        var selectedFile = await _fileUploader.selectFile();
+                        if(selectedFile != null){
+                          _attachedFile = selectedFile;
+                          _fileUploader.deleteFileFromFirebase(_attachedFile);
+                        }
+                      }
+                      setState(() {});
+                    },
                     icon: Icon(Icons.attach_file),
                     label: Text('Attach File'),
                   ),
                   SizedBox(width: 10),
-                  if (_attachedFile != null)
-                    Expanded(
-                      child: Text(
-                        _attachedFile!.path.split('/').last,
-                        style: TextStyle(color: Colors.green),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+                  if (_attachedFile != null) ...[
+                    _attachedFile is Uint8List
+                        ? Expanded(
+                            child: Text(
+                              _fileUploader.fileName ?? 'no file selected',
+                              style: TextStyle(color: Colors.green),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )
+                        : Expanded(
+                            child: Text(
+                              getFileNameFromUrl(_attachedFile),
+                              style: TextStyle(color: Colors.green),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                  ],
                 ],
               ),
-
               // If a file is attached, show its preview (image or file name)
+              //if (_attachedFile != null) ...[
+              //  SizedBox(height: 16),
+              //  _attachedFile != null
+              //      ? Image.memory(
+              //          _attachedFile!,
+              //          height: 100,
+              //          width: 100,
+              //          fit: BoxFit.cover,
+              //        )
+              //      : Text('No file attached'),
+              //],
               if (_attachedFile != null) ...[
                 SizedBox(height: 16),
-                _attachedFile != null
-                    ? Image.file(
-                        _attachedFile!,
+                _attachedFile is Uint8List
+                    ? Image.memory(
+                        _attachedFile
+                            as Uint8List, // Cast to Uint8List if needed
                         height: 100,
                         width: 100,
                         fit: BoxFit.cover,
                       )
-                    : Text('No file attached'),
+                    : const Text(' '),
+                _attachedFile is String
+                    ? Image.network(
+                        _attachedFile as String, // Cast to String if needed
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                      )
+                    : const Text(' '),
               ],
-
-              Spacer(),
-
+              const Spacer(),
+              ..._buildButtons(),
               // Save Button
-              ElevatedButton(
-                onPressed: saveCertification,
-                child: Text('Save Certification'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 50),
-                ),
-              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  List<Widget> _buildButtons() {
+    if (_attachedFile is String) {
+      return [
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: backgroundwhite,
+              minimumSize: const Size(100, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text('Delete'),
+          ),
+        ]),
+      ];
+    } else {
+      return [
+        ElevatedButton(
+          onPressed: saveCertification,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: backgroundwhite,
+            minimumSize: const Size(double.infinity, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: loading
+              ? const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: SizedBox(
+                      width: 25,
+                      height: 25,
+                      child: CircularProgressIndicator()))
+              : const Text('Save Certification'),
+        ),
+      ];
+    }
+  }
+
+  Future<void> _selectYear(BuildContext context) async {
+    final DateTime? pickedYear = await showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: SizedBox(
+            height: 300,
+            child: YearPicker(
+              firstDate: DateTime(1900),
+              lastDate: DateTime.now(),
+              initialDate: _selectedDate ?? DateTime.now(),
+              selectedDate: _selectedDate ?? DateTime.now(),
+              onChanged: (DateTime dateTime) {
+                Navigator.pop(context, dateTime);
+              },
+            ),
+          ),
+        );
+      },
+    );
+
+    if (pickedYear != null && pickedYear != _selectedDate) {
+      setState(() {
+        _selectedDate = pickedYear;
+      });
+    }
+  }
+
+  String getFileNameFromUrl(String downloadUrl) {
+    // Split the downloadUrl at the last '/' and take the last part
+    return downloadUrl.split('/').last.split('2%2F').last.split('?').first;
   }
 }

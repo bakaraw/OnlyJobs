@@ -25,7 +25,6 @@ class _AddEducationPageState extends State<AddEducationPage> {
   late TextEditingController _yearController;
 
   DateTime? _selectedDate;
-  late FocusNode _yearFocusNode;
 
   @override
   void initState() {
@@ -89,15 +88,15 @@ class _AddEducationPageState extends State<AddEducationPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Education'),
+          title: const Text('Delete Education'),
           content:
-              Text('Are you sure you want to delete this education entry?'),
+              const Text('Are you sure you want to delete this education entry?'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
@@ -105,7 +104,7 @@ class _AddEducationPageState extends State<AddEducationPage> {
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              child: Text('Delete', style: TextStyle(color: Colors.red)),
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -159,7 +158,7 @@ class _AddEducationPageState extends State<AddEducationPage> {
                       ? _yearController.text
                       : _selectedDate!.year.toString(),
                 ),
-                decoration: InputDecoration(labelText: 'Year of Graduation'),
+                decoration: const InputDecoration(labelText: 'Year of Graduation'),
                 keyboardType: TextInputType.number,
                 onTap: () => _selectYear(context),
                 validator: (value) {
@@ -190,43 +189,43 @@ class _AddEducationPageState extends State<AddEducationPage> {
       return [
         ElevatedButton(
           onPressed: _deleteEducation,
-          child: Text('Delete'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             foregroundColor: backgroundwhite,
-            minimumSize: Size(100, 50),
+            minimumSize: const Size(100, 50),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
           ),
+          child: const Text('Delete'),
         ),
         smallSizedBox_W,
         ElevatedButton(
           onPressed: _updateEducation,
-          child: Text('Save'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue,
             foregroundColor: backgroundwhite,
-            minimumSize: Size(100, 50),
+            minimumSize: const Size(100, 50),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
           ),
+          child: const Text('Save'),
         ),
       ];
     } else {
       return [
         ElevatedButton(
           onPressed: _saveEducation,
-          child: Text('Save'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue,
             foregroundColor: backgroundwhite,
-            minimumSize: Size(100, 50),
+            minimumSize: const Size(100, 50),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
           ),
+          child: const Text('Save'),
         ),
       ];
     }
