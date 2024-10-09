@@ -179,7 +179,9 @@ class _UserListPageState extends State<UserListPage> {
                           return Center(child: Text("Error loading pending requests", style: errortxtstyle,));
                         }
                         if (pendingSnapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return Center(child: Loading());
+                         // return Center(child: CircularProgressIndicator());
+
                         }
 
                         if (pendingSnapshot.data!.docs.isEmpty) {

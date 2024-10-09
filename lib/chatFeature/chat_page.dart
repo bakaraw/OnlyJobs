@@ -106,6 +106,7 @@ class _ChatPageState extends State<ChatPage> {
                           message: messageController.text.trim(),
                           time: DateTime.now(),
                           senderName: currentUserName ?? 'Unknown',
+                          senderId: auth.currentUser?.uid ?? '',
                           receiver: receiverName,
                         );
 
