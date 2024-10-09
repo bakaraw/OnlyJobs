@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:only_job/models/education.dart';
 import 'package:only_job/models/experience.dart';
+import 'package:only_job/models/certification.dart';
 
 class UserService {
   UserService({required this.uid});
@@ -117,6 +118,23 @@ class UserService {
       final timeStamp = DateTime.now().millisecondsSinceEpoch;
       final uploadRef =
           storageRef.child("$uid/uploads/$timeStamp-profile-picture.$fileExt");
+
+      await uploadRef.putFile(file);
+      return uploadRef.getDownloadURL();
+    } catch (e) {
+      log("Error uploading image");
+      log(e.toString());
+    }
+    return null;
+  }
+
+  // upload a file or an image
+  Future<String?> uploadFile(File file) async {
+    try {
+      final storageRef = FirebaseStorage.instance.ref();
+      final fileExt = file.path.split('.').last;
+      final timeStamp = DateTime.now().millisecondsSinceEpoch;
+      final uploadRef = storageRef.child("$uid/uploads/$timeStamp.$fileExt");
 
       await uploadRef.putFile(file);
       return uploadRef.getDownloadURL();
@@ -274,7 +292,7 @@ class UserService {
       String location, DateTime startDate, DateTime endDate) async {
     try {
       // Ensure the date fields are stored correctly
-       await userCollection.doc(uid).collection('experience').add({
+      await userCollection.doc(uid).collection('experience').add({
         'company': company,
         'title': title,
         'description': description,
@@ -289,8 +307,14 @@ class UserService {
     }
   }
 
-  Future<void> updateExperience(String company, String title, String description,
-      String location, DateTime startDate, DateTime endDate, String docId) async {
+  Future<void> updateExperience(
+      String company,
+      String title,
+      String description,
+      String location,
+      DateTime startDate,
+      DateTime endDate,
+      String docId) async {
     try {
       // Ensure the date fields are stored correctly
       await userCollection.doc(uid).collection('experience').doc(docId).update({
@@ -337,5 +361,53 @@ class UserService {
     return userCollection.doc(uid).collection('experience').snapshots().map(
         (snapshot) =>
             snapshot.docs.map((doc) => _experienceFromSnapshot(doc)).toList());
+  }
+
+  Future<void> addCertification(
+      String certificationName, String date, String? attachedFile) async {
+    try {
+      await userCollection.doc(uid).collection('certifications').add({
+        'certificationName': certificationName,
+        'date': date,
+        'attachedFile': attachedFile,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Certification _certificationFromSnapshot(DocumentSnapshot snapshot) {
+    return Certification(
+      uid: snapshot.id,
+      certificationName: snapshot.get('certificationName'),
+      date: snapshot.get('date'),
+      attachedFile: snapshot.get('attachedFile'),
+    );
+  }
+
+  // delete certification and the attached file
+  Future<void> deleteCertification(String docId, String? attachedFile) async {
+    try {
+      if (attachedFile != null) {
+        final storageRef = FirebaseStorage.instance.refFromURL(attachedFile);
+        await storageRef.delete();
+      }
+      return await userCollection
+          .doc(uid)
+          .collection('certifications')
+          .doc(docId)
+          .delete();
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Stream<List<Certification>> get certifications {
+    return userCollection.doc(uid).collection('certifications').snapshots().map(
+        (snapshot) => snapshot.docs
+            .map((doc) => _certificationFromSnapshot(doc))
+            .toList());
   }
 }
