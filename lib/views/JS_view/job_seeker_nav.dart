@@ -14,6 +14,7 @@ class NavJS extends StatefulWidget {
 
 class _NavJSState extends State<NavJS> {
   int _currentIndex = 1;
+  late PageController _pageController;
 
   final List<Widget> _pages = [
     ProfileScreen(),
@@ -22,9 +23,29 @@ class _NavJSState extends State<NavJS> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: PageView(
+        controller: _pageController,
+        children: _pages,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
       bottomNavigationBar: Container(
         color: backgroundblack,
         child: Padding(
@@ -56,6 +77,8 @@ class _NavJSState extends State<NavJS> {
               setState(() {
                 _currentIndex = index;
               });
+
+              _pageController.jumpToPage(index);
             },
           ),
         ),

@@ -5,7 +5,6 @@ import 'package:only_job/views/JS_view/profileJS_pages/add_edit_education.dart';
 import 'package:only_job/views/JS_view/profileJS_pages/add_edit_experience.dart';
 import 'package:only_job/views/JS_view/profileJS_pages/add_edit_skills.dart';
 import 'package:only_job/views/JS_view/profileJS_pages/edit_profile.dart';
-import 'dart:io';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/services/user_service.dart';
@@ -15,6 +14,8 @@ import 'package:intl/intl.dart';
 import 'package:only_job/models/education.dart';
 import 'package:only_job/models/experience.dart';
 import 'package:only_job/models/certification.dart';
+import 'package:only_job/services/file_service.dart';
+import 'dart:developer';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -26,12 +27,12 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late AuthService _auth;
   late UserService _userService;
-  List<Map<String, String>> certificationList = [];
   List<String> skills = [];
 
   // Stored Sample Job
   final ImagePicker _picker = ImagePicker();
-  XFile? _profileImage;
+  final FileService _fileUploader = FileService();
+  bool pfpLoading = false;
 
   @override
   void initState() {
@@ -53,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             skills = snapshot.data!.skills!.cast<String>();
             return buildPage(snapshot.data!);
           }
-
+          
           return const Loading();
         });
   }
@@ -62,7 +63,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String formattedBirthdate = userData.birthDate != null
         ? DateFormat('MMMM d, yyyy').format(userData.birthDate!)
         : '';
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
@@ -70,22 +70,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           largeSizedBox_H,
-          Container(
-            child: Stack(
+             Stack(
               children: [
                 CircleAvatar(
                   radius: 80,
                   backgroundColor: Colors.grey[300],
-                  child: _profileImage != null
-                      ? ClipOval(
-                          child: Image.file(
-                            File(_profileImage!.path),
-                            width: 100,
-                            height: 100,
+                  child: userData.profilePicture != null
+                      ? pfpLoading ? const CircularProgressIndicator() : ClipOval(
+                          child: Image.network(
+                            userData.profilePicture!,
+                            width: 150,
+                            height: 150,
                             fit: BoxFit.cover,
                           ),
                         )
-                      : Icon(
+                      : const Icon(
                           Icons.person,
                           size: 50,
                           color: Colors.white,
@@ -96,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   right: 0,
                   child: InkWell(
                     onTap: PickImage,
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                       radius: 18,
                       backgroundColor: accent1,
                       child: Icon(
@@ -108,7 +107,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-          ),
           mediumSizedBox_H,
           Expanded(
             child: SingleChildScrollView(
@@ -119,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           "Profile Information",
                           style: headingStyle,
                         ),
@@ -134,13 +132,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
-                          child: Text('Edit'),
+                          child: const Text('Edit'),
                         )
                       ],
                     ),
                     buildContactField('Full Name', userData.name ?? ''),
                     buildContactField('Gender', userData.gender ?? ''),
-                    buildContactField('Birthdate', formattedBirthdate ?? ''),
+                    buildContactField('Birthdate', formattedBirthdate),
                     buildContactField('Phone Number', userData.phone ?? ''),
                     buildContactField('Address', userData.address ?? ''),
                     buildContactField(
@@ -151,11 +149,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     buildContactField('Email', userData.email ?? ''),
 
                     mediumSizedBox_H,
-                    Divider(thickness: 2),
+                    const Divider(thickness: 2),
                     mediumSizedBox_H,
 
                     // Education Section
-                    Align(
+                    const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "Education",
@@ -165,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     smallSizedBox_H,
                     GestureDetector(
                       onTap: AddOrEditEducation,
-                      child: Row(
+                      child: const Row(
                         children: [
                           Icon(
                             Icons.add,
@@ -198,11 +196,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
                     mediumSizedBox_H,
-                    Divider(thickness: 2),
+                    const Divider(thickness: 2),
                     mediumSizedBox_H,
 
                     // Experience Section
-                    Align(
+                    const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "Experience",
@@ -213,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     GestureDetector(
                       onTap: AddOrEditExperience,
-                      child: Row(
+                      child: const Row(
                         children: [
                           Icon(
                             Icons.add,
@@ -248,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
 
                     mediumSizedBox_H,
-                    Divider(thickness: 2),
+                    const Divider(thickness: 2),
                     mediumSizedBox_H,
 
                     // Certification Section
@@ -315,7 +313,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     GestureDetector(
                       onTap: addOrEditSkills, // Navigate to AddSkillsPage
-                      child: Row(
+                      child: const Row(
                         children: [
                           Icon(
                             Icons.add,
@@ -357,14 +355,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _auth.signOut();
                       },
                       style: ElevatedButton.styleFrom(
-                        minimumSize: Size.fromHeight(50),
+                        minimumSize: const Size.fromHeight(50),
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.red,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: Text("Logout"),
+                      child: const Text("Logout"),
                     ),
                   ],
                 ),
@@ -383,7 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 16)),
+          Text(label, style: const TextStyle(fontSize: 16)),
           TextField(
             enabled: false,
             decoration: InputDecoration(
@@ -393,7 +391,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               fillColor: Colors.grey[200],
               border: InputBorder.none,
               contentPadding:
-                  EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
             ),
           ),
         ],
@@ -403,17 +401,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // Allows user to pick image from the gallery
   Future<void> PickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      if (pickedFile != null) {
-        _profileImage = pickedFile;
-      }
-    });
+    var pickedFile = await _fileUploader.selectFile();
+    if (pickedFile != null) {
+      setState(() {
+        pfpLoading = true;
+      });
+      String? url = await _fileUploader.uploadFileToFirebase(_auth.getCurrentUserId()!);
+      await _userService.updateProfilePicture(url!);
+      setState(() {
+        pfpLoading = false;
+      });
+    }
   }
 
   // Method to edit contact information
   void EditContactInfo(UserData userData) async {
-    final updatedContactInfo = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EditContactInfoPage(userData: userData),
@@ -441,15 +444,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
     if (result != null && result is Education) {
-      //setState(() {
-      //  if (index != null) {
-      //    // Edit existing entry
-      //    experienceList[index] = result;
-      //  } else {
-      //    // Add new entry
-      //    experienceList.add(result);
-      //  }
-      //});
     }
   }
 
@@ -464,15 +458,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
     if (result != null && result is Certification) {
-      //setState(() {
-      //  if (index != null) {
-      //    // Edit existing entry
-      //    certificationList = result;
-      //  } else {
-      //    // Add new entry
-      //    certificationList.add(result);
-      //  }
-      //});
     }
   }
 
@@ -514,12 +499,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Text(
                         education.university ?? "",
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       Text(
                         education.degree ?? "",
-                        style: TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 16),
                       ),
                       Text(
                         education.year ?? "",
@@ -533,7 +518,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // Edit the selected education entry
                       AddOrEditEducation(education, education.uid!);
                     },
-                    icon: Icon(Icons.edit, color: Colors.blue),
+                    icon: const Icon(Icons.edit, color: Colors.blue),
                   ),
                 ],
               ),
@@ -548,7 +533,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: experienceList.asMap().entries.map((entry) {
-          int index = entry.key;
           Experience? experience = entry.value;
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -561,11 +545,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       experience.company ?? "",
                       style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       experience.title ?? "",
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16),
                     ),
                     Text(
                       "${formatDate(experience.startDate!)} - ${formatDate(experience.endDate!)}",
@@ -579,7 +563,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // Edit the selected experience entry
                     AddOrEditExperience(experience, experience.uid!);
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.edit,
                     color: Colors.blue,
                   ),
@@ -598,7 +582,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: certificationList.asMap().entries.map((entry) {
-          int index = entry.key;
           Certification? certification = entry.value;
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
