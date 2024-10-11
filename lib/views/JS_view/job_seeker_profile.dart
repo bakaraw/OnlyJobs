@@ -15,7 +15,6 @@ import 'package:only_job/models/education.dart';
 import 'package:only_job/models/experience.dart';
 import 'package:only_job/models/certification.dart';
 import 'package:only_job/services/file_service.dart';
-import 'dart:developer';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -54,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             skills = snapshot.data!.skills!.cast<String>();
             return buildPage(snapshot.data!);
           }
-          
+
           return const Loading();
         });
   }
@@ -63,50 +62,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String formattedBirthdate = userData.birthDate != null
         ? DateFormat('MMMM d, yyyy').format(userData.birthDate!)
         : '';
-    return Padding(
+    return Scaffold(
+        body: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           largeSizedBox_H,
-             Stack(
-              children: [
-                CircleAvatar(
-                  radius: 80,
-                  backgroundColor: Colors.grey[300],
-                  child: userData.profilePicture != null
-                      ? pfpLoading ? const CircularProgressIndicator() : ClipOval(
-                          child: Image.network(
-                            userData.profilePicture!,
-                            width: 150,
-                            height: 150,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : const Icon(
-                          Icons.person,
-                          size: 50,
-                          color: Colors.white,
-                        ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: InkWell(
-                    onTap: PickImage,
-                    child: const CircleAvatar(
-                      radius: 18,
-                      backgroundColor: accent1,
-                      child: Icon(
-                        Icons.edit,
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: 80,
+                backgroundColor: Colors.grey[300],
+                child: userData.profilePicture != null
+                    ? pfpLoading
+                        ? const CircularProgressIndicator()
+                        : ClipOval(
+                            child: Image.network(
+                              userData.profilePicture!,
+                              width: 150,
+                              height: 150,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                    : const Icon(
+                        Icons.person,
+                        size: 50,
                         color: Colors.white,
                       ),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: InkWell(
+                  onTap: PickImage,
+                  child: const CircleAvatar(
+                    radius: 18,
+                    backgroundColor: accent1,
+                    child: Icon(
+                      Icons.edit,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
           mediumSizedBox_H,
           Expanded(
             child: SingleChildScrollView(
@@ -371,7 +373,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   // Helper method to build each contact field
@@ -406,7 +408,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         pfpLoading = true;
       });
-      String? url = await _fileUploader.uploadFileToFirebase(_auth.getCurrentUserId()!);
+      String? url =
+          await _fileUploader.uploadFileToFirebase(_auth.getCurrentUserId()!);
       await _userService.updateProfilePicture(url!);
       setState(() {
         pfpLoading = false;
@@ -443,8 +446,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context) => AddExperiencePage(experience: experienceToEdit),
       ),
     );
-    if (result != null && result is Education) {
-    }
+    if (result != null && result is Experience) {}
   }
 
   // Method to add or edit certification entry
@@ -457,8 +459,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             AddCertificationPage(certification: certificationToEdit),
       ),
     );
-    if (result != null && result is Certification) {
-    }
+    if (result != null && result is Certification) {}
   }
 
 // Method to add or edit skills
@@ -544,8 +545,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Text(
                       experience.company ?? "",
-                      style:
-                          const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       experience.title ?? "",
@@ -608,17 +609,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                   ],
                 ),
-                loading ? const CircularProgressIndicator() : IconButton(
-                  onPressed: () async {
-                    // Edit the selected certification entry
-                    setState(() {
-                      loading = true;
-                    });
-                    await _userService.deleteCertification(
-                        certification.uid!, certification.attachedFile);
-                  },
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                ), 
+                loading
+                    ? const CircularProgressIndicator()
+                    : IconButton(
+                        onPressed: () async {
+                          // Edit the selected certification entry
+                          setState(() {
+                            loading = true;
+                          });
+                          await _userService.deleteCertification(
+                              certification.uid!, certification.attachedFile);
+                        },
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                      ),
               ],
             ),
           );
