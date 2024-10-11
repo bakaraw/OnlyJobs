@@ -3,8 +3,9 @@ import 'package:only_job/models/certification.dart';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/services/user_service.dart';
 import 'dart:typed_data';
-import 'package:only_job/utils/file_uploader.dart';
+import 'package:only_job/services/file_service.dart';
 import 'package:only_job/views/constants/constants.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AddCertificationPage extends StatefulWidget {
   final Certification? certification; // For editing existing certification
@@ -23,7 +24,7 @@ class _AddCertificationPageState extends State<AddCertificationPage> {
   late AuthService _authService;
   late UserService _userService;
 
-  FileUploader _fileUploader = FileUploader();
+  FileService _fileUploader = FileService();
 
   dynamic _attachedFile;
 
@@ -68,10 +69,6 @@ class _AddCertificationPageState extends State<AddCertificationPage> {
       String year = _selectedDate?.year.toString() ?? _yearController.text;
       await _userService.addCertification(
           _certificationNameController.text, year, downloadUrl);
-
-      setState(() {
-        loading = false;
-      });
 
       Navigator.pop(context);
     }
@@ -137,17 +134,8 @@ class _AddCertificationPageState extends State<AddCertificationPage> {
                 children: [
                   ElevatedButton.icon(
                     onPressed: () async {
-                      if(_attachedFile == null){
-                        _attachedFile = await _fileUploader.selectFile();
-                      } 
+                      _attachedFile = await _fileUploader.selectFile();
 
-                      if (_attachedFile is String){
-                        var selectedFile = await _fileUploader.selectFile();
-                        if(selectedFile != null){
-                          _attachedFile = selectedFile;
-                          _fileUploader.deleteFileFromFirebase(_attachedFile);
-                        }
-                      }
                       setState(() {});
                     },
                     icon: Icon(Icons.attach_file),
