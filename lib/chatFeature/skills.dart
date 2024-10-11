@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../views/constants/constants.dart';
+
 final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
 void showSkillsBottomSheet(String receiverUserId, BuildContext context) {
@@ -32,14 +34,14 @@ void showSkillsBottomSheet(String receiverUserId, BuildContext context) {
               children: [
                 Text(
                   'Skills:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: usernameStyle,
                 ),
                 SizedBox(height: 8),
                 Expanded(
                   child: ListView(
-                    children: skills.map((skill) => ListTile(title: Text(skill))).toList(),
-                  ),
+                    children: skills.map((skill) => ListTile(title: Text(skill), style: ListTileStyle.list,)).toList(),                  ),
                 ),
+
               ],
             ),
           );

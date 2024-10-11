@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:only_job/chatFeature/displayMessage.dart';
+import 'package:only_job/chatFeature/display_message.dart';
+import 'package:only_job/chatFeature/profile.dart';
 import 'package:only_job/chatFeature/skills.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/constants/loading.dart';
@@ -10,7 +11,7 @@ import '../services/auth.dart';
 import '../views/JS_view/job_seeker_home.dart';
 import '../views/JS_view/job_seeker_nav.dart';
 import '../views/home/employer_homepage.dart';
-import 'chatList.dart';
+import 'chat_list.dart';
 
 class ChatPage extends StatefulWidget {
   final Map<String, dynamic> user;
@@ -70,38 +71,40 @@ class _ChatPageState extends State<ChatPage> {
                   future: checkIfJobSeeker(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return Loading();
                     }
                     if (snapshot.hasError) {
                       return Icon(Icons.error, color: secondarycolor);
                     }
                     bool isJobSeeker = snapshot.data ?? false;
-                    return IconButton(
-                      color: Colors.blueAccent,
-                      onPressed: () async {
-                        if (isJobSeeker) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => NavJS(),
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 16.0), // Slightly move it left if needed
+                      child: IconButton(
+                        color: Colors.blueAccent,
+                        onPressed: () async {
+                          if (isJobSeeker) {
+                            showProfileBottomSheet(receiverUserId, context);
+                          } else {
+                            showSkillsBottomSheet(receiverUserId, context);
+                          }
+                        },
+                        icon: Row(
+                          mainAxisSize: MainAxisSize.min,  // Ensure minimal space is used
+                          children: [
+                            Icon(
+                              isJobSeeker ? Icons.list : Icons.person,
+                              color: secondarycolor,
                             ),
-                          );
-                        } else {
-                          showSkillsBottomSheet(receiverUserId, context);
-                        }
-                      },
-                      icon: Row(
-                        children: [
-                          Icon(
-                            isJobSeeker ? Icons.list : Icons.person,
-                            color: secondarycolor,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            isJobSeeker ? 'View Profile' : 'View Skills',
-                            style: TextStyle(color: secondarycolor), // Ensure text color matches your design
-                          ),
-                        ],
+                            SizedBox(width: 8),
+                            Flexible( // Wrap Text inside Flexible to avoid overflow
+                              child: Text(
+                                isJobSeeker ? 'View Company' : 'View Skills',
+                                style: TextStyle(color: secondarycolor),
+                                overflow: TextOverflow.ellipsis, // Handle long text
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -113,7 +116,7 @@ class _ChatPageState extends State<ChatPage> {
                 },
                 icon: Icon(Icons.arrow_back, color: secondarycolor),
               ),
-            ),
+          ),
             body: SingleChildScrollView(
               child: Column(
                 children: [
@@ -192,20 +195,21 @@ class _ChatPageState extends State<ChatPage> {
                                 await receiverDocRef.collection('chatMessages').add(newMessage.toMap());
                                 await senderDocRef.collection('chatMessages').add(newMessage.toMap());
 
-                                // Update the sender's contacts and the receiver's pending list
+                                // Update the sender's contacts
                                 await firebaseFirestore.collection('User').doc(currentUserId).set({
-                                 'contacts': FieldValue.arrayUnion([receiverUserId]), // Add to sender's contacts
+                                  'contacts': FieldValue.arrayUnion([receiverUserId]), // Add to sender's contacts
                                 }, SetOptions(merge: true));
 
-                            //    await firebaseFirestore.collection('User').doc(receiverUserId).set({
-                             //     'contacts': FieldValue.arrayUnion([currentUserId]), // Add to sender's contacts
-                              //  }, SetOptions(merge: true));
+                                // Check if the receiver's pending list already contains the sender
+                                DocumentSnapshot receiverDoc = await firebaseFirestore.collection('User').doc(receiverUserId).get();
+                                List<dynamic> pendingList = receiverDoc['pending'] ?? [];
 
-
-                                await firebaseFirestore.collection('User').doc(receiverUserId).set({
-                                  'pending': FieldValue.arrayUnion([currentUserId]), // Add sender to receiver's pending
-                                }, SetOptions(merge: true));
-
+                                if (!pendingList.contains(currentUserId)) {
+                                  // Only add the sender to the receiver's pending list if not already present
+                                  await firebaseFirestore.collection('User').doc(receiverUserId).set({
+                                    'pending': FieldValue.arrayUnion([currentUserId]), // Add sender to receiver's pending
+                                  }, SetOptions(merge: true));
+                                }
 
                                 // Clear the message input
                                 messageController.clear();

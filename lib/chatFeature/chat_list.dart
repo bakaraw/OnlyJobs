@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:only_job/chatFeature/userSearch.dart';
+import 'package:only_job/chatFeature/user_search.dart';
 import 'package:only_job/views/constants/constants.dart';
 import '../views/constants/loading.dart';
 import 'chat_page.dart';
@@ -179,8 +179,8 @@ class _UserListPageState extends State<UserListPage> {
                           return Center(child: Text("Error loading pending requests", style: errortxtstyle,));
                         }
                         if (pendingSnapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: Loading());
-                          //return Center(child: CircularProgressIndicator());
+                          //return Center(child: Loading());
+                          return Center(child: CircularProgressIndicator());
 
                         }
 
@@ -235,7 +235,7 @@ class _UserListPageState extends State<UserListPage> {
                   return Center(child: Text("An error occurred", style: errortxtstyle,));
                 }
                 if (contactSnapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: Loading());
+                  return Center(child: CircularProgressIndicator());
                 }
 
                 if (contactSnapshot.data!.docs.isEmpty) {

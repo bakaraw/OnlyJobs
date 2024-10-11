@@ -3,7 +3,7 @@ import 'package:only_job/views/home/employer_positions.dart';
 import 'package:only_job/views/home/employer_profile.dart';
 import 'package:only_job/services/skills_uploader.dart';
 
-import '../../chatFeature/mainChatPage.dart';
+import '../../chatFeature/main_chat_page.dart';
 
 class ClientHomePage extends StatefulWidget {
   const ClientHomePage({super.key});

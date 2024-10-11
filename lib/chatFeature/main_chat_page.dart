@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:only_job/chatFeature/userSearch.dart';
+import 'package:only_job/chatFeature/user_search.dart';
 import 'package:only_job/views/constants/constants.dart';
-import 'chatList.dart';
+import 'chat_list.dart';
 import 'chat_page.dart';
 
 class MainChatPage extends StatefulWidget {
