@@ -1,12 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
+import 'package:only_job/services/auth.dart';
+import 'package:only_job/services/user_service.dart';
+import 'package:only_job/models/user.dart';
+import 'package:only_job/models/education.dart';
+import 'package:only_job/views/constants/loading.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  Function changePage;
+  HomePage({super.key, required this.changePage});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
+  late AuthService _auth;
+  late UserService _userService;
+  Education? education;
+  List<dynamic>? skills = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _auth = AuthService();
+    _userService = UserService(uid: _auth.getCurrentUserId()!);
+    getSkills();
+    getEducation();
+  }
+
+  void getEducation() async {
+    final education = await _userService.getFirstUserEducation();
+    setState(() {
+      this.education = education;
+      _isLoading = false;
+    });
+  }
+
+  void getSkills() async {
+    final skills = await _userService.getSkills();
+    setState(() {
+      this.skills = skills;
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return _isLoading ? const Loading() : Scaffold(
       body: Column(
         children: [
           Padding(
@@ -19,30 +62,88 @@ class HomePage extends StatelessWidget {
                   'Logo.png',
                   height: 60,
                 ),
-                GestureDetector(
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (BuildContext context) {
-                        return FractionallySizedBox(
-                          heightFactor: 0.5,
-                          alignment: Alignment.topRight,
-                          child: _buildProfileModal(context),
-                        );
-                      },
-                    );
+                StreamBuilder<UserData>(
+                  stream: _userService.userData,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (snapshot.hasData) {
+                      return GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (BuildContext context) {
+                              return FractionallySizedBox(
+                                heightFactor: 0.5,
+                                alignment: Alignment.topRight,
+                                child:
+                                    _buildProfileModal(context, snapshot.data!),
+                              );
+                            },
+                          );
+                        },
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.grey[300],
+                          child: ClipOval(
+                              child: Image.network(
+                                  snapshot.data!.profilePicture!,
+                                  width: 40,
+                                  height: 40,
+                                  fit: BoxFit.cover)),
+                        ),
+                      );
+                    }
+
+                    return const CircularProgressIndicator();
                   },
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundImage: AssetImage('assets/profile_picture.png'),
-                    backgroundColor: Colors.grey[300],
-                  ),
                 ),
               ],
             ),
           ),
+          // is skill empty? if yes, show text, else show container
+          if (skills!.isEmpty)
+               Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Container(
+                    height: 60, // Fixed height
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.yellow[100],
+                      border: Border.all(color: Colors.amber[300]!, width: 1),
+                    ),
+
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16), // Optional padding
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment
+                          .spaceBetween, // Align text to the left and button to the right
+                      children: [
+                        Text(
+                          'Set up profile to get started',
+                          style: TextStyle(
+                              fontSize: 16), // Customize the text style
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            widget.changePage(0);
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber[300],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              )),
+                          child: const Text(
+                            'Set-up',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
@@ -61,9 +162,10 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileModal(BuildContext context) {
+  Widget _buildProfileModal(BuildContext context, UserData userData) {
+    final skillsString = userData.skills!.map((skill) => '- $skill').join('\n');
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: backgroundwhite,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -82,48 +184,69 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: AssetImage('assets/profile_picture.png'),
                   backgroundColor: Colors.grey[300],
+                  child: ClipOval(
+                    child: Image.network(
+                      userData.profilePicture!,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'John Doe',
-                        style: TextStyle(
+                        userData.name!,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Bachelor of Science in Computer Science',
-                        style: TextStyle(
-                          fontSize: 16,
+                      const SizedBox(height: 8),
+                      if (education != null)
+                        Text(
+                          education!.degree!,
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
                         ),
-                      ),
+                      if (education == null)
+                        const Text(
+                          'No education details',
+                          style: TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'Skills:',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 5),
-            Text(
-              '- Flutter Development\n- Firebase\n- UI/UX Design',
-              style: TextStyle(fontSize: 16),
-            ),
+            const SizedBox(height: 5),
+            if (skillsString.isNotEmpty)
+              Text(
+                skillsString,
+                style: TextStyle(fontSize: 16),
+              ),
+            if (skillsString.isEmpty)
+              const Text(
+                'No skills added',
+                style: TextStyle(fontSize: 16),
+              ),
           ],
         ),
       ),
