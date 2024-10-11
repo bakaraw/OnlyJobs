@@ -41,12 +41,6 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {});
   }
 
-  Future<StatefulWidget> checkifJobSeekerisFalse() async {
-    DocumentSnapshot userDoc = await firebaseFirestore.collection('User').doc(auth.currentUser?.uid).get();
-    bool isJobSeeker = userDoc['isJobSeeker'] ?? false;
-    return isJobSeeker ?  NavJS() :  ClientHomePage();
-  }
-
 
   Future<bool> checkIfJobSeeker() async {
     DocumentSnapshot userDoc = await firebaseFirestore
@@ -64,58 +58,49 @@ class _ChatPageState extends State<ChatPage> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(widget.user['name'] ?? 'Unknown', style: usernameStylewithSecondaryColor,),
+            title: Text(
+              widget.user['name'] ?? 'Unknown',
+              style: usernameStylewithSecondaryColor,
+            ),
             backgroundColor: primarycolor,
-              actions: [
-                FutureBuilder<bool>(
-                  future: checkIfJobSeeker(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Loading();
-                    }
-                    if (snapshot.hasError) {
-                      return Icon(Icons.error, color: secondarycolor);
-                    }
-                    bool isJobSeeker = snapshot.data ?? false;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 16.0), // Slightly move it left if needed
-                      child: IconButton(
-                        color: Colors.blueAccent,
-                        onPressed: () async {
-                          if (isJobSeeker) {
-                            showProfileBottomSheet(receiverUserId, context);
-                          } else {
-                            showSkillsBottomSheet(receiverUserId, context);
-                          }
-                        },
-                        icon: Row(
-                          mainAxisSize: MainAxisSize.min,  // Ensure minimal space is used
-                          children: [
-                            Icon(
-                              isJobSeeker ? Icons.list : Icons.person,
-                              color: secondarycolor,
-                            ),
-                            SizedBox(width: 8),
-                            Flexible( // Wrap Text inside Flexible to avoid overflow
-                              child: Text(
-                                isJobSeeker ? 'View Company' : 'View Skills',
-                                style: TextStyle(color: secondarycolor),
-                                overflow: TextOverflow.ellipsis, // Handle long text
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-              leading: IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
+            actions: [
+              FutureBuilder<bool>(
+                future: checkIfJobSeeker(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator(); // Show loading indicator while waiting for data
+                  }
+
+                  if (snapshot.hasError) {
+                    return Icon(Icons.error, color: Colors.red); // Handle errors
+                  }
+
+
+                  bool isJobSeeker = snapshot.data ?? false;
+
+                  return IconButton(
+                    color: Colors.blueAccent,
+                    onPressed: () async {
+                      if (isJobSeeker) {
+                        showProfileBottomSheet(receiverUserId, context);
+                      } else {
+                        showSkillsBottomSheet(receiverUserId, context);
+                      }
+                    },
+                    icon: Icon(
+                      isJobSeeker ? Icons.list : Icons.person,
+                      color: secondarycolor,
+                    ),
+                  );
                 },
-                icon: Icon(Icons.arrow_back, color: secondarycolor),
               ),
+            ],
+            leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.arrow_back, color: secondarycolor),
+            ),
           ),
             body: SingleChildScrollView(
               child: Column(
@@ -162,9 +147,6 @@ class _ChatPageState extends State<ChatPage> {
                         IconButton(
                           onPressed: () async {
                             if (messageController.text.isNotEmpty) {
-
-
-
                               // Create the message object
                               Message newMessage = Message(
                                 message: messageController.text.trim(),
@@ -200,15 +182,18 @@ class _ChatPageState extends State<ChatPage> {
                                   'contacts': FieldValue.arrayUnion([receiverUserId]), // Add to sender's contacts
                                 }, SetOptions(merge: true));
 
-                                // Check if the receiver's pending list already contains the sender
+                                // Check the receiver's contact list
                                 DocumentSnapshot receiverDoc = await firebaseFirestore.collection('User').doc(receiverUserId).get();
+                                List<dynamic> receiverContacts = receiverDoc['contacts'] ?? [];
                                 List<dynamic> pendingList = receiverDoc['pending'] ?? [];
 
-                                if (!pendingList.contains(currentUserId)) {
-                                  // Only add the sender to the receiver's pending list if not already present
-                                  await firebaseFirestore.collection('User').doc(receiverUserId).set({
-                                    'pending': FieldValue.arrayUnion([currentUserId]), // Add sender to receiver's pending
-                                  }, SetOptions(merge: true));
+                                // Only add the sender to the receiver's pending list if not in the contacts
+                                if (!receiverContacts.contains(currentUserId)) {
+                                  if (!pendingList.contains(currentUserId)) {
+                                    await firebaseFirestore.collection('User').doc(receiverUserId).set({
+                                      'pending': FieldValue.arrayUnion([currentUserId]), // Add sender to receiver's pending
+                                    }, SetOptions(merge: true));
+                                  }
                                 }
 
                                 // Clear the message input
@@ -219,7 +204,6 @@ class _ChatPageState extends State<ChatPage> {
                             }
                           },
                           icon: Icon(Icons.send, size: 30, color: primarycolor),
-
                         ),
 
                       ],
