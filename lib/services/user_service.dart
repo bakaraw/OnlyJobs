@@ -19,7 +19,7 @@ class UserService {
 
   DocumentReference get _userRef => userCollection.doc(uid);
 
-  String _defaultPfp =
+  final String defaultPfp =
       "https://firebasestorage.googleapis.com/v0/b/onlyjob-13c80.appspot.com/o/commons%2Fjames-pfp.jpg?alt=media&token=ce36246e-04bc-42cc-98ab-7c08ac8591b3";
 
   Future addUser(String name, String? gender, DateTime? birthDate, String email,
@@ -38,7 +38,7 @@ class UserService {
         'website': null,
         'isUserNew': true,
         'skills': [],
-        'profile_picture': _defaultPfp,
+        'profile_picture': defaultPfp,
       });
     } catch (e) {
       log(e.toString());
@@ -279,6 +279,30 @@ class UserService {
       degree: snapshot.get('degree'),
       year: snapshot.get('year'),
     );
+  }
+
+  Future<Education?> getFirstUserEducation() async {
+    try {
+      // Reference to the education subcollection under the specific user document
+      CollectionReference educationRef = _userRef
+          .collection('education');
+
+      // Retrieve the education documents (limit to 1 for efficiency)
+      QuerySnapshot educationSnapshot = await educationRef.limit(1).get();
+
+      // Check if there are any documents
+      if (educationSnapshot.docs.isNotEmpty) {
+        // Get the first document
+        var firstDoc = educationSnapshot.docs.first;
+        return Education.fromDocument(firstDoc);
+      } else {
+        print("No education records found.");
+        return null;
+      }
+    } catch (e) {
+      print("Error fetching education subcollection: $e");
+      return null;
+    }
   }
 
   Stream<List<Education>> get education {
