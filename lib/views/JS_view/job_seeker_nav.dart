@@ -15,23 +15,31 @@ class NavJS extends StatefulWidget {
 class _NavJSState extends State<NavJS> {
   int _currentIndex = 1;
   late PageController _pageController;
+  late List<Widget> _pages;
 
-  final List<Widget> _pages = [
-    ProfileScreen(),
-    HomePage(),
-    MainChatPage(),
-  ];
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
+    _pages = [
+      ProfileScreen(),
+      HomePage(changePage: _changePage),
+      MainChatPage(),
+    ];
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _changePage(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+    _pageController.jumpToPage(index);
   }
 
   @override
@@ -73,18 +81,10 @@ class _NavJSState extends State<NavJS> {
               ),
             ],
             selectedIndex: _currentIndex,
-            onTabChange: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-
-              _pageController.jumpToPage(index);
-            },
+            onTabChange: _changePage,
           ),
         ),
       ),
     );
   }
 }
-
-
