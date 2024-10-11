@@ -69,7 +69,7 @@ class _DisplayMessageState extends State<DisplayMessage> {
       return null; // Handle errors by returning null
     }
   }
-
+  final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Message>>(
@@ -90,8 +90,20 @@ class _DisplayMessageState extends State<DisplayMessage> {
           return Center(child: Text("No messages found", style: usernameStyle));
         }
 
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+
+
         // Building the message list
         return ListView.builder(
+          controller: _scrollController,
           itemCount: snapshot.data!.length,
           physics: ScrollPhysics(),
           shrinkWrap: true,

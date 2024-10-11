@@ -6,6 +6,7 @@ import 'package:only_job/views/constants/constants.dart';
 
 import '../models/message.dart';
 import '../services/auth.dart';
+import '../views/home/employer_homepage.dart';
 import 'chatList.dart';
 
 class ChatPage extends StatefulWidget {
@@ -43,15 +44,24 @@ class _ChatPageState extends State<ChatPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.user['name'] ?? 'Unknown', style: usernameStyle,),
+        title: Text(widget.user['name'] ?? 'Unknown', style: usernameStylewithSecondaryColor,),
+        backgroundColor: primarycolor,
         actions: [
           IconButton(
             color: Colors.blueAccent,
             onPressed: () {
+
             },
-            icon: Icon(Icons.menu_open, color: primarycolor,),
+            icon: Icon(Icons.menu_open, color: secondarycolor,),
           ),
+
         ],
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back, color: secondarycolor),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -154,10 +164,34 @@ class _ChatPageState extends State<ChatPage> {
                       }
                     },
                     icon: Icon(Icons.send, size: 30, color: primarycolor),
+
                   ),
 
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        height: 60,
+        color: primarycolor,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // This spaces the icons
+          children: [
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ClientHomePage()),
+                );                },
+              icon: Icon(Icons.home, color: Colors.white),
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.people, color: Colors.white),
             ),
           ],
         ),

@@ -22,7 +22,7 @@ class _MainChatPageState extends State<MainChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat Page', style: headingStyle_white,
+        title: const Text('Chat Page', style: usernameStylewithSecondaryColor,
         ),
         centerTitle: true,
         backgroundColor: primarycolor,

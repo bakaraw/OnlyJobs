@@ -180,7 +180,7 @@ class _UserListPageState extends State<UserListPage> {
                         }
                         if (pendingSnapshot.connectionState == ConnectionState.waiting) {
                           return Center(child: Loading());
-                         // return Center(child: CircularProgressIndicator());
+                          //return Center(child: CircularProgressIndicator());
 
                         }
 
