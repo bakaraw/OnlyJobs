@@ -4,9 +4,11 @@ import 'package:only_job/services/auth.dart';
 import 'package:only_job/services/user_service.dart';
 import 'package:only_job/models/user.dart';
 import 'package:only_job/models/education.dart';
+import 'package:only_job/views/constants/loading.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  Function changePage;
+  HomePage({super.key, required this.changePage});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -17,12 +19,15 @@ class _HomePageState extends State<HomePage> {
   late AuthService _auth;
   late UserService _userService;
   Education? education;
+  List<dynamic>? skills = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _auth = AuthService();
     _userService = UserService(uid: _auth.getCurrentUserId()!);
+    getSkills();
     getEducation();
   }
 
@@ -30,12 +35,21 @@ class _HomePageState extends State<HomePage> {
     final education = await _userService.getFirstUserEducation();
     setState(() {
       this.education = education;
+      _isLoading = false;
+    });
+  }
+
+  void getSkills() async {
+    final skills = await _userService.getSkills();
+    setState(() {
+      this.skills = skills;
+      _isLoading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return _isLoading ? const Loading() : Scaffold(
       body: Column(
         children: [
           Padding(
@@ -44,8 +58,8 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset(
-                  'Logo.png',
+                const Image(
+                  image: AssetImage('assets/Logo.png'),
                   height: 60,
                 ),
                 StreamBuilder<UserData>(
@@ -90,6 +104,46 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+          // is skill empty? if yes, show text, else show container
+          if (skills!.isEmpty)
+               Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Container(
+                    height: 60, // Fixed height
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.yellow[100],
+                      border: Border.all(color: Colors.amber[300]!, width: 1),
+                    ),
+
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16), // Optional padding
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment
+                          .spaceBetween, // Align text to the left and button to the right
+                      children: [
+                        Text(
+                          'Set up profile to get started',
+                          style: TextStyle(
+                              fontSize: 16), // Customize the text style
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            widget.changePage(0);
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber[300],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              )),
+                          child: const Text(
+                            'Set-up',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
