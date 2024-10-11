@@ -262,8 +262,7 @@ class CustomBodyWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 300,
-      height:
-          600, // Increased height to accommodate the job description section
+      // Increased height to accommodate the job description section
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Colors.white,
@@ -349,7 +348,7 @@ class CustomBodyWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
                   child: Text(
-                    'Meet the hiring team',
+                    'Meet the hiring manager',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -364,7 +363,7 @@ class CustomBodyWidget extends StatelessWidget {
                     CircleAvatar(
                       radius: 25,
                       backgroundImage: AssetImage(
-                          'assets/avatar_image.jpg'), // Replace with your image asset
+                          'sample_image_person.jpg'), // Replace with your image asset
                     ),
                     const SizedBox(width: 8), // Space between avatar and column
 
@@ -410,17 +409,9 @@ class CustomBodyWidget extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 8), // Spacing before Job Description
-
           // Job Description Section (snapping scroll with PageView)
           Container(
             margin: const EdgeInsets.all(8.0),
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.white,
-              border: Border.all(color: Colors.grey), // Added border here
-            ),
             height: 140, // Height for the job description container
             child: Column(
               children: [
@@ -440,20 +431,10 @@ class CustomBodyWidget extends StatelessWidget {
                   ),
                 ),
                 // Indicator Circles
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IndicatorCircle(isActive: true),
-                    const SizedBox(width: 4),
-                    IndicatorCircle(isActive: false),
-                    const SizedBox(width: 4),
-                    IndicatorCircle(isActive: false),
-                  ],
-                ),
               ],
             ),
           ),
-
+          smallSizedBox_H,
           // Apply Button
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -478,8 +459,13 @@ class CustomBodyWidget extends StatelessWidget {
 
   Widget _buildDescriptionSection(String title, String content) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        border: Border.all(color: Colors.grey), // Added border here
+      ),
       padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       width: 300, // Fixed width for each section
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,24 +483,6 @@ class CustomBodyWidget extends StatelessWidget {
             style: TextStyle(fontSize: 12),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class IndicatorCircle extends StatelessWidget {
-  final bool isActive;
-
-  const IndicatorCircle({required this.isActive});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 10,
-      height: 10,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isActive ? Colors.blue : Colors.grey,
       ),
     );
   }
