@@ -127,7 +127,7 @@ class _DisplayMessageState extends State<DisplayMessage> {
                             side: BorderSide(color: primarycolor),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
-                          tileColor: isSender ? secondarycolor : Colors.white,
+                          tileColor: isSender ? secondarycolor :  Color(0xFFB2D9E8),
                           leading: FutureBuilder<String?>(
                             future: isSender
                                 ? getProfilePicture(widget.senderUserId) // Sender's profile picture

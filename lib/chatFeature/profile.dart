@@ -6,6 +6,7 @@ final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
 void showProfileBottomSheet(String receiverUserId, BuildContext context) {
   showModalBottomSheet(
+    backgroundColor: primarycolor,
     context: context,
     builder: (context) {
       return FutureBuilder<DocumentSnapshot>(
@@ -35,24 +36,29 @@ void showProfileBottomSheet(String receiverUserId, BuildContext context) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Company Details", style: headingStyle),
+                  Text("Company Details", style: usernameStylewithSecondaryColor),
                   SizedBox(height: 16),
-                  profilePicture.isNotEmpty
-                      ? Image.network(
-                    profilePicture,
-                    height: 100, // Adjust the height as needed
-                    width: 100,  // Adjust the width as needed
-                    fit: BoxFit.cover,
-                  )
-                      : Text('No Profile Picture Available'),
+                profilePicture.isNotEmpty
+                    ? Center(
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundImage: NetworkImage(profilePicture),
+                  ),
+                )
+                    : Center(
+                      child: CircleAvatar(
+                        radius: 40,
+                        child: Icon(Icons.person),
+                      ),
+                    ),
                   SizedBox(height: 16),
-                  Text('Name: $name', style: usernameStyle),
+                  Text('Name: $name', style: usernameStylewithSecondaryColor),
                   SizedBox(height: 16),
-                  Text('Address: $address', style: usernameStyle),
+                  Text('Address: $address', style: usernameStylewithSecondaryColor),
                   SizedBox(height: 16),
-                  Text('Email: $email', style: usernameStyle),
+                  Text('Email: $email', style: usernameStylewithSecondaryColor),
                   SizedBox(height: 16),
-                  Text('Contact Number: $phone', style: usernameStyle),
+                  Text('Contact Number: $phone', style: usernameStylewithSecondaryColor),
                 ],
               ),
             ),

@@ -68,16 +68,23 @@ class _ChatPageState extends State<ChatPage> {
                 future: checkIfJobSeeker(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator(); // Show loading indicator while waiting for data
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: secondarycolor,
+                        ),
+                      ),
+                    ); // A small CircularProgressIndicator
                   }
 
                   if (snapshot.hasError) {
-                    return Icon(Icons.error, color: Colors.red); // Handle errors
+                    return Icon(Icons.error, color: Colors.red);
                   }
-
-
                   bool isJobSeeker = snapshot.data ?? false;
-
                   return IconButton(
                     color: Colors.blueAccent,
                     onPressed: () async {
@@ -95,6 +102,7 @@ class _ChatPageState extends State<ChatPage> {
                 },
               ),
             ],
+
             leading: IconButton(
               onPressed: () {
                 Navigator.pop(context);

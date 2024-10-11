@@ -24,8 +24,10 @@ class _MainChatPageState extends State<MainChatPage> {
       appBar: AppBar(
         title: const Text('Chat Page', style: usernameStylewithSecondaryColor,
         ),
+       // leading: Image.asset('assets/Logo.png'),
         centerTitle: true,
         backgroundColor: primarycolor,
+
       ),
       body:UserListPage(user: '', receiverUserId: '',),
 
