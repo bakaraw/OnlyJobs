@@ -107,7 +107,6 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                // is skill empty? if yes, show text, else show container
                 if (skills!.isEmpty)
                   Padding(
                       padding: const EdgeInsets.all(8),
@@ -332,7 +331,7 @@ class CustomBodyWidget extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 8), // Spacing
+          const SizedBox(height: 8),
 
           // Meet the Hiring Team Section
           Container(
@@ -460,13 +459,11 @@ class CustomBodyWidget extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () {
-                // Add your apply action here
                 print('Apply button clicked');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Button color
-                minimumSize:
-                    Size(double.infinity, 40), // Full width and height of 40
+                backgroundColor: Colors.blue,
+                minimumSize: Size(double.infinity, 40),
               ),
               child: Text(
                 'Apply',
