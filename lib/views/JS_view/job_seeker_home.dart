@@ -58,8 +58,8 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset(
-                  'Logo.png',
+                const Image(
+                  image: AssetImage('assets/Logo.png'),
                   height: 60,
                 ),
                 StreamBuilder<UserData>(

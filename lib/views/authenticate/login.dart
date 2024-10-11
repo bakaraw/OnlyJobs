@@ -78,7 +78,7 @@ class _LoginState extends State<Login> {
                     children: [
                       largeSizedBox_W,
                       Image.asset(
-                        'Logo.png',
+                        'assets/Logo.png',
                         height: 150,
                         width: 150,
                       ),
