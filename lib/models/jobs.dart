@@ -15,7 +15,7 @@ class JobData {
   String? minSalaryRange;
   String? maxSalaryRange;
   String? jobType;
-  List<String?> skillsRequired;
+  List<dynamic>? skillsRequired;
   bool? isOpened;
 
   JobData({

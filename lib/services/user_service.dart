@@ -233,6 +233,16 @@ class UserService {
     }
   }
 
+  Future<UserData> getUserData() async {
+    try {
+      final DocumentSnapshot snapshot = await userCollection.doc(uid).get();
+      return _userDataFromSnapshot(snapshot);
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
   // make a sub-collection for job openings
   Stream<UserData> get userData {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);

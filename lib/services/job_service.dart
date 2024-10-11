@@ -10,6 +10,13 @@ class JobService {
       FirebaseFirestore.instance.collection('User');
   DocumentReference get _userRef => userCollection.doc(uid);
 
+  DocumentSnapshot? lastDocument;
+  bool hasMore = true;
+  int documentLimit = 20;
+
+  DocumentSnapshot? get lastDoc => lastDocument;
+  bool get hasMoreData => hasMore;
+
   Future<void> addJobOpening(
       String title,
       String description,
@@ -35,8 +42,51 @@ class JobService {
       rethrow;
     }
   }
-  
-  JobData _jobDataFromSnapshot(DocumentSnapshot snapshot){
+
+  // fetch all the job openings of users if the user is not a job_seeker
+  Future<List<JobData>> fetchInitialJob() async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collectionGroup('JobOpenings')
+          //.where('isOpened', isEqualTo: true)
+          .limit(documentLimit)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        hasMore = false;
+      }
+
+      if (snapshot.docs.isNotEmpty) {
+        lastDocument = snapshot.docs.last;
+      }
+
+      return snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList();
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List<JobData>> fetchMoreJobs() async {
+    if (!hasMore) return [];
+
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collectionGroup('JobOpenings')
+        .startAfterDocument(lastDocument!)
+        .limit(documentLimit)
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      hasMore = false;
+      return [];
+    }
+
+    lastDocument = snapshot.docs.last;
+
+    return snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList();
+  }
+
+  JobData _jobDataFromSnapshot(DocumentSnapshot snapshot) {
     return JobData(
       uid: uid,
       jobTitle: snapshot.get('jobTitle'),

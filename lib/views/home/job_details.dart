@@ -115,7 +115,7 @@ class JobDetailsPage extends StatelessWidget {
                             const SizedBox(height: 5),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: jobData.skillsRequired.map((skill) {
+                              children: jobData.skillsRequired!.map((skill) {
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 5.0),
                                   child: Text('- $skill',
