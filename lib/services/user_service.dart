@@ -102,6 +102,17 @@ class UserService {
     );
   }
 
+  // get a certain user by uid
+  Future<UserData> getUserById(String uid) async {
+    try {
+      final DocumentSnapshot snapshot = await userCollection.doc(uid).get();
+      return _userDataFromSnapshot(snapshot);
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
   Future<void> setUserNotNew() async {
     try {
       return await userCollection.doc(uid).update({'isUserNew': false});
@@ -227,6 +238,16 @@ class UserService {
       final List<Education> educationList =
           snapshot.docs.map((doc) => Education.fromDocument(doc)).toList();
       return educationList;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<UserData> getUserData() async {
+    try {
+      final DocumentSnapshot snapshot = await userCollection.doc(uid).get();
+      return _userDataFromSnapshot(snapshot);
     } catch (e) {
       log(e.toString());
       rethrow;

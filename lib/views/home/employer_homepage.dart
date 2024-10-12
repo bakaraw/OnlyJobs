@@ -19,7 +19,6 @@ class _ClientHomePageState extends State<ClientHomePage> {
   final List<Widget> _pages = [
     Icon(Icons.home),
     EmployerPositions(),
-    SkillsUploader(),
     MainChatPage(),
     EmployerProfile(),
   ];
@@ -47,11 +46,6 @@ class _ClientHomePageState extends State<ClientHomePage> {
             backgroundColor: Colors.blue,
             label: 'Positions',
             icon: Icon(Icons.business_outlined),
-          ),
-          BottomNavigationBarItem(
-            backgroundColor: Colors.blue,
-            label: 'Applicants',
-            icon: Icon(Icons.people),
           ),
           BottomNavigationBarItem(
             backgroundColor: Colors.blue,

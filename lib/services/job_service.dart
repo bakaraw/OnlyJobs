@@ -10,6 +10,13 @@ class JobService {
       FirebaseFirestore.instance.collection('User');
   DocumentReference get _userRef => userCollection.doc(uid);
 
+  DocumentSnapshot? lastDocument;
+  bool hasMore = true;
+  int documentLimit = 20;
+
+  DocumentSnapshot? get lastDoc => lastDocument;
+  bool get hasMoreData => hasMore;
+
   Future<void> addJobOpening(
       String title,
       String description,
@@ -17,7 +24,7 @@ class JobService {
       int minSalary,
       int maxSalary,
       String jobType,
-      String jobCategory,
+      String requirements,
       List<String> skillsRequired) async {
     try {
       await _userRef.collection('JobOpenings').add({
@@ -28,6 +35,8 @@ class JobService {
         'maximumSalary': maxSalary,
         'jobType': jobType,
         'skillsRequired': skillsRequired,
+        'requirements': requirements,
+        'owner': uid,
         'isOpened': true,
       });
     } catch (e) {
@@ -35,10 +44,54 @@ class JobService {
       rethrow;
     }
   }
-  
-  JobData _jobDataFromSnapshot(DocumentSnapshot snapshot){
+
+  // fetch all the job openings of users if the user is not a job_seeker
+  Future<List<JobData>> fetchInitialJob() async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collectionGroup('JobOpenings')
+          //.where('isOpened', isEqualTo: true)
+          .limit(documentLimit)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        hasMore = false;
+      }
+
+      if (snapshot.docs.isNotEmpty) {
+        lastDocument = snapshot.docs.last;
+      }
+
+      return snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList();
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List<JobData>> fetchMoreJobs() async {
+    if (!hasMore) return [];
+
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collectionGroup('JobOpenings')
+        .startAfterDocument(lastDocument!)
+        .limit(documentLimit)
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      hasMore = false;
+      return [];
+    }
+
+    lastDocument = snapshot.docs.last;
+
+    return snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList();
+  }
+
+  JobData _jobDataFromSnapshot(DocumentSnapshot snapshot) {
     return JobData(
       uid: uid,
+      owner: snapshot.get('owner'),
       jobTitle: snapshot.get('jobTitle'),
       jobDescription: snapshot.get('description'),
       location: snapshot.get('location'),
@@ -46,6 +99,7 @@ class JobService {
       maxSalaryRange: snapshot.get('maximumSalary').toString(),
       jobType: snapshot.get('jobType'),
       skillsRequired: List<String>.from(snapshot.get('skillsRequired')),
+      otherRequirements: snapshot.get('requirements'),
       isOpened: snapshot.get('isOpened'),
     );
   }
