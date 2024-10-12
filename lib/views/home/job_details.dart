@@ -26,10 +26,14 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
   TextEditingController skillsController = TextEditingController();
   TextEditingController jobDescriptionController = TextEditingController();
   String? jobUid; // Declare jobUid here
+  List<String> selectedSkills = [];
+
+
 
   @override
   void initState() {
     super.initState();
+
     titleController.text = widget.jobData.jobTitle!;
     minSalaryController.text = widget.jobData.minSalaryRange.toString();
     maxSalaryController.text = widget.jobData.maxSalaryRange.toString();
@@ -41,6 +45,8 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
     if (jobUid != null) {
       JobService jobService = JobService(uid: jobUid!); // Use jobUid here
     }
+
+    selectedSkills = List<String>.from(widget.jobData.skillsRequired ?? []);
   }
 
   @override
@@ -54,6 +60,21 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
     super.dispose();
   }
 
+  Future<List<String>> searchSkills(String query) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('Skills')
+        .where('name', isGreaterThanOrEqualTo: query)
+        .where('name', isLessThanOrEqualTo: query + '\uf8ff')
+        .get();
+
+    List<String> skills = querySnapshot.docs.map((doc) => doc['skills'] as String).toList();
+    return skills;
+  }
+
+  // Function to add skill to Firestore if not found
+  Future<void> addSkillToFirestore(String skill) async {
+    await FirebaseFirestore.instance.collection('Skills').add({'skills': skill});
+  }
 
   Future<void> updateJobInFirebase() async {
     try {
@@ -67,10 +88,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
         'minSalaryRange': double.tryParse(minSalaryController.text),
         'maxSalaryRange': double.tryParse(maxSalaryController.text),
         'location': locationController.text,
-        'skillsRequired': skillsController.text
-            .split(',')
-            .map((s) => s.trim())
-            .toList(),
+      'skillsRequired': selectedSkills,
         'description': jobDescriptionController.text,
       });
 
@@ -110,6 +128,75 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
     'Peter',
     'BumbleBee',
   ];
+
+  Future<void> _openSkillsSearchDialog() async {
+    List<String> foundSkills = await searchSkills('');
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Search and Select Skills'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    onChanged: (value) async {
+                      List<String> skills = await searchSkills(value);
+                      setState(() {
+                        foundSkills = skills;
+                      });
+                    },
+                    decoration: InputDecoration(hintText: 'Search for a skill'),
+                  ),
+                  SizedBox(height: 10),
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: foundSkills.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(foundSkills[index]),
+                          onTap: () {
+                            setState(() {
+                              selectedSkills.add(foundSkills[index]);
+                            });
+                            Navigator.pop(context); // Close the dialog
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Add new skill if not found in Firestore
+                    if (!foundSkills.contains('new_skill')) {
+                      addSkillToFirestore('new_skill');
+                    }
+                    Navigator.pop(context);
+                  },
+                  child: Text('Add Skill'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -217,28 +304,22 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                         ),
                       ),
                       const SizedBox(height: 5),
-                      isEditing
-                          ? TextField(
-                        controller: skillsController,
-                        decoration: InputDecoration(
-                          labelText: 'Skills (comma-separated)',
-                          border: OutlineInputBorder(),
-                        ),
-                      )
-                          : Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                        children: skillsController.text
-                            .split(',')
-                            .map((skill) =>
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 5.0),
-                              child: Text('- $skill',
-                                  style: TextStyle(
-                                      fontSize: 16)),
-                            ))
+                      Wrap(
+                        spacing: 8.0,
+                        children: selectedSkills
+                            .map((skill) => Chip(
+                          label: Text(skill),
+                          onDeleted: () {
+                            setState(() {
+                              selectedSkills.remove(skill);
+                            });
+                          },
+                        ))
                             .toList(),
+                      ),
+                      TextButton(
+                        onPressed: _openSkillsSearchDialog,
+                        child: Text('Add or Edit Skills'),
                       ),
                       const SizedBox(height: 10),
 
