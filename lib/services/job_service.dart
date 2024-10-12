@@ -7,7 +7,7 @@ class JobService {
   JobService({required this.uid});
   final String uid;
   final CollectionReference userCollection =
-      FirebaseFirestore.instance.collection('User');
+  FirebaseFirestore.instance.collection('User');
   DocumentReference get _userRef => userCollection.doc(uid);
 
   DocumentSnapshot? lastDocument;
@@ -50,7 +50,7 @@ class JobService {
     try {
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collectionGroup('JobOpenings')
-          //.where('isOpened', isEqualTo: true)
+      //.where('isOpened', isEqualTo: true)
           .limit(documentLimit)
           .get();
 
@@ -101,6 +101,8 @@ class JobService {
       skillsRequired: List<String>.from(snapshot.get('skillsRequired')),
       otherRequirements: snapshot.get('requirements'),
       isOpened: snapshot.get('isOpened'),
+      jobUid: snapshot.id,
+
     );
   }
 
