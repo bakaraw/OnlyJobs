@@ -122,7 +122,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                 const SizedBox(height: 5),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widget.jobData.skillsRequired.map((skill) {
+                  children: widget.jobData.skillsRequired!.map((skill) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 5.0),
                       child: Text('- $skill', style: TextStyle(fontSize: 16)),

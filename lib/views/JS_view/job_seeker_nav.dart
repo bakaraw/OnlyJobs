@@ -4,7 +4,7 @@ import 'package:only_job/views/JS_view/job_seeker_home.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/JS_view/job_seeker_profile.dart';
 
-import '../../chatFeature/mainChatPage.dart';
+import '../../chatFeature/main_chat_page.dart';
 
 class NavJS extends StatefulWidget {
   const NavJS({super.key});

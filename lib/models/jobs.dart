@@ -15,8 +15,10 @@ class JobData {
   String? minSalaryRange;
   String? maxSalaryRange;
   String? jobType;
-  List<String?> skillsRequired;
+  List<dynamic>? skillsRequired;
   bool? isOpened;
+  String? otherRequirements;
+  String? owner;
 
   JobData({
     required this.uid,
@@ -28,5 +30,7 @@ class JobData {
     required this.jobType,
     required this.skillsRequired,
     required this.isOpened,
+    required this.otherRequirements,
+    required this.owner,
   });
 }
