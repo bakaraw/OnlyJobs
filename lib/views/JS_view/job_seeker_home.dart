@@ -6,6 +6,10 @@ import 'package:only_job/services/user_service.dart';
 import 'package:only_job/models/user.dart';
 import 'package:only_job/models/education.dart';
 import 'package:only_job/views/constants/loading.dart';
+import 'package:only_job/services/job_service.dart';
+import 'package:only_job/models/jobs.dart';
+import 'package:only_job/services/job_recommendation_controller.dart';
+import 'package:only_job/services/job_matcher.dart';
 
 class HomePage extends StatefulWidget {
   Function changePage;
@@ -16,9 +20,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final PageController _pageController = PageController();
+  late String uid;
   late AuthService _auth;
   late UserService _userService;
+  late JobService _jobService;
+  late List<JobData> _jobs;
+  late final JobRecommendationController jobRecommendationController;
+  late final JobMatcher jobMatcher;
+  final PageController _pageController = PageController();
+
+  bool _isJobLoading = false;
+  bool _isJobLoadingMore = false;
+  bool _hasMore = true;
+
   Education? education;
   List<dynamic>? skills = [];
   bool _isLoading = true;
@@ -27,7 +41,16 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _auth = AuthService();
-    _userService = UserService(uid: _auth.getCurrentUserId()!);
+    String uid = _auth.getCurrentUserId()!;
+    this.uid = uid;
+    _userService = UserService(uid: uid);
+    _jobService = JobService(uid: uid);
+    jobRecommendationController = JobRecommendationController(
+        userService: _userService,
+        jobService: _jobService,
+        jobMatcher: JobMatcher());
+    _pageController.addListener(_onPageChanged);
+    _loadInitialJobs();
     getSkills();
     getEducation();
   }
@@ -45,6 +68,43 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       this.skills = skills;
       _isLoading = false;
+    });
+  }
+
+  void _onPageChanged() {
+    if (_pageController.page == _jobs.length - 1 && _hasMore) {
+      _loadMoreJobs(); // Load more jobs when on the last page
+    }
+  }
+
+  void _loadMoreJobs() async {
+    if (_isJobLoadingMore || !_hasMore) return;
+
+    setState(() {
+      _isJobLoadingMore = true;
+    });
+
+    List<JobData> moreJobs =
+        await jobRecommendationController.fetchInitialJobsRecommendations(uid);
+
+    setState(() {
+      _jobs.addAll(moreJobs);
+      _isJobLoadingMore = false;
+      _hasMore = jobRecommendationController.hasMore;
+    });
+  }
+
+  void _loadInitialJobs() async {
+    setState(() {
+      _isJobLoading = true;
+    });
+
+    List<JobData> jobs =
+        await jobRecommendationController.fetchInitialJobsRecommendations(uid);
+
+    setState(() {
+      _jobs = jobs;
+      _isJobLoading = false;
     });
   }
 
@@ -148,17 +208,24 @@ class _HomePageState extends State<HomePage> {
                         ),
                       )),
                 Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    scrollDirection: Axis.vertical,
-                    itemCount: 5,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CustomBodyWidget(),
-                      );
-                    },
-                  ),
+                  child: _isJobLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : _jobs.isNotEmpty ? PageView.builder(
+                          controller: _pageController,
+                          scrollDirection: Axis.vertical,
+                          itemCount: _jobs.length,
+                          itemBuilder: (context, index) {
+                            JobData job = _jobs[index];
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CustomBodyWidget(job: job, userService: _userService),
+                            );
+                          },
+                        ) : const Center(
+                          child: Text('No jobs available for you at the moment'),
+                        ),
                 ),
               ],
             ),
@@ -257,7 +324,16 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class CustomBodyWidget extends StatelessWidget {
+class CustomBodyWidget extends StatefulWidget {
+  CustomBodyWidget({super.key, required this.job, required this.userService});
+  JobData? job;
+  UserService? userService;
+
+  @override
+  State<CustomBodyWidget> createState() => _CustomBodyWidgetState();
+}
+
+class _CustomBodyWidgetState extends State<CustomBodyWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -278,8 +354,8 @@ class CustomBodyWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Job Title', // Replace with actual job title
-                    style: TextStyle(
+                    widget.job!.jobTitle!, // Replace with actual job title
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -320,7 +396,7 @@ class CustomBodyWidget extends StatelessWidget {
                 Icon(Icons.location_on, color: Colors.red), // Location icon
                 const SizedBox(width: 4), // Space between icon and text
                 Text(
-                  'City, Country', // Replace with actual location
+                  widget.job!.location!, // Replace with actual location
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.black,
@@ -398,7 +474,7 @@ class CustomBodyWidget extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                       ),
-                      child: Text(
+                      child: const Text(
                         'Message',
                         style: TextStyle(color: Colors.white),
                       ),
@@ -421,12 +497,12 @@ class CustomBodyWidget extends StatelessWidget {
                         viewportFraction:
                             0.95), // Add viewportFraction for slight space between pages
                     children: [
-                      _buildDescriptionSection('Job Description',
-                          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi.'),
-                      _buildDescriptionSection('Requirements',
-                          '• Degree in Computer Science\n• 3+ years experience\n• Strong Flutter skills'),
                       _buildDescriptionSection(
-                          'Salary Range', '\$70,000 - \$90,000'),
+                          'Job Description', widget.job!.jobDescription!),
+                      _buildDescriptionSection(
+                          'Requirements', widget.job!.otherRequirements!),
+                      _buildDescriptionSection('Salary Range',
+                          '\$${widget.job!.minSalaryRange} - \$${widget.job!.maxSalaryRange}'),
                     ],
                   ),
                 ),
@@ -487,3 +563,4 @@ class CustomBodyWidget extends StatelessWidget {
     );
   }
 }
+

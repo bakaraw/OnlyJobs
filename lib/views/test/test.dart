@@ -20,6 +20,7 @@ class _TestState extends State<Test> {
   late List<JobData> _jobs;
   late final JobRecommendationController jobRecommendationController;
   late final JobMatcher jobMatcher;
+
   ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
   bool _isLoadingMore = false;

@@ -24,7 +24,7 @@ class JobService {
       int minSalary,
       int maxSalary,
       String jobType,
-      String jobCategory,
+      String requirements,
       List<String> skillsRequired) async {
     try {
       await _userRef.collection('JobOpenings').add({
@@ -35,6 +35,8 @@ class JobService {
         'maximumSalary': maxSalary,
         'jobType': jobType,
         'skillsRequired': skillsRequired,
+        'requirements': requirements,
+        'owner': uid,
         'isOpened': true,
       });
     } catch (e) {
@@ -89,6 +91,7 @@ class JobService {
   JobData _jobDataFromSnapshot(DocumentSnapshot snapshot) {
     return JobData(
       uid: uid,
+      owner: snapshot.get('owner'),
       jobTitle: snapshot.get('jobTitle'),
       jobDescription: snapshot.get('description'),
       location: snapshot.get('location'),
@@ -96,6 +99,7 @@ class JobService {
       maxSalaryRange: snapshot.get('maximumSalary').toString(),
       jobType: snapshot.get('jobType'),
       skillsRequired: List<String>.from(snapshot.get('skillsRequired')),
+      otherRequirements: snapshot.get('requirements'),
       isOpened: snapshot.get('isOpened'),
     );
   }
