@@ -17,6 +17,7 @@ class _NavJSState extends State<NavJS> {
   late PageController _pageController;
   late List<Widget> _pages;
 
+  int _selectedIndex = 1;
 
   @override
   void initState() {
@@ -37,28 +38,29 @@ class _NavJSState extends State<NavJS> {
 
   void _changePage(int index) {
     setState(() {
-      _currentIndex = index;
+      _selectedIndex = index;
     });
-    _pageController.jumpToPage(index);
+    //_pageController.jumpToPage(index);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
+      body: IndexedStack(
+        index: _selectedIndex,
         children: _pages,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
       ),
       bottomNavigationBar: Container(
         color: backgroundblack,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
           child: GNav(
+            selectedIndex: _selectedIndex,
+            onTabChange: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
             gap: 8,
             iconSize: 24,
             padding: EdgeInsets.all(16),
@@ -80,8 +82,6 @@ class _NavJSState extends State<NavJS> {
                 text: 'Chat',
               ),
             ],
-            selectedIndex: _currentIndex,
-            onTabChange: _changePage,
           ),
         ),
       ),
