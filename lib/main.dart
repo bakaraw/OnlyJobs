@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/models/user.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:only_job/views/home/job_seeker_profileview.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();

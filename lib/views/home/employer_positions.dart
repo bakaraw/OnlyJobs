@@ -18,13 +18,15 @@ class EmployerPositions extends StatefulWidget {
 
 class _EmployerPositionsState extends State<EmployerPositions> {
   AuthService _auth = AuthService();
-  int _currentIndex = 1;
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Available Job Positions'),
+        titleTextStyle: headingStyle_white,
+        backgroundColor: primarycolor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -51,7 +53,7 @@ class _EmployerPositionsState extends State<EmployerPositions> {
           );
         },
         child: const Icon(Icons.add),
-        backgroundColor: Colors.blue,
+        backgroundColor: accent2,
       ),
     );
   }
@@ -85,10 +87,10 @@ class _EmployerPositionsState extends State<EmployerPositions> {
                 child: Container(
                   padding: EdgeInsets.all(10.0),
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: secondarycolor,
                     borderRadius: BorderRadius.circular(10.0),
                     border: Border.all(
-                      color: Colors.blue,
+                      color: backgroundblack,
                       width: 2.0,
                     ),
                   ),
@@ -98,10 +100,14 @@ class _EmployerPositionsState extends State<EmployerPositions> {
                       Text(
                         'Job Title: ' + job.jobTitle!,
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
+                      ),
+                      const Divider(
+                        color: Colors.black,
+                        thickness: 1.5,
                       ),
                       SizedBox(height: 10),
                       Expanded(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/home/employer_positions.dart';
 import 'package:only_job/views/home/employer_profile.dart';
 import 'package:only_job/services/skills_uploader.dart';
-
 import '../../chatFeature/main_chat_page.dart';
 
 class ClientHomePage extends StatefulWidget {
@@ -17,7 +17,6 @@ class _ClientHomePageState extends State<ClientHomePage> {
 
   // pages to toggle when the BottomNavigationBarItem is clicked
   final List<Widget> _pages = [
-    Icon(Icons.home),
     EmployerPositions(),
     MainChatPage(),
     EmployerProfile(),
@@ -38,22 +37,17 @@ class _ClientHomePageState extends State<ClientHomePage> {
         },
         items: const [
           BottomNavigationBarItem(
-            backgroundColor: Colors.blue,
+            backgroundColor: primarycolor,
             label: 'Home',
             icon: Icon(Icons.home),
           ),
           BottomNavigationBarItem(
-            backgroundColor: Colors.blue,
-            label: 'Positions',
-            icon: Icon(Icons.business_outlined),
-          ),
-          BottomNavigationBarItem(
-            backgroundColor: Colors.blue,
+            backgroundColor: primarycolor,
             label: 'Menu',
             icon: Icon(Icons.messenger_outline_rounded),
           ),
           BottomNavigationBarItem(
-            backgroundColor: Colors.blue,
+            backgroundColor: primarycolor,
             label: 'Profile',
             icon: Icon(Icons.person),
           ),

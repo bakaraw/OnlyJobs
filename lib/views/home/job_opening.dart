@@ -191,7 +191,8 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
                   }
 
                   if (_formKey.currentState != null &&
-                      _formKey.currentState!.validate() && selectedSkills.isNotEmpty) {
+                      _formKey.currentState!.validate() &&
+                      selectedSkills.isNotEmpty) {
                     String jobTitle = _jobTitleController.text;
                     JobService(uid: uid).addJobOpening(
                       _jobTitleController.text,

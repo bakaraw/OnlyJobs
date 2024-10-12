@@ -110,15 +110,8 @@ class _EmployerProfileState extends State<EmployerProfile> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Company Profile'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.settings,
-              color: Colors.black,
-            ),
-            onPressed: () {},
-          )
-        ],
+        titleTextStyle: headingStyle_white,
+        backgroundColor: primarycolor,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -129,7 +122,11 @@ class _EmployerProfileState extends State<EmployerProfile> {
               children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundImage: kIsWeb ? _webImage != null ? MemoryImage(_webImage!) : null : showPFP(),
+                  backgroundImage: kIsWeb
+                      ? _webImage != null
+                          ? MemoryImage(_webImage!)
+                          : null
+                      : showPFP(),
                   child: _imageLink == null || _imageLink!.isEmpty
                       ? Icon(Icons.person, size: 50)
                       : null,
