@@ -112,7 +112,7 @@ class _ClientSignupFormState extends State<ClientSignupForm> {
                               loading = false;
                             });
                           } else {
-                            await UserService(uid: result.uid)
+                            await UserService(uid: result.openningUid)
                                 .addUser(
                                     _nameController.text,
                                     null,

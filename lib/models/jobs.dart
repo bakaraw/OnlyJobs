@@ -8,6 +8,7 @@ class Jobs {
 }
 
 class JobData {
+  final String jobUid;
   String? uid;
   String? jobTitle;
   String? jobDescription;
@@ -21,6 +22,7 @@ class JobData {
   String? owner;
 
   JobData({
+    required this.jobUid, // Initialize jobUid here
     required this.uid,
     required this.jobTitle,
     required this.jobDescription,

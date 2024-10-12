@@ -101,6 +101,8 @@ class JobService {
       skillsRequired: List<String>.from(snapshot.get('skillsRequired')),
       otherRequirements: snapshot.get('requirements'),
       isOpened: snapshot.get('isOpened'),
+      jobUid: snapshot.id,
+
     );
   }
 

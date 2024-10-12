@@ -73,7 +73,7 @@ class _EmployerPositionsState extends State<EmployerPositions> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => JobDetailsPage(jobData: job),
+                builder: (context) => JobDetailsPage(jobData: job,),
               ),
             );
           },

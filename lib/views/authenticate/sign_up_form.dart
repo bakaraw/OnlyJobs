@@ -152,7 +152,7 @@ class _SignUpFormState extends State<SignUpForm> {
                               loading = false;
                             });
                           } else {
-                            await UserService(uid: result.uid).addUser(
+                            await UserService(uid: result.openningUid).addUser(
                                 _nameController.text,
                                 _selectedGender!,
                                 _selectedDate!,
