@@ -4,6 +4,7 @@ import 'package:only_job/models/jobs.dart';
 import 'package:only_job/views/constants/constants.dart';
 
 import '../../services/job_service.dart';
+import 'employer_positions.dart';
 
 class JobDetailsPage extends StatefulWidget {
   final JobData jobData;
@@ -82,6 +83,25 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
       );
     }
   }
+
+  Future<void> removeJobFromFirebase() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('User')
+          .doc(widget.jobData.owner)
+          .collection('JobOpenings')
+          .doc(jobUid)
+          .delete();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Job deleted successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete job: $e')),
+      );
+    }
+  }
   List<String> teamMembers = [
     "John Doe",
     "Jane Smith",
@@ -96,7 +116,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Job Details'),
-        titleTextStyle: headingStyle,
+        titleTextStyle: headingStyle_white,
         backgroundColor: primarycolor,
       ),
       body: Column(
@@ -132,6 +152,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                           : Text(
                         'Job Title: ${titleController.text}',
                         style: TextStyle(
+
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -258,7 +279,76 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                               });
                             },
                           ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text(
+                                        'Delete the ${widget.jobData.jobTitle} Job Opening?'),
+                                    content: Text(
+                                        'This will also delete all job seeker applications'),
+                                    actions: [
+                                      TextButton(
+                                      onPressed: () {
+                                        removeJobFromFirebase();
+                                        Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => EmployerPositions()),
+                                    );
+                                  },
+                                      child: Text(
+                                          'Yes',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('No'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+
                         ],
+                      ),
+                      SizedBox(height: 2,),
+                      TextButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text(
+                                    'Close the ${widget.jobData.jobTitle} Job Opening?'),
+                                content: Text(
+                                    'Job seekers will no longer find this Job Opening'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Yes'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('No'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Text('Close this Job Opening'),
                       ),
                     ],
                   ),
