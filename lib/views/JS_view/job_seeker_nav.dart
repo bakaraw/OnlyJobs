@@ -14,7 +14,6 @@ class NavJS extends StatefulWidget {
 
 class _NavJSState extends State<NavJS> {
   int _currentIndex = 1;
-  late PageController _pageController;
   late List<Widget> _pages;
 
   int _selectedIndex = 1;
@@ -22,7 +21,6 @@ class _NavJSState extends State<NavJS> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: _currentIndex);
     _pages = [
       ProfileScreen(),
       HomePage(changePage: _changePage),
@@ -32,7 +30,6 @@ class _NavJSState extends State<NavJS> {
 
   @override
   void dispose() {
-    _pageController.dispose();
     super.dispose();
   }
 
