@@ -11,6 +11,7 @@ import 'package:only_job/models/jobs.dart';
 import 'package:only_job/services/job_recommendation_controller.dart';
 import 'package:only_job/services/job_matcher.dart';
 import 'package:only_job/chatFeature/chat_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   Function changePage;
@@ -246,7 +247,7 @@ class _HomePageState extends State<HomePage> {
                                   return Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: CustomBodyWidget(
-                                        job: job, jobOwner: jobOwner),
+                                        jobData: job, jobOwner: jobOwner),
                                   );
                                 } else {
                                   return _isJobLoadingMore
@@ -362,8 +363,8 @@ class _HomePageState extends State<HomePage> {
 }
 
 class CustomBodyWidget extends StatefulWidget {
-  CustomBodyWidget({super.key, required this.job, required this.jobOwner});
-  JobData? job;
+  CustomBodyWidget({super.key, required this.jobData, required this.jobOwner});
+  JobData jobData;
   UserData jobOwner;
 
   @override
@@ -371,6 +372,100 @@ class CustomBodyWidget extends StatefulWidget {
 }
 
 class _CustomBodyWidgetState extends State<CustomBodyWidget> {
+final AuthService authService = AuthService();
+
+
+  String? jobUid;
+  String? receiverUid;
+  String? currentUserName;
+  String? ownerName; // New variable to store the owner's name
+  String? profilePicture; // New variable to store the owner's name
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCurrentUserName();
+    jobUid = widget.jobData.jobUid;
+    receiverUid = widget.jobData.owner;
+    getOwnerName(receiverUid!);
+
+  }
+
+
+  Future<void> getOwnerName(String ownerUid) async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('User')
+        .doc(ownerUid)
+        .get();
+
+    if (userDoc.exists) {
+      String name = userDoc.get('name');
+      String? fetchedProfilePicture = userDoc.get('profile_picture');
+
+      if (mounted) { // Check if the widget is still mounted
+        setState(() {
+          ownerName = name;
+          profilePicture = fetchedProfilePicture;
+        });
+      }
+    }
+  }
+
+  void fetchCurrentUserName() async {
+    String? fetchedCurrentUserName = await authService.getCurrentUserName();
+
+    if (mounted) {  // Check if the widget is still mounted
+      setState(() {
+        currentUserName = fetchedCurrentUserName;
+      });
+    }
+  }
+  @override
+  void dispose() {
+    super.dispose();
+
+  }
+
+  Future<void> applyForJob() async {
+    String? jobOwnerUid = widget.jobData.owner;  // Job owner's UID from job data
+    String? jobUid = widget.jobData.jobUid;      // Job UID from job data
+    String? currentUserName = this.currentUserName;  // Current user's name (fetched earlier)
+
+    if (jobOwnerUid != null) {
+      try {
+        // Reference to the specific job opening under the job owner's JobOpenings subcollection
+        DocumentReference jobDocRef = FirebaseFirestore.instance
+            .collection('User')
+            .doc(jobOwnerUid)
+            .collection('JobOpenings')
+            .doc(jobUid);
+
+        // Add current user to the 'pending_applicants' subcollection under the job opening
+        await jobDocRef.collection('pending_applicants').doc(currentUserName).set({
+          'name': currentUserName,      // Store the applicant's name
+          // Store the time of application
+          // Add any additional data related to the application here
+        });
+
+        // Notify the user that their application is pending
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Your application is pending review.')),
+        );
+      } catch (e) {
+        // Handle any errors during the application process
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to apply: $e')),
+        );
+      }
+    } else {
+      // Handle case where current user or job owner UID is null
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to apply. Please try again.')),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -382,22 +477,21 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
       ),
       child: Column(
         children: [
-          // Job Title section
 
           // Image section
-          if (widget.job!.image != null)
+          if (widget.jobData.image != null)
             Container(
               height: 250, // Fixed height for the image
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 image: DecorationImage(
-                  image: NetworkImage(widget.job!.image!),
+                  image: NetworkImage(widget.jobData.image!),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
 
-          if (widget.job!.image == null)
+          if (widget.jobData.image == null)
             Container(
               height: 250, // Fixed height for the image
               decoration: BoxDecoration(
@@ -419,7 +513,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.job!.jobTitle!, // Replace with actual job title
+                    widget.jobData.jobTitle!, // Replace with actual job title
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -444,7 +538,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                   child: Wrap(
                     spacing: 8.0, // Space between chips
                     runSpacing: 4.0, // Space between lines of chips
-                    children: widget.job!.skillsRequired!
+                    children: widget.jobData.skillsRequired!
                         .take(4) .map<Widget>((skill) => Chip(label: Text(skill)))
                         .toList(),
                   ),
@@ -460,7 +554,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.job!.jobDescription!, // Replace with actual location
+                    widget.jobData.jobDescription!, // Replace with actual location
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
@@ -500,7 +594,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                               ),
                             ),
                             Text(
-                              '\$${widget.job!.minSalaryRange!} - \$${widget.job!.maxSalaryRange}', // Replace with actual date
+                              '\$${widget.jobData.minSalaryRange!} - \$${widget.jobData.maxSalaryRange}', // Replace with actual date
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.black,
@@ -519,7 +613,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                                 color: Colors.black87), // Calendar icon
                             SizedBox(width: 4), // Space between icon and text
                             Text(
-                              widget.job!.jobType!, // Replace with actual date
+                              widget.jobData.jobType!, // Replace with actual date
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.black87,
@@ -536,7 +630,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                             color: Colors.red), // Calendar icon
                         const SizedBox(width: 4), // Space between icon and text
                         Text(
-                          widget.job!.location!, // Replace with actual date
+                          widget.jobData.location!, // Replace with actual date
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black,
@@ -559,6 +653,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
             child: ElevatedButton(
               onPressed: () {
                 print('Apply button clicked');
+                applyForJob();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
