@@ -44,4 +44,21 @@ class UserData {
     this.experience,
     this.certifications
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'uid': uid,
+      'name': name,
+      'email': email,
+      'gender': gender,
+      'birthDate': birthDate?.toIso8601String(),
+      'phone': phone,
+      'address': address,
+      'isJobSeeker': isJobSeeker,
+      'website': website,
+      'isUserNew': isUserNew,
+      'profilePicture': profilePicture,
+      'skills': skills,
+    };
+  }
 }

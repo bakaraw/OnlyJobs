@@ -10,6 +10,7 @@ import 'package:only_job/services/job_service.dart';
 import 'package:only_job/models/jobs.dart';
 import 'package:only_job/services/job_recommendation_controller.dart';
 import 'package:only_job/services/job_matcher.dart';
+import 'package:only_job/chatFeature/chat_page.dart';
 
 class HomePage extends StatefulWidget {
   Function changePage;
@@ -236,8 +237,7 @@ class _HomePageState extends State<HomePage> {
                               scrollDirection: Axis.vertical,
                               itemCount: _jobs.length + 1,
                               itemBuilder: (context, index) {
-                                if (index < _jobs.length &&
-                                    _jobs.isNotEmpty) {
+                                if (index < _jobs.length && _jobs.isNotEmpty) {
                                   JobData job = _jobs[index];
                                   UserData? jobOwner =
                                       _prefetchedUserData[job.owner!];
@@ -438,7 +438,6 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
               ),
             ),
 
-
           const SizedBox(height: 8), // Spacing
 
           // Location section
@@ -523,7 +522,14 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                     // Message button
                     ElevatedButton(
                       onPressed: () {
-                        // Add your message action here
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(
+                              user: widget.jobOwner.toMap(),
+                            ),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
