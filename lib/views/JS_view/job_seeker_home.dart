@@ -131,7 +131,6 @@ class _HomePageState extends State<HomePage> {
     return _isLoading
         ? const Loading()
         : Scaffold(
-            backgroundColor: primarycolor,
             body: Column(
               children: [
                 Padding(
@@ -192,10 +191,11 @@ class _HomePageState extends State<HomePage> {
                         height: 60, // Fixed height
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: const Color.fromARGB(255, 84, 82, 63),
+                          color: Colors.yellow[100],
                           border:
                               Border.all(color: Colors.amber[300]!, width: 1),
                         ),
+
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16), // Optional padding
                         child: Row(
@@ -658,7 +658,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 applyForJob();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: accent1,
+                backgroundColor: Colors.blue,
                 minimumSize: Size(double.infinity, 40),
               ),
               child: Text(
