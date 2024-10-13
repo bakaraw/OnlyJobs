@@ -15,7 +15,6 @@ class ClientHomePage extends StatefulWidget {
 class _ClientHomePageState extends State<ClientHomePage> {
   int _currentIndex = 0;
 
-  // pages to toggle when the BottomNavigationBarItem is clicked
   final List<Widget> _pages = [
     EmployerPositions(),
     MainChatPage(),
@@ -29,6 +28,8 @@ class _ClientHomePageState extends State<ClientHomePage> {
         children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: primarycolor,
+        selectedLabelStyle: bodyStyle,
         currentIndex: _currentIndex,
         onTap: (int newIndex) {
           setState(() {
@@ -43,7 +44,7 @@ class _ClientHomePageState extends State<ClientHomePage> {
           ),
           BottomNavigationBarItem(
             backgroundColor: primarycolor,
-            label: 'Menu',
+            label: 'Chat',
             icon: Icon(Icons.messenger_outline_rounded),
           ),
           BottomNavigationBarItem(
@@ -52,7 +53,7 @@ class _ClientHomePageState extends State<ClientHomePage> {
             icon: Icon(Icons.person),
           ),
         ],
-        fixedColor: Colors.black,
+        fixedColor: secondarycolor,
       ),
     );
   }
