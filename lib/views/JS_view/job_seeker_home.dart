@@ -401,16 +401,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
     receiverUid = widget.jobData.owner;
     getOwnerName(receiverUid!);
 
-
   }
 
-
-
-  @override
-  void dispose() {
-    super.dispose();
-
-  }
 
   Future<void> getOwnerName(String ownerUid) async {
     DocumentSnapshot userDoc = await FirebaseFirestore.instance
@@ -418,11 +410,11 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
         .doc(ownerUid)
         .get();
 
-    if (userDoc.exists && mounted) {  // Check if the widget is still mounted
+    if (userDoc.exists) {
       String name = userDoc.get('name');
       String? fetchedProfilePicture = userDoc.get('profile_picture');
 
-      if (mounted) {  // Check again before calling setState
+      if (mounted) { // Check if the widget is still mounted
         setState(() {
           ownerName = name;
           profilePicture = fetchedProfilePicture;
@@ -430,6 +422,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
       }
     }
   }
+
   void fetchCurrentUserName() async {
     String? fetchedCurrentUserName = await authService.getCurrentUserName();
 
@@ -439,8 +432,50 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
       });
     }
   }
+  @override
+  void dispose() {
+    super.dispose();
 
+  }
 
+  Future<void> applyForJob() async {
+    String? jobOwnerUid = widget.jobData.owner;  // Job owner's UID from job data
+    String? jobUid = widget.jobData.jobUid;      // Job UID from job data
+    String? currentUserName = this.currentUserName;  // Current user's name (fetched earlier)
+
+    if (jobOwnerUid != null) {
+      try {
+        // Reference to the specific job opening under the job owner's JobOpenings subcollection
+        DocumentReference jobDocRef = FirebaseFirestore.instance
+            .collection('User')
+            .doc(jobOwnerUid)
+            .collection('JobOpenings')
+            .doc(jobUid);
+
+        // Add current user to the 'pending_applicants' subcollection under the job opening
+        await jobDocRef.collection('pending_applicants').doc(currentUserName).set({
+          'name': currentUserName,      // Store the applicant's name
+          // Store the time of application
+          // Add any additional data related to the application here
+        });
+
+        // Notify the user that their application is pending
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Your application is pending review.')),
+        );
+      } catch (e) {
+        // Handle any errors during the application process
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to apply: $e')),
+        );
+      }
+    } else {
+      // Handle case where current user or job owner UID is null
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to apply. Please try again.')),
+      );
+    }
+  }
     @override
     Widget build(BuildContext context) {
       return Container(
@@ -634,6 +669,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
               child: ElevatedButton(
                 onPressed: () {
                   print('Apply button clicked');
+                  applyForJob();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
