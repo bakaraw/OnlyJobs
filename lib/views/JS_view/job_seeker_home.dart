@@ -11,6 +11,8 @@ import 'package:only_job/models/jobs.dart';
 import 'package:only_job/services/job_recommendation_controller.dart';
 import 'package:only_job/services/job_matcher.dart';
 
+import '../../chatFeature/chat_page.dart';
+
 class HomePage extends StatefulWidget {
   Function changePage;
   HomePage({super.key, required this.changePage});
@@ -220,7 +222,7 @@ class _HomePageState extends State<HomePage> {
                             JobData job = _jobs[index];
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: CustomBodyWidget(job: job, userService: _userService),
+                              child: CustomBodyWidget(currentUserName: _auth, jobData: job),
                             );
                           },
                         ) : const Center(
@@ -325,15 +327,40 @@ class _HomePageState extends State<HomePage> {
 }
 
 class CustomBodyWidget extends StatefulWidget {
-  CustomBodyWidget({super.key, required this.job, required this.userService});
-  JobData? job;
-  UserService? userService;
+  const CustomBodyWidget({super.key, required this.jobData, required this.currentUserName});
+
+  final JobData jobData;
+  final AuthService currentUserName;
 
   @override
   State<CustomBodyWidget> createState() => _CustomBodyWidgetState();
 }
 
 class _CustomBodyWidgetState extends State<CustomBodyWidget> {
+  final AuthService authService = AuthService();
+
+
+  String? jobUid;
+  String? receiverUid;
+
+  String? currentUserName;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCurrentUserName();
+    jobUid = widget.jobData.jobUid;
+    receiverUid = widget.jobData.owner;
+
+
+  }
+
+  void fetchCurrentUserName() async {
+    currentUserName = await authService.getCurrentUserName();
+    setState(() {});
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -354,7 +381,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.job!.jobTitle!, // Replace with actual job title
+                    widget.jobData.jobTitle!, // Replace with actual job title
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -396,7 +423,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 Icon(Icons.location_on, color: Colors.red), // Location icon
                 const SizedBox(width: 4), // Space between icon and text
                 Text(
-                  widget.job!.location!, // Replace with actual location
+                  widget.jobData.location!, // Replace with actual location
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.black,
@@ -469,15 +496,25 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                     // Message button
                     ElevatedButton(
                       onPressed: () {
-                        // Add your message action here
+                        print('Apply button clicked');
+
+                        // Get the receiver's user ID and name from jobData
+                        String? receiverName = widget.jobData.owner; // Replace with actual job owner name
+
+                        // Navigate to ChatPage with the user information
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(
+                              user: {
+                                'name': receiverName, // Pass the receiver's name
+                                'uid': receiverUid, // Pass the receiver's UID
+                              },
+                            ),
+                          ),
+                        );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                      ),
-                      child: const Text(
-                        'Message',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      child: Text('Message'),
                     ),
                   ],
                 ),
@@ -498,11 +535,11 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                             0.95), // Add viewportFraction for slight space between pages
                     children: [
                       _buildDescriptionSection(
-                          'Job Description', widget.job!.jobDescription!),
+                          'Job Description', widget.jobData.jobDescription!),
                       _buildDescriptionSection(
-                          'Requirements', widget.job!.otherRequirements!),
+                          'Requirements', widget.jobData.otherRequirements!),
                       _buildDescriptionSection('Salary Range',
-                          '\$${widget.job!.minSalaryRange} - \$${widget.job!.maxSalaryRange}'),
+                          '\$${widget.jobData.minSalaryRange} - \$${widget.jobData.maxSalaryRange}'),
                     ],
                   ),
                 ),

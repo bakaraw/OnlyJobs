@@ -47,7 +47,7 @@ class _ChatPageState extends State<ChatPage> {
         .collection('User')
         .doc(auth.currentUser?.uid)
         .get();
-    return userDoc['isJobSeeker'] ?? false;
+    return userDoc['isJobSeeker'] ?? true;
   }
 
 
@@ -82,9 +82,10 @@ class _ChatPageState extends State<ChatPage> {
                     color: Colors.blueAccent,
                     onPressed: () async {
                       if (isJobSeeker) {
-                        showProfileBottomSheet(receiverUserId, context);
-                      } else {
                         showSkillsBottomSheet(receiverUserId, context);
+                      } else {
+                        showProfileBottomSheet(receiverUserId, context);
+
                       }
                     },
                     icon: Icon(
@@ -205,14 +206,15 @@ class _ChatPageState extends State<ChatPage> {
                           },
                           icon: Icon(Icons.send, size: 30, color: primarycolor),
                         ),
+                        SizedBox(height: 5,),
 
                       ],
                     ),
                   ),
                 ],
               ),
-      ),
-      bottomNavigationBar: BottomAppBar(
+        ),
+        bottomNavigationBar: BottomAppBar(
         height: 60,
         color: primarycolor,
         child: Row(
