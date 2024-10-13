@@ -8,10 +8,12 @@ import 'package:only_job/views/constants/loading.dart';
 import 'package:only_job/models/education.dart';
 import 'package:only_job/models/certification.dart';
 import 'package:only_job/models/experience.dart';
+import 'package:only_job/services/job_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   String? uid;
-  ProfileScreen({super.key, required this.uid});
+  String? jobUid;
+  ProfileScreen({super.key, required this.uid, required this.jobUid});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -25,12 +27,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late List<Certification>? _certifications;
   late List<Experience>? _experiences;
   bool _isLoading = true;
+  late JobService _jobService;
 
   @override
   void initState() {
     super.initState();
     _auth = AuthService();
     _applicantService = UserService(uid: widget.uid!);
+    _jobService = JobService(uid: widget.uid!);
     _getApplicantData();
   }
 
@@ -152,9 +156,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                     ],
                   ),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
+            floatingActionButton: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center, // Adjusts spacing
+                children: [
+                  SizedBox(
+                    width: 100, // Set the desired width
+                    child: FloatingActionButton.extended(
+                      onPressed: () {
+                        // Action for the first button
+                        _jobService.acceptApplicant(widget.jobUid!, widget.uid!);
+                        Navigator.of(context).pop();
+                      },
+                      backgroundColor: Colors.green,
+                      heroTag: 'btn1',
+                      label: Text('Accept', style: TextStyle(color: Colors.white)),
+                      icon: Icon(Icons.check, color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  SizedBox(
+                    width: 100, // Set the desired width
+                    child: FloatingActionButton.extended(
+                      onPressed: () {
+                        // Action for the second button
+                        _jobService.deleteApplicant(widget.jobUid!, widget.uid!);
+                        Navigator.of(context).pop();
+                      },
+                      backgroundColor: Colors.red,
+                      heroTag: 'btn2',
+                      label: Text('Reject', style: TextStyle(color: Colors.white)),
+                      icon: Icon(Icons.close, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
           );
   }
 
@@ -186,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     for (var edu in _experiences!) {
       experienceWidget.add(
         InfoCard(
-          icon: Icons.school_outlined,
+          icon: Icons.work,
           text: 'Experiences: ${edu.company}',
         ),
       );

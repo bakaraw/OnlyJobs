@@ -21,7 +21,8 @@ class JobDetailsPage extends StatefulWidget {
   _JobDetailsPageState createState() => _JobDetailsPageState();
 }
 
-class _JobDetailsPageState extends State<JobDetailsPage> {
+class _JobDetailsPageState extends State<JobDetailsPage>
+    with SingleTickerProviderStateMixin {
   bool isEditing = false;
 
   TextEditingController titleController = TextEditingController();
@@ -40,6 +41,8 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
   late JobService jobService;
   bool _loading = true;
 
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +53,10 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
     locationController.text = widget.jobData.location!;
     jobDescriptionController.text = widget.jobData.jobDescription!;
     jobUid = widget.jobData.jobUid;
+    print('JobUid: $jobUid');
     selectedSkills = List<String>.from(widget.jobData.skillsRequired!);
+    jobService = JobService(uid: jobUid!);
+    _tabController = TabController(length: 2, vsync: this);
     _getApplicants();
     // Fetch skills only once during initialization
     _fetchSkills();
@@ -71,6 +77,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
     maxSalaryController.dispose();
     locationController.dispose();
     jobDescriptionController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -157,13 +164,6 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Applicant> applicantsList = [];
-    if (applicantData != null) {
-      applicantsList = applicantData!.values
-          .map<Applicant>((applicant) => Applicant.fromMap(applicant))
-          .toList();
-    }
-
     return _loading
         ? const Loading()
         : Scaffold(
@@ -400,66 +400,256 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                   ),
                 ),
 
-                // Scrollable list of applicants (team members)
+                TabBar(
+                  controller: _tabController,
+                  tabs: [
+                    Tab(text: 'Applicants'),
+                    Tab(text: 'For Interview'),
+                  ],
+                ),
+
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: applicantsList
-                          .map(
-                            (applicant) => Padding(
-                              padding: const EdgeInsets.only(bottom: 10.0),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ProfileScreen(
-                                          uid: applicant.uid),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(16.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    border: Border.all(color: Colors.black),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            applicant.name,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      StreamBuilder<Map<String, dynamic>>(
+                        stream: jobService.getPendingApplicantsStream(
+                            jobUid!), // Replace with your method to fetch applicants
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${snapshot.error}'));
+                          }
+                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return Center(child: Text('No applicants found.'));
+                          }
+
+                          List<Applicant> applicantsList = [];
+                          if (applicantData != null) {
+                            applicantsList = snapshot.data!.values
+                                .map<Applicant>(
+                                    (applicant) => Applicant.fromMap(applicant))
+                                .toList();
+                          }
+
+                          // Use the fetched list of applicants
+
+                          return SingleChildScrollView(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: applicantsList
+                                  .map(
+                                    (applicant) => Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 10.0),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProfileScreen(
+                                                jobUid: widget.jobData.jobUid,
+                                                uid: applicant.uid,
+                                              ),
                                             ),
-                                          ),
-                                          Text('Skill'),
-                                        ],
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.close, color: accent1),
-                                        onPressed: () {
+                                          );
                                         },
+                                        child: Container(
+                                          padding: EdgeInsets.all(16.0),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[200],
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            border:
+                                                Border.all(color: Colors.black),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    applicant.name,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              IconButton(
+                                                icon: Icon(Icons.close,
+                                                    color: accent1),
+                                                onPressed: () {
+                                                  jobService.deleteApplicant(
+                                                      jobUid!, applicant.uid);
+                                                  // Handle the close button action
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                                    ),
+                                  )
+                                  .toList(),
                             ),
-                          )
-                          .toList(),
-                    ),
+                          );
+                        },
+                      ),
+                      StreamBuilder<Map<String, dynamic>>(
+                        stream: jobService.getAcceptedApplicantsStream(
+                            jobUid!), // Replace with your method to fetch applicants
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${snapshot.error}'));
+                          }
+                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return Center(child: Text('No applicants found.'));
+                          }
+
+                          List<Applicant> applicantsList = [];
+                          if (applicantData != null) {
+                            applicantsList = snapshot.data!.values
+                                .map<Applicant>(
+                                    (applicant) => Applicant.fromMap(applicant))
+                                .toList();
+                          }
+
+                          // Use the fetched list of applicants
+
+                          return SingleChildScrollView(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: applicantsList
+                                  .map(
+                                    (applicant) => Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 10.0),
+                                      child: Container(
+                                        padding: EdgeInsets.all(16.0),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          border:
+                                              Border.all(color: Colors.black),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  applicant.name,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                Text('Skill'),
+                                              ],
+                                            ),
+                                            IconButton(
+                                              icon: Icon(Icons.message_rounded,
+                                                  color: primarycolor),
+                                              onPressed: () {
+                                                // Handle the close button action
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
+                // Scrollable list of applicants (team members)
+                //Expanded(
+                //  child: SingleChildScrollView(
+                //    padding: const EdgeInsets.all(16.0),
+                //    child: Column(
+                //      crossAxisAlignment: CrossAxisAlignment.start,
+                //      children: applicantsList
+                //          .map(
+                //            (applicant) => Padding(
+                //              padding: const EdgeInsets.only(bottom: 10.0),
+                //              child: GestureDetector(
+                //                onTap: () {
+                //                  Navigator.push(
+                //                    context,
+                //                    MaterialPageRoute(
+                //                      builder: (context) => ProfileScreen(
+                //                          jobUid: widget.jobData.jobUid,
+                //                          uid: applicant.uid),
+                //                    ),
+                //                  );
+                //                },
+                //                child: Container(
+                //                  padding: EdgeInsets.all(16.0),
+                //                  decoration: BoxDecoration(
+                //                    color: Colors.grey[200],
+                //                    borderRadius: BorderRadius.circular(8.0),
+                //                    border: Border.all(color: Colors.black),
+                //                  ),
+                //                  child: Row(
+                //                    mainAxisAlignment:
+                //                        MainAxisAlignment.spaceBetween,
+                //                    children: [
+                //                      Column(
+                //                        crossAxisAlignment:
+                //                            CrossAxisAlignment.start,
+                //                        children: [
+                //                          Text(
+                //                            applicant.name,
+                //                            style: TextStyle(
+                //                              fontSize: 16,
+                //                              fontWeight: FontWeight.bold,
+                //                            ),
+                //                          ),
+                //                          Text('Skill'),
+                //                        ],
+                //                      ),
+                //                      IconButton(
+                //                        icon: Icon(Icons.close, color: accent1),
+                //                        onPressed: () {
+                //                        },
+                //                      ),
+                //                    ],
+                //                  ),
+                //                ),
+                //              ),
+                //            ),
+                //          )
+                //          .toList(),
+                //    ),
+                //  ),
+                //),
               ],
             ),
           );
