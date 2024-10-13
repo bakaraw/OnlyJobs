@@ -381,6 +381,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
   String? ownerName; // New variable to store the owner's name
   String? profilePicture; // New variable to store the owner's name
 
+  bool _isButtonDisabled = false;
+
   @override
   void initState() {
     super.initState();
@@ -431,6 +433,10 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
     String? currentUserName =
         this.currentUserName; // Current user's name (fetched earlier)
 
+    setState(() {
+      _isButtonDisabled = true;
+    });
+
     if (jobOwnerUid != null) {
       try {
         // Reference to the specific job opening under the job owner's JobOpenings subcollection
@@ -450,7 +456,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
           'uid': authService.getCurrentUserId(),
         });
 
-        await userService.recordJobInteraction(authService.getCurrentUserId()!,jobUid, "applied");
+        await userService.recordJobInteraction(
+            authService.getCurrentUserId()!, jobUid, "applied");
 
         // Notify the user that their application is pending
         ScaffoldMessenger.of(context).showSnackBar(
@@ -657,10 +664,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
-              onPressed: () {
-                print('Apply button clicked');
-                applyForJob();
-              },
+              onPressed: _isButtonDisabled ? null : applyForJob,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 minimumSize: Size(double.infinity, 40),

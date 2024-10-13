@@ -401,13 +401,6 @@ class _EmployerProfileState extends State<EmployerProfile> {
             SizedBox(
               height: 10,
             ),
-            ListTile(
-              shape: listTileShape,
-              title: Row(
-                children: [Text("Industry "), Icon(Icons.factory)],
-              ),
-              subtitle: Text("BILAT"),
-            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
@@ -421,18 +414,6 @@ class _EmployerProfileState extends State<EmployerProfile> {
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50),
                 backgroundColor: Colors.white, // Button color
-              ),
-            ),
-            SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text(
-                'Delete Account',
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
-                backgroundColor: Colors.redAccent, // Button color
               ),
             ),
           ],
