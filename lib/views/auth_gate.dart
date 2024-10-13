@@ -4,7 +4,6 @@ import 'package:only_job/views/home/home.dart';
 import 'package:provider/provider.dart';
 import 'package:only_job/models/user.dart';
 import 'dart:developer';
-import 'package:only_job/views/test/test.dart';
 
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
