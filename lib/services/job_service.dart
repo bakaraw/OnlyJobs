@@ -2,13 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:developer';
 import 'package:only_job/models/jobs.dart';
+import 'package:only_job/services/user_service.dart';
 
 class JobService {
   JobService({required this.uid});
 
   final String uid;
   final CollectionReference userCollection =
-  FirebaseFirestore.instance.collection('User');
+      FirebaseFirestore.instance.collection('User');
 
   DocumentReference get _userRef => userCollection.doc(uid);
 
@@ -20,7 +21,8 @@ class JobService {
 
   bool get hasMoreData => hasMore;
 
-  Future<void> addJobOpening(String title,
+  Future<void> addJobOpening(
+      String title,
       String description,
       String location,
       int minSalary,
@@ -49,32 +51,46 @@ class JobService {
     }
   }
 
-  // fetch all the job openings of users if the user is not a job_seeker
-  Future<List<JobData>> fetchInitialJob() async {
+  Future<List<JobData>> fetchInitialJob(
+      UserService userService, String uid) async {
     try {
+      // Fetch the list of job IDs the user has interacted with
+      List<String> interactedJobIds =
+          await userService.fetchInteractedJobIds(uid);
+
+      // Fetch job openings across all users with an optional filter
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collectionGroup('JobOpenings')
-      //.where('isOpened', isEqualTo: true)
-          .limit(documentLimit)
+          //.where('isOpened', isEqualTo: true)  // Uncomment if needed
+          .limit(documentLimit) // Limit the number of documents fetched
           .get();
 
+      // Check if there are more documents to fetch
       if (snapshot.docs.isEmpty) {
-        hasMore = false;
+        hasMore = false; // No more documents available
+      } else {
+        lastDocument =
+            snapshot.docs.last; // Store the last document for pagination
       }
 
-      if (snapshot.docs.isNotEmpty) {
-        lastDocument = snapshot.docs.last;
-      }
-
-      return snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList();
+      // Filter out interacted jobs and convert to JobData instances
+      return snapshot.docs
+          .where((doc) =>
+              !interactedJobIds.contains(doc.id)) // Exclude interacted jobs
+          .map((doc) =>
+              _jobDataFromSnapshot(doc)) // Ensure this function works correctly
+          .toList();
     } catch (e) {
       log(e.toString());
-      rethrow;
+      rethrow; // Propagate the error for handling upstream
     }
   }
 
-  Future<List<JobData>> fetchMoreJobs() async {
+  Future<List<JobData>> fetchMoreJobs(
+      UserService userService, String uid) async {
     if (!hasMore) return [];
+    List<String> interactedJobIds =
+        await userService.fetchInteractedJobIds(uid);
 
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collectionGroup('JobOpenings')
@@ -89,7 +105,11 @@ class JobService {
 
     lastDocument = snapshot.docs.last;
 
-    return snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList();
+    return snapshot.docs
+        .where((doc) =>
+            !interactedJobIds.contains(doc.id)) // Exclude interacted jobs
+        .map((doc) => _jobDataFromSnapshot(doc))
+        .toList();
   }
 
   JobData _jobDataFromSnapshot(DocumentSnapshot snapshot) {
@@ -132,6 +152,4 @@ class JobService {
     }
   }
 
-
 }
-

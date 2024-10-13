@@ -372,16 +372,14 @@ class CustomBodyWidget extends StatefulWidget {
 }
 
 class _CustomBodyWidgetState extends State<CustomBodyWidget> {
-final AuthService authService = AuthService();
-
+  final AuthService authService = AuthService();
+  late final UserService userService;
 
   String? jobUid;
   String? receiverUid;
   String? currentUserName;
   String? ownerName; // New variable to store the owner's name
   String? profilePicture; // New variable to store the owner's name
-
-
 
   @override
   void initState() {
@@ -390,21 +388,18 @@ final AuthService authService = AuthService();
     jobUid = widget.jobData.jobUid;
     receiverUid = widget.jobData.owner;
     getOwnerName(receiverUid!);
-
   }
 
-
   Future<void> getOwnerName(String ownerUid) async {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('User')
-        .doc(ownerUid)
-        .get();
+    DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection('User').doc(ownerUid).get();
 
     if (userDoc.exists) {
       String name = userDoc.get('name');
       String? fetchedProfilePicture = userDoc.get('profile_picture');
 
-      if (mounted) { // Check if the widget is still mounted
+      if (mounted) {
+        // Check if the widget is still mounted
         setState(() {
           ownerName = name;
           profilePicture = fetchedProfilePicture;
@@ -415,23 +410,26 @@ final AuthService authService = AuthService();
 
   void fetchCurrentUserName() async {
     String? fetchedCurrentUserName = await authService.getCurrentUserName();
+    userService = UserService(uid: authService.getCurrentUserId()!);
 
-    if (mounted) {  // Check if the widget is still mounted
+    if (mounted) {
+      // Check if the widget is still mounted
       setState(() {
         currentUserName = fetchedCurrentUserName;
       });
     }
   }
+
   @override
   void dispose() {
     super.dispose();
-
   }
 
   Future<void> applyForJob() async {
-    String? jobOwnerUid = widget.jobData.owner;  // Job owner's UID from job data
-    String? jobUid = widget.jobData.jobUid;      // Job UID from job data
-    String? currentUserName = this.currentUserName;  // Current user's name (fetched earlier)
+    String? jobOwnerUid = widget.jobData.owner; // Job owner's UID from job data
+    String? jobUid = widget.jobData.jobUid; // Job UID from job data
+    String? currentUserName =
+        this.currentUserName; // Current user's name (fetched earlier)
 
     if (jobOwnerUid != null) {
       try {
@@ -443,11 +441,16 @@ final AuthService authService = AuthService();
             .doc(jobUid);
 
         // Add current user to the 'pending_applicants' subcollection under the job opening
-        await jobDocRef.collection('pending_applicants').doc(currentUserName).set({
-          'name': currentUserName,      // Store the applicant's name
-          // Store the time of application
-          // Add any additional data related to the application here
+        await jobDocRef
+            .collection('pending_applicants')
+            .doc(currentUserName)
+            .set({
+          'name': currentUserName,
+          'applied_at': FieldValue.serverTimestamp(),
+          'uid': authService.getCurrentUserId(),
         });
+
+        await userService.recordJobInteraction(authService.getCurrentUserId()!,jobUid, "applied");
 
         // Notify the user that their application is pending
         ScaffoldMessenger.of(context).showSnackBar(
@@ -466,6 +469,7 @@ final AuthService authService = AuthService();
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -477,7 +481,6 @@ final AuthService authService = AuthService();
       ),
       child: Column(
         children: [
-
           // Image section
           if (widget.jobData.image != null)
             Container(
@@ -539,7 +542,8 @@ final AuthService authService = AuthService();
                     spacing: 8.0, // Space between chips
                     runSpacing: 4.0, // Space between lines of chips
                     children: widget.jobData.skillsRequired!
-                        .take(4) .map<Widget>((skill) => Chip(label: Text(skill)))
+                        .take(4)
+                        .map<Widget>((skill) => Chip(label: Text(skill)))
                         .toList(),
                   ),
                 ),
@@ -554,7 +558,8 @@ final AuthService authService = AuthService();
               children: [
                 Expanded(
                   child: Text(
-                    widget.jobData.jobDescription!, // Replace with actual location
+                    widget.jobData
+                        .jobDescription!, // Replace with actual location
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
@@ -613,7 +618,8 @@ final AuthService authService = AuthService();
                                 color: Colors.black87), // Calendar icon
                             SizedBox(width: 4), // Space between icon and text
                             Text(
-                              widget.jobData.jobType!, // Replace with actual date
+                              widget
+                                  .jobData.jobType!, // Replace with actual date
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.black87,

@@ -316,8 +316,7 @@ class UserService {
   Future<Education?> getFirstUserEducation() async {
     try {
       // Reference to the education subcollection under the specific user document
-      CollectionReference educationRef = _userRef
-          .collection('education');
+      CollectionReference educationRef = _userRef.collection('education');
 
       // Retrieve the education documents (limit to 1 for efficiency)
       QuerySnapshot educationSnapshot = await educationRef.limit(1).get();
@@ -465,5 +464,39 @@ class UserService {
         (snapshot) => snapshot.docs
             .map((doc) => _certificationFromSnapshot(doc))
             .toList());
+  }
+
+  Future<void> recordJobInteraction(
+      String userId, String jobId, String type) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('User')
+          .doc(userId)
+          .collection('JobInteractions')
+          .doc(jobId)
+          .set({
+        'jobId': jobId,
+        'type': type, // "applied" or "viewed"
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List<String>> fetchInteractedJobIds(String userId) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(userId)
+          .collection('JobInteractions')
+          .get();
+
+      return snapshot.docs.map((doc) => doc.id).toList(); // List of jobIds
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
   }
 }
