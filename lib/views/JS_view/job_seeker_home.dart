@@ -443,7 +443,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
         // Add current user to the 'pending_applicants' subcollection under the job opening
         await jobDocRef
             .collection('pending_applicants')
-            .doc(currentUserName)
+            .doc(authService.getCurrentUserId()!)
             .set({
           'name': currentUserName,
           'applied_at': FieldValue.serverTimestamp(),

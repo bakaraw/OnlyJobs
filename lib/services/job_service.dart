@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:developer';
 import 'package:only_job/models/jobs.dart';
 import 'package:only_job/services/user_service.dart';
+import 'package:only_job/services/auth.dart';
 
 class JobService {
   JobService({required this.uid});
@@ -10,6 +11,8 @@ class JobService {
   final String uid;
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection('User');
+
+  final AuthService _auth = AuthService();
 
   DocumentReference get _userRef => userCollection.doc(uid);
 
@@ -152,4 +155,38 @@ class JobService {
     }
   }
 
+  // get the the data in each document in the subcollection pending_applicants and return the map
+
+  Future<Map<String, dynamic>> getPendingApplicants(String jobUid) async {
+    try {
+      // Fetch the job document to ensure it exists
+      DocumentSnapshot jobDoc = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(_auth.getCurrentUserId()!)
+          .collection('JobOpenings')
+          .doc(jobUid)
+          .get();
+
+      if (jobDoc.exists) {
+        // Access the pending_applicants subcollection
+        QuerySnapshot applicantsSnapshot =
+            await jobDoc.reference.collection('pending_applicants').get();
+
+        // Initialize a map to store applicant data
+        Map<String, dynamic> applicantsMap = {};
+
+        // Loop through the documents in the subcollection
+        for (var applicantDoc in applicantsSnapshot.docs) {
+          applicantsMap[applicantDoc.id] =
+              applicantDoc.data(); // Store each document's data in the map
+        }
+
+        return applicantsMap; // Return the populated map
+      }
+      return {}; // Return an empty map if the job document does not exist
+    } catch (e) {
+      log(e.toString()); // Log the error
+      rethrow; // Propagate the error for handling upstream
+    }
+  }
 }

@@ -2,11 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/models/jobs.dart';
 import 'package:only_job/views/constants/constants.dart';
+import 'package:only_job/views/constants/loading.dart';
 
 import '../../services/job_service.dart';
 import '../../services/retrieve_skills.dart';
 import 'common/search_skills.dart';
 import 'employer_positions.dart';
+import '../../services/auth.dart';
+import '../../models/applicant.dart';
 
 class JobDetailsPage extends StatefulWidget {
   final JobData jobData;
@@ -31,9 +34,15 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
   List<String> selectedSkills = [];
   String _skillsError = '';
 
+  late Map<String, dynamic>? applicantData = {};  
+  late AuthService _auth;
+  late JobService jobService;
+  bool _loading = true;
+
   @override
   void initState() {
     super.initState();
+    _auth = AuthService();
     titleController.text = widget.jobData.jobTitle!;
     minSalaryController.text = widget.jobData.minSalaryRange.toString();
     maxSalaryController.text = widget.jobData.maxSalaryRange.toString();
@@ -41,9 +50,17 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
     jobDescriptionController.text = widget.jobData.jobDescription!;
     jobUid = widget.jobData.jobUid;
     selectedSkills = List<String>.from(widget.jobData.skillsRequired!);
-
+    _getApplicants();
     // Fetch skills only once during initialization
     _fetchSkills();
+  }
+
+  void _getApplicants() async {
+    applicantData = await JobService(uid: _auth.getCurrentUserId()!)
+        .getPendingApplicants(widget.jobData.jobUid);
+    setState(() {
+      _loading = false;
+    });
   }
 
   @override
@@ -101,15 +118,6 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
     }
   }
 
-  List<String> teamMembers = [
-    "John Doe",
-    "Jane Smith",
-    'Bilat',
-    'Meg',
-    'Peter',
-    'BumbleBee',
-  ];
-
   Future<void> _fetchSkills() async {
     try {
       List<String> fetchedSkills =
@@ -148,7 +156,14 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    List<Applicant> applicantsList = [];
+    if (applicantData != null) {
+      applicantsList = applicantData!.values
+          .map<Applicant>((applicant) => Applicant.fromMap(applicant))
+          .toList();
+    }
+
+    return _loading ? const Loading() : Scaffold(
       appBar: AppBar(
         title: Text('Job Details'),
         titleTextStyle: headingStyle_white,
@@ -383,7 +398,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: teamMembers
+                children: applicantsList
                     .map(
                       (member) => Padding(
                         padding: const EdgeInsets.only(bottom: 10.0),
@@ -401,7 +416,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    member,
+                                    member.name,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -414,7 +429,6 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                                 icon: Icon(Icons.close, color: accent1),
                                 onPressed: () {
                                   setState(() {
-                                    teamMembers.remove(member);
                                   });
                                 },
                               ),
