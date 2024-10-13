@@ -20,6 +20,7 @@ class JobData {
   bool? isOpened;
   String? otherRequirements;
   String? owner;
+  String? image;
 
   JobData({
     required this.jobUid, // Initialize jobUid here
@@ -34,5 +35,6 @@ class JobData {
     required this.isOpened,
     required this.otherRequirements,
     required this.owner,
+    required this.image,
   });
 }
