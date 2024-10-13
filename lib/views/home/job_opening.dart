@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/services/user_service.dart';
@@ -104,6 +105,7 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Job Opening'),
+        backgroundColor: primarycolor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -238,8 +240,11 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
               Text(_skillsError, style: TextStyle(color: Colors.red)),
               SizedBox(height: 10),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: secondarycolor,
+                  backgroundColor: primarycolor, // Text color
+                ),
                 onPressed: () async {
-
                   if (selectedSkills.isEmpty) {
                     setState(() {
                       _skillsError = 'Enter Skills Required';
