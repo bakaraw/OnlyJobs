@@ -37,6 +37,8 @@ class _HomePageState extends State<HomePage> {
   List<dynamic>? skills = [];
   bool _isLoading = true;
 
+  Map<String, UserData> _prefetchedUserData = {};
+
   @override
   void initState() {
     super.initState();
@@ -72,8 +74,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onPageChanged() {
-    if (_pageController.page == _jobs.length - 1 && _hasMore) {
-      _loadMoreJobs(); // Load more jobs when on the last page
+    //if (_pageController.page == _jobs.length - 1 && _hasMore) {
+    //  _loadMoreJobs(); // Load more jobs when on the last page
+    //}
+    if (_pageController.page == _jobs.length - 1 &&
+        !_isJobLoadingMore &&
+        _hasMore) {
+      _loadMoreJobs();
     }
   }
 
@@ -84,13 +91,20 @@ class _HomePageState extends State<HomePage> {
       _isJobLoadingMore = true;
     });
 
+    // Fetch more job recommendations
     List<JobData> moreJobs =
         await jobRecommendationController.fetchInitialJobsRecommendations(uid);
 
+    // Prefetch user data for the additional jobs
+    for (var job in moreJobs) {
+      UserData userData = await _userService.getUserById(job.owner!);
+      _prefetchedUserData[job.owner!] = userData;
+    }
+
     setState(() {
-      _jobs.addAll(moreJobs);
+      _jobs.addAll(moreJobs); // Append the new jobs to the list
       _isJobLoadingMore = false;
-      _hasMore = jobRecommendationController.hasMore;
+      _hasMore = jobRecommendationController.hasMore; // Update hasMore flag
     });
   }
 
@@ -101,6 +115,11 @@ class _HomePageState extends State<HomePage> {
 
     List<JobData> jobs =
         await jobRecommendationController.fetchInitialJobsRecommendations(uid);
+
+    for (var job in jobs) {
+      UserData userData = await _userService.getUserById(job.owner!);
+      _prefetchedUserData[job.owner!] = userData;
+    }
 
     setState(() {
       _jobs = jobs;
@@ -212,20 +231,41 @@ class _HomePageState extends State<HomePage> {
                       ? const Center(
                           child: CircularProgressIndicator(),
                         )
-                      : _jobs.isNotEmpty ? PageView.builder(
-                          controller: _pageController,
-                          scrollDirection: Axis.vertical,
-                          itemCount: _jobs.length,
-                          itemBuilder: (context, index) {
-                            JobData job = _jobs[index];
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: CustomBodyWidget(job: job, userService: _userService),
-                            );
-                          },
-                        ) : const Center(
-                          child: Text('No jobs available for you at the moment'),
-                        ),
+                      : _jobs.isNotEmpty
+                          ? PageView.builder(
+                              controller: _pageController,
+                              scrollDirection: Axis.vertical,
+                              itemCount: _jobs.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index < _jobs.length - 1 && _jobs.isNotEmpty) {
+                                  JobData job = _jobs[index];
+                                  UserData? jobOwner =
+                                      _prefetchedUserData[job.owner!];
+                                  if (jobOwner == null) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: CustomBodyWidget(
+                                        job: job, jobOwner: jobOwner),
+                                  );
+                                } else {
+                                  return _isJobLoadingMore
+                                      ? const Center(
+                                          child: CircularProgressIndicator(),
+                                        )
+                                      : const Center(
+                                          child: Text(
+                                              'No more jobs available yet'),
+                                        );
+                                }
+                              })
+                          : const Center(
+                              child: Text(
+                                  'No jobs available for you at the moment'),
+                            ),
                 ),
               ],
             ),
@@ -325,9 +365,9 @@ class _HomePageState extends State<HomePage> {
 }
 
 class CustomBodyWidget extends StatefulWidget {
-  CustomBodyWidget({super.key, required this.job, required this.userService});
+  CustomBodyWidget({super.key, required this.job, required this.jobOwner});
   JobData? job;
-  UserService? userService;
+  UserData jobOwner;
 
   @override
   State<CustomBodyWidget> createState() => _CustomBodyWidgetState();
@@ -362,8 +402,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                   ),
                   const SizedBox(height: 4), // Vertical spacing
                   Text(
-                    'Company Name:', // Replace with actual company name
-                    style: TextStyle(
+                    'Company Name: ${widget.jobOwner.name}', // Replace with actual company name
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
                     ),
@@ -376,7 +416,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
           // Image section
           Container(
             height: 250, // Fixed height for the image
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
               image: DecorationImage(
                 image: AssetImage('sample_image.jpg'),
@@ -423,8 +463,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 // Title
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text(
-                    'Meet the hiring manager',
+                  child: const Text(
+                    'Message the Hiring Team',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -438,8 +478,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                     // Avatar picture
                     CircleAvatar(
                       radius: 25,
-                      backgroundImage: AssetImage(
-                          'sample_image_person.jpg'), // Replace with your image asset
+                      backgroundImage: NetworkImage(
+                          widget.jobOwner.profilePicture!), // Replace with your image asset
                     ),
                     const SizedBox(width: 8), // Space between avatar and column
 
@@ -448,15 +488,15 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'John Doe', // Replace with actual name
-                          style: TextStyle(
+                          widget.jobOwner.name!, // Replace with actual name
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 2), // Vertical spacing
-                        Text(
-                          'Senior Developer', // Replace with actual role
+                        const Text(
+                          'Human Resource Manager', // Replace with actual role
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -563,4 +603,3 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
     );
   }
 }
-
