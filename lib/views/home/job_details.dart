@@ -27,7 +27,6 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
   TextEditingController jobDescriptionController = TextEditingController();
   String? jobUid;
 
-
   late List<String> skills = [];
   List<String> selectedSkills = [];
   String _skillsError = '';
@@ -101,6 +100,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
       );
     }
   }
+
   List<String> teamMembers = [
     "John Doe",
     "Jane Smith",
@@ -113,7 +113,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
   Future<void> _fetchSkills() async {
     try {
       List<String> fetchedSkills =
-      await RetrieveSkills().retrieveSkillsFromFirestore();
+          await RetrieveSkills().retrieveSkillsFromFirestore();
       setState(() {
         skills = fetchedSkills;
       });
@@ -139,13 +139,12 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
 
   void addSkills(String skill) {
     setState(() {
-      if (!selectedSkills.contains(skill)) { // Prevent duplicates
+      if (!selectedSkills.contains(skill)) {
+        // Prevent duplicates
         selectedSkills.add(skill);
       }
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -179,67 +178,67 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                       // Job Title
                       isEditing
                           ? TextField(
-                        controller: titleController,
-                        decoration: InputDecoration(
-                          labelText: 'Job Title',
-                          border: OutlineInputBorder(),
-                        ),
-                      )
+                              controller: titleController,
+                              decoration: InputDecoration(
+                                labelText: 'Job Title',
+                                border: OutlineInputBorder(),
+                              ),
+                            )
                           : Text(
-                        'Job Title: ${titleController.text}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                              'Job Title: ${titleController.text}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                       const SizedBox(height: 10),
 
                       // Salary Range
                       isEditing
                           ? Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: minSalaryController,
-                              decoration: InputDecoration(
-                                labelText: 'Min Salary',
-                                border: OutlineInputBorder(),
-                              ),
-                              keyboardType: TextInputType.number,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TextField(
-                              controller: maxSalaryController,
-                              decoration: InputDecoration(
-                                labelText: 'Max Salary',
-                                border: OutlineInputBorder(),
-                              ),
-                              keyboardType: TextInputType.number,
-                            ),
-                          ),
-                        ],
-                      )
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: minSalaryController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Min Salary',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: TextField(
+                                    controller: maxSalaryController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Max Salary',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ],
+                            )
                           : Text(
-                        'Salary Range: \$${minSalaryController.text} - \$${maxSalaryController.text}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                              'Salary Range: \$${minSalaryController.text} - \$${maxSalaryController.text}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
                       const SizedBox(height: 10),
 
                       // Location
                       isEditing
                           ? TextField(
-                        controller: locationController,
-                        decoration: InputDecoration(
-                          labelText: 'Location',
-                          border: OutlineInputBorder(),
-                        ),
-                      )
+                              controller: locationController,
+                              decoration: InputDecoration(
+                                labelText: 'Location',
+                                border: OutlineInputBorder(),
+                              ),
+                            )
                           : Text(
-                        'Location: ${locationController.text}',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                              'Location: ${locationController.text}',
+                              style: TextStyle(fontSize: 16),
+                            ),
                       const SizedBox(height: 10),
 
                       // Skills Required
@@ -252,62 +251,63 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                       ),
                       const SizedBox(height: 5),
                       isEditing
-
                           ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              _navigateAndSelectSkill(context);
-                            },
-                            child: const Text("Add Skill"),
-                          ),
-                          const SizedBox(height: 10),
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _navigateAndSelectSkill(context);
+                                  },
+                                  child: const Text("Add Skill"),
+                                ),
+                                const SizedBox(height: 10),
 
-                          // Display selected skills as chips
-                          Wrap(
-                            spacing: 8.0,
-                            runSpacing: 4.0,
-                            children: selectedSkills
-                                .map((skill) => Chip(
-                              label: Text(skill),
-                              onDeleted: () {
-                                setState(() {
-                                  selectedSkills.remove(skill);
-                                });
-                              },
-                            ))
-                                .toList(),
-                          ),
-                        ],
-                      )
+                                // Display selected skills as chips
+                                Wrap(
+                                  spacing: 8.0,
+                                  runSpacing: 4.0,
+                                  children: selectedSkills
+                                      .map((skill) => Chip(
+                                            label: Text(skill),
+                                            onDeleted: () {
+                                              setState(() {
+                                                selectedSkills.remove(skill);
+                                              });
+                                            },
+                                          ))
+                                      .toList(),
+                                ),
+                              ],
+                            )
                           : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: selectedSkills
-                            .map((skill) => Padding(
-                          padding: const EdgeInsets.only(bottom: 5.0),
-                          child: Text(skill, style: TextStyle(fontSize: 16)),
-                        ))
-                            .toList(),
-                      ),
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: selectedSkills
+                                  .map((skill) => Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5.0),
+                                        child: Text(skill,
+                                            style: TextStyle(fontSize: 16)),
+                                      ))
+                                  .toList(),
+                            ),
 
                       // Job Description
                       isEditing
                           ? TextField(
-                        controller: jobDescriptionController,
-                        maxLines: 4,
-                        decoration: InputDecoration(
-                          labelText: 'Job Description',
-                          border: OutlineInputBorder(),
-                        ),
-                      )
+                              controller: jobDescriptionController,
+                              maxLines: 4,
+                              decoration: InputDecoration(
+                                labelText: 'Job Description',
+                                border: OutlineInputBorder(),
+                              ),
+                            )
                           : Text(
-                        'Job Description: ${jobDescriptionController.text}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                              'Job Description: ${jobDescriptionController.text}',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                       const SizedBox(height: 20),
 
                       // Edit button
@@ -336,18 +336,24 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: Text('Delete the ${widget.jobData.jobTitle} Job Opening?'),
-                                      content: Text('This will also delete all job seeker applications.'),
+                                      title: Text(
+                                          'Delete the ${widget.jobData.jobTitle} Job Opening?'),
+                                      content: Text(
+                                          'This will also delete all job seeker applications.'),
                                       actions: [
                                         TextButton(
                                           onPressed: () {
                                             removeJobFromFirebase();
                                             Navigator.push(
                                               context,
-                                              MaterialPageRoute(builder: (context) => EmployerPositions()),
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      EmployerPositions()),
                                             );
                                           },
-                                          child: Text('Yes', style: TextStyle(color: Colors.red)),
+                                          child: Text('Yes',
+                                              style:
+                                                  TextStyle(color: Colors.red)),
                                         ),
                                         TextButton(
                                           onPressed: () {
@@ -360,34 +366,6 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                                   },
                                 );
                               },
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text('Close the ${widget.jobData.jobTitle} Job Opening?'),
-                                      content: Text('Job seekers will no longer find this Job Opening.'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('Yes'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('No'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              child: Text('Close this Job Opening'),
                             ),
                           ],
                         ],
@@ -408,43 +386,43 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                 children: teamMembers
                     .map(
                       (member) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Container(
-                      padding: EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(8.0),
-                        border: Border.all(color: Colors.black),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: Container(
+                          padding: EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8.0),
+                            border: Border.all(color: Colors.black),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                member,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    member,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text('Skill'),
+                                ],
                               ),
-                              Text('Skill'),
+                              IconButton(
+                                icon: Icon(Icons.close, color: accent1),
+                                onPressed: () {
+                                  setState(() {
+                                    teamMembers.remove(member);
+                                  });
+                                },
+                              ),
                             ],
                           ),
-                          IconButton(
-                            icon: Icon(Icons.close, color: accent1),
-                            onPressed: () {
-                              setState(() {
-                                teamMembers.remove(member);
-                              });
-                            },
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                )
+                    )
                     .toList(),
               ),
             ),
