@@ -38,12 +38,12 @@ class _RegisterLoginState extends State<RegisterLogin> {
               children: [
                 extraLargeSizedBox_H,
                 Image.asset(
-                  'Logo.png',
+                  'assets/Logo.png',
                   height: 250,
                   width: 250,
                 ),
                 Image.asset(
-                  'BrandingName.png',
+                  'assets/BrandingName.png',
                   width: 150,
                 ),
                 largeSizedBox_H,

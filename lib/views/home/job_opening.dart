@@ -32,6 +32,9 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
       TextEditingController();
   final TextEditingController _requirementsController = TextEditingController();
 
+  String? _selectedJobType;
+  final List<String> _jobTypes = ['Full Time', 'Part Time', 'Contract'];
+
   @override
   void initState() {
     super.initState();
@@ -131,6 +134,23 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
                 ],
               ),
               SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedJobType,
+                decoration: InputDecoration(labelText: 'Job Type'),
+                items: _jobTypes.map((String jobType) {
+                  return DropdownMenuItem<String>(
+                    value: jobType,
+                    child: Text(jobType),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedJobType = newValue;
+                  });
+                },
+                validator: _validator,
+              ),
+              SizedBox(height: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -180,8 +200,8 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
                       _locationController.text,
                       int.parse(_minSalaryRangeController.text),
                       int.parse(_maxSalaryRangeController.text),
-                      'Remote',
-                      'IT',
+                      _selectedJobType!,
+                      _requirementsController.text,
                       selectedSkills,
                     );
 

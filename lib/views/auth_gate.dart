@@ -19,6 +19,7 @@ class _AuthGateState extends State<AuthGate> {
     log(user.toString());
     if (user != null) {
       return Home(uid: user.uid!);
+      //return Test();
     } else {
       return RegisterLogin();
     }
