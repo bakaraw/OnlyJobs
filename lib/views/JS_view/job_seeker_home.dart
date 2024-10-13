@@ -452,11 +452,9 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                   ),
                   const SizedBox(height: 4), // Vertical spacing
                   Text(
-                    'Company Name: ${widget.jobData.owner}', // Replace with actual company name
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
+                    'Company Name: ${ownerName ?? 'Unknown'}',  // Replace with actual company name
+                    style: usernameStyle,
+
                   ),
                 ],
               ),
