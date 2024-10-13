@@ -6,6 +6,7 @@ final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
 void showProfileBottomSheet(String receiverUserId, BuildContext context) {
   showModalBottomSheet(
+    backgroundColor: secondarycolor,
     context: context,
     builder: (context) {
       return FutureBuilder<DocumentSnapshot>(

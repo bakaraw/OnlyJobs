@@ -5,9 +5,11 @@ import 'package:only_job/models/jobs.dart';
 
 class JobService {
   JobService({required this.uid});
+
   final String uid;
   final CollectionReference userCollection =
-      FirebaseFirestore.instance.collection('User');
+  FirebaseFirestore.instance.collection('User');
+
   DocumentReference get _userRef => userCollection.doc(uid);
 
   DocumentSnapshot? lastDocument;
@@ -15,10 +17,10 @@ class JobService {
   int documentLimit = 20;
 
   DocumentSnapshot? get lastDoc => lastDocument;
+
   bool get hasMoreData => hasMore;
 
-  Future<void> addJobOpening(
-      String title,
+  Future<void> addJobOpening(String title,
       String description,
       String location,
       int minSalary,
@@ -52,7 +54,7 @@ class JobService {
     try {
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collectionGroup('JobOpenings')
-          //.where('isOpened', isEqualTo: true)
+      //.where('isOpened', isEqualTo: true)
           .limit(documentLimit)
           .get();
 
@@ -113,15 +115,23 @@ class JobService {
         snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList());
   }
 
-  // upload image for this job opening
-  Future<void> uploadImage(String jobUid, String imageUrl) async {
+  Future<String?> getOwnerName(String ownerUid) async {
     try {
-      await _userRef.collection('JobOpenings').doc(jobUid).update({
-        'imageUrl': imageUrl,
-      });
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(ownerUid)
+          .get();
+
+      if (userDoc.exists) {
+        return userDoc.get('name');
+      }
+      return null; // Return null if user document does not exist
     } catch (e) {
       log(e.toString());
       rethrow;
     }
   }
+
+
 }
+
