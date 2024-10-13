@@ -1,126 +1,176 @@
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
 
-void main() {
-  runApp(ProfileApp());
-}
-
-class ProfileApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Profile',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: ProfileScreen(),
-    );
-  }
-}
-
 class ProfileScreen extends StatelessWidget {
-  final String fullName = 'John Doe';
-  final String gender = 'Male';
-  final String birthdate = 'January 1, 1990';
-  final String phoneNumber = '+1 (555) 555-5555';
-  final String address = '123 Main St, City, Country';
-  final String email = 'john.doe@example.com';
-  final String website = 'www.johndoe.com';
-  final String education = 'B.Sc. Computer Science';
-  final String certification = 'Certified Flutter Developer';
-  final List<String> skills = ['Flutter', 'Dart', 'Firebase', 'UI/UX Design'];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
-        titleTextStyle: headingStyle_white,
-        backgroundColor: primarycolor,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
-              onTap: () {
-                // Action for "Send a Message" button
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Message Sent!')),
-                );
-              },
-              child: Center(
-                child: Text(
-                  'Send a Message',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
+          TextButton(
+              onPressed: () {},
+              child: Text(
+                'Send Message',
+                style: appbarstyle,
+              ))
+        ],
+        backgroundColor: primarycolor,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: NetworkImage(
+                        'https://via.placeholder.com/150'), // Replace with actual image
                   ),
-                ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Beatrice Colon',
+                    style: usernameStyle,
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    '24, Female',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionHeader('Personal Information'),
-            _buildProfileDetail('Full Name', fullName),
-            _buildProfileDetail('Gender', gender),
-            _buildProfileDetail('Birthdate', birthdate),
-            _buildProfileDetail('Phone Number', phoneNumber),
-            _buildProfileDetail('Address', address),
-            SizedBox(height: 20),
-            _buildSectionHeader('Contact Details'),
-            _buildProfileDetail('Email', email),
-            _buildProfileDetail('Website', website),
-            SizedBox(height: 20),
-            _buildSectionHeader('Education & Skills'),
-            _buildProfileDetail('Education', education),
-            _buildProfileDetail('Certification', certification),
-            _buildProfileDetail('Skills', skills.join(', ')),
+
+            // Personal Info Card
+            InfoSection(
+              title: 'Personal Info',
+              children: [
+                InfoCard(
+                  icon: Icons.cake_outlined,
+                  text: 'Birthdate: January 1, 2000',
+                ),
+                InfoCard(
+                  icon: Icons.home_outlined,
+                  text: 'Address: 123 Street, City',
+                ),
+              ],
+            ),
+
+            // Contact Info Card
+            InfoSection(
+              title: 'Contact Info',
+              children: [
+                InfoCard(
+                  icon: Icons.email_outlined,
+                  text: 'Email: beatrice@example.com',
+                ),
+                InfoCard(
+                  icon: Icons.phone_outlined,
+                  text: 'Phone: +123 456 7890',
+                ),
+                InfoCard(
+                  icon: Icons.web_outlined,
+                  text: 'Website: www.example.com',
+                ),
+              ],
+            ),
+
+            // Education and Skills Info Card
+            InfoSection(
+              title: 'Education and Skills',
+              children: [
+                InfoCard(
+                  icon: Icons.school_outlined,
+                  text: 'Education: B.Sc. in Product Design',
+                ),
+                InfoCard(
+                  icon: Icons.card_membership_outlined,
+                  text: 'Certification: Certified UX Designer',
+                ),
+                InfoCard(
+                  icon: Icons.build_outlined,
+                  text: 'Skills: UX/UI Design, Prototyping, Wireframing',
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildProfileDetail(String title, String value) {
+class InfoSection extends StatelessWidget {
+  final String title;
+  final List<Widget> children;
+
+  InfoSection({required this.title, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '$title: ',
+            title,
             style: TextStyle(
+              fontSize: 20,
               fontWeight: FontWeight.bold,
-              fontSize: 16.0,
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(fontSize: 16.0),
-            ),
-          ),
+          SizedBox(height: 10),
+          Column(children: children),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 18.0,
-          color: Colors.blueAccent,
+class InfoCard extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  InfoCard({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 30,
+              color: primarycolor,
+            ),
+            SizedBox(width: 16),
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
