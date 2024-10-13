@@ -101,6 +101,7 @@ class JobService {
       skillsRequired: List<String>.from(snapshot.get('skillsRequired')),
       otherRequirements: snapshot.get('requirements'),
       isOpened: snapshot.get('isOpened'),
+      jobUid: snapshot.id,
     );
   }
 
@@ -109,3 +110,4 @@ class JobService {
         snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList());
   }
 }
+
