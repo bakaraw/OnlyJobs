@@ -8,6 +8,7 @@ import 'package:only_job/services/job_service.dart';
 import 'package:only_job/views/constants/loading.dart';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/models/jobs.dart';
+import 'package:only_job/services/user_service.dart';
 
 class EmployerPositions extends StatefulWidget {
   const EmployerPositions({super.key});
@@ -17,8 +18,18 @@ class EmployerPositions extends StatefulWidget {
 }
 
 class _EmployerPositionsState extends State<EmployerPositions> {
-  AuthService _auth = AuthService();
+  late AuthService _auth;
   int _currentIndex = 0;
+  late UserService _userService;
+  late JobService _jobService;
+
+  @override
+  void initState() {
+    super.initState();
+    _auth = AuthService();
+    _userService = UserService(uid: _auth.getCurrentUserId()!);
+    _jobService = JobService(uid: _auth.getCurrentUserId()!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +79,6 @@ class _EmployerPositionsState extends State<EmployerPositions> {
       itemCount: jobPositions.length,
       itemBuilder: (context, index) {
         final job = jobPositions[index];
-        final int notificationCount = 5;
-
         return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -123,27 +132,27 @@ class _EmployerPositionsState extends State<EmployerPositions> {
                   ),
                 ),
               ),
-              Positioned(
-                top: -10,
-                right: -10,
-                child: notificationCount > 0
-                    ? Container(
-                        padding: EdgeInsets.all(5.0),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '$notificationCount',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      )
-                    : Container(),
-              ),
+              //Positioned(
+              //  top: -10,
+              //  right: -10,
+              //  child: notificationCount > 0
+              //      ? Container(
+              //          padding: EdgeInsets.all(5.0),
+              //          decoration: BoxDecoration(
+              //            color: Colors.red,
+              //            shape: BoxShape.circle,
+              //          ),
+              //          child: Text(
+              //            '$notificationCount',
+              //            style: TextStyle(
+              //              color: Colors.white,
+              //              fontSize: 12.0,
+              //              fontWeight: FontWeight.bold,
+              //            ),
+              //          ),
+              //        )
+              //      : Container(),
+              //),
             ],
           ),
         );

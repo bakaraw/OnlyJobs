@@ -2,13 +2,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:developer';
 import 'package:only_job/models/jobs.dart';
+import 'package:only_job/services/user_service.dart';
+import 'package:only_job/services/auth.dart';
 
 class JobService {
   JobService({required this.uid});
 
   final String uid;
   final CollectionReference userCollection =
-  FirebaseFirestore.instance.collection('User');
+      FirebaseFirestore.instance.collection('User');
+
+  final AuthService _auth = AuthService();
 
   DocumentReference get _userRef => userCollection.doc(uid);
 
@@ -20,7 +24,8 @@ class JobService {
 
   bool get hasMoreData => hasMore;
 
-  Future<void> addJobOpening(String title,
+  Future<void> addJobOpening(
+      String title,
       String description,
       String location,
       int minSalary,
@@ -49,32 +54,46 @@ class JobService {
     }
   }
 
-  // fetch all the job openings of users if the user is not a job_seeker
-  Future<List<JobData>> fetchInitialJob() async {
+  Future<List<JobData>> fetchInitialJob(
+      UserService userService, String uid) async {
     try {
+      // Fetch the list of job IDs the user has interacted with
+      List<String> interactedJobIds =
+          await userService.fetchInteractedJobIds(uid);
+
+      // Fetch job openings across all users with an optional filter
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collectionGroup('JobOpenings')
-      //.where('isOpened', isEqualTo: true)
-          .limit(documentLimit)
+          //.where('isOpened', isEqualTo: true)  // Uncomment if needed
+          .limit(documentLimit) // Limit the number of documents fetched
           .get();
 
+      // Check if there are more documents to fetch
       if (snapshot.docs.isEmpty) {
-        hasMore = false;
+        hasMore = false; // No more documents available
+      } else {
+        lastDocument =
+            snapshot.docs.last; // Store the last document for pagination
       }
 
-      if (snapshot.docs.isNotEmpty) {
-        lastDocument = snapshot.docs.last;
-      }
-
-      return snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList();
+      // Filter out interacted jobs and convert to JobData instances
+      return snapshot.docs
+          .where((doc) =>
+              !interactedJobIds.contains(doc.id)) // Exclude interacted jobs
+          .map((doc) =>
+              _jobDataFromSnapshot(doc)) // Ensure this function works correctly
+          .toList();
     } catch (e) {
       log(e.toString());
-      rethrow;
+      rethrow; // Propagate the error for handling upstream
     }
   }
 
-  Future<List<JobData>> fetchMoreJobs() async {
+  Future<List<JobData>> fetchMoreJobs(
+      UserService userService, String uid) async {
     if (!hasMore) return [];
+    List<String> interactedJobIds =
+        await userService.fetchInteractedJobIds(uid);
 
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collectionGroup('JobOpenings')
@@ -89,7 +108,11 @@ class JobService {
 
     lastDocument = snapshot.docs.last;
 
-    return snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList();
+    return snapshot.docs
+        .where((doc) =>
+            !interactedJobIds.contains(doc.id)) // Exclude interacted jobs
+        .map((doc) => _jobDataFromSnapshot(doc))
+        .toList();
   }
 
   JobData _jobDataFromSnapshot(DocumentSnapshot snapshot) {
@@ -132,6 +155,228 @@ class JobService {
     }
   }
 
+  // get the the data in each document in the subcollection pending_applicants and return the map
 
+  Future<Map<String, dynamic>> getPendingApplicants(String jobUid) async {
+    try {
+      // Fetch the job document to ensure it exists
+      DocumentSnapshot jobDoc = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(_auth.getCurrentUserId()!)
+          .collection('JobOpenings')
+          .doc(jobUid)
+          .get();
+
+      if (jobDoc.exists) {
+        // Access the pending_applicants subcollection
+        QuerySnapshot applicantsSnapshot =
+            await jobDoc.reference.collection('pending_applicants').get();
+
+        // Initialize a map to store applicant data
+        Map<String, dynamic> applicantsMap = {};
+
+        // Loop through the documents in the subcollection
+        for (var applicantDoc in applicantsSnapshot.docs) {
+          applicantsMap[applicantDoc.id] =
+              applicantDoc.data(); // Store each document's data in the map
+        }
+
+        return applicantsMap; // Return the populated map
+      }
+      return {}; // Return an empty map if the job document does not exist
+    } catch (e) {
+      log(e.toString()); // Log the error
+      print('error ${e.toString()}');
+      rethrow; // Propagate the error for handling upstream
+    }
+  }
+
+  // delete applicant from pending_applicants subcollection
+  Future<void> deleteApplicant(String jobUid, String applicantUid) async {
+    try {
+      // Fetch the job document to ensure it exists
+      DocumentSnapshot jobDoc = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(_auth.getCurrentUserId()!)
+          .collection('JobOpenings')
+          .doc(jobUid)
+          .get();
+
+      if (jobDoc.exists) {
+        // Access the pending_applicants subcollection
+        DocumentSnapshot applicantDoc = await jobDoc.reference
+            .collection('pending_applicants')
+            .doc(applicantUid)
+            .get();
+
+        if (applicantDoc.exists) {
+          // Delete the applicant from the pending_applicants subcollection
+          await jobDoc.reference
+              .collection('pending_applicants')
+              .doc(applicantUid)
+              .delete();
+
+          print('Applicant deleted successfully');
+        } else {
+          log("Applicant document does not exist.");
+        }
+      } else {
+        log("Job document does not exist.");
+      }
+    } catch (e) {
+      log(e.toString()); // Log the error
+      rethrow; // Propagate the error for handling upstream
+    }
+  }
+  
+  Stream<Map<String, Map<String, dynamic>>> getAcceptedApplicantsStream(
+      String jobUid) {
+    return FirebaseFirestore.instance
+        .collection('User')
+        .doc(_auth.getCurrentUserId()!)
+        .collection('JobOpenings')
+        .doc(jobUid)
+        .collection('accepted_applicants')
+        .snapshots()
+        .map((snapshot) {
+      Map<String, Map<String, dynamic>> applicantsMap = {};
+      for (var applicantDoc in snapshot.docs) {
+        applicantsMap[applicantDoc.id] =
+            applicantDoc.data() as Map<String, dynamic>; // Ensure type safety
+      }
+      return applicantsMap; // Return the populated map
+    });
+  }
+
+  Stream<Map<String, Map<String, dynamic>>> getPendingApplicantsStream(
+      String jobUid) {
+    return FirebaseFirestore.instance
+        .collection('User')
+        .doc(_auth.getCurrentUserId()!)
+        .collection('JobOpenings')
+        .doc(jobUid)
+        .collection('pending_applicants')
+        .snapshots()
+        .map((snapshot) {
+      Map<String, Map<String, dynamic>> applicantsMap = {};
+      for (var applicantDoc in snapshot.docs) {
+        applicantsMap[applicantDoc.id] =
+            applicantDoc.data() as Map<String, dynamic>; // Ensure type safety
+      }
+      return applicantsMap; // Return the populated map
+    });
+  }
+
+
+
+  Future<Map<String, Map<String, dynamic>>> getPendingApplicantsList(
+      String jobUid) async {
+    try {
+      // Fetch the job document to ensure it exists
+      DocumentSnapshot jobDoc = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(_auth.getCurrentUserId()!)
+          .collection('JobOpenings')
+          .doc(jobUid)
+          .get();
+
+      if (jobDoc.exists) {
+        // Access the pending_applicants subcollection
+        QuerySnapshot applicantsSnapshot =
+            await jobDoc.reference.collection('pending_applicants').get();
+
+        // Initialize a map to store applicant data
+        Map<String, Map<String, dynamic>> applicantsMap = {};
+
+        // Loop through the documents in the subcollection
+        for (var applicantDoc in applicantsSnapshot.docs) {
+          applicantsMap[applicantDoc.id] =
+              applicantDoc.data() as Map<String, dynamic>; // Ensure type safety
+        }
+        return applicantsMap; // Return the populated map
+      }
+
+      print('jobuid: $jobUid');
+
+      return {}; // Return an empty map if the job document does not exist
+    } catch (e) {
+      log('Error fetching pending applicants: ${e.toString()}'); // Log the error
+      rethrow; // Propagate the error for handling upstream
+    }
+  }
+
+  // get the count of how many the documents in the subcollection pending_applicants
+  Future<int> getPendingApplicantsCount(String jobUid) async {
+    try {
+      // Fetch the job document to ensure it exists
+      DocumentSnapshot jobDoc = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(_auth.getCurrentUserId()!)
+          .collection('JobOpenings')
+          .doc(jobUid)
+          .get();
+
+      if (jobDoc.exists) {
+        // Access the pending_applicants subcollection
+        QuerySnapshot applicantsSnapshot =
+            await jobDoc.reference.collection('pending_applicants').get();
+
+        return applicantsSnapshot.size; // Return the number of documents
+      }
+      return 0; // Return 0 if the job document does not exist
+    } catch (e) {
+      log(e.toString()); // Log the error
+      rethrow; // Propagate the error for handling upstream
+    }
+  }
+
+  // add applicant to accepted_applicants subcollection
+  Future<void> acceptApplicant(String jobUid, String applicantUid) async {
+    try {
+      // Fetch the job document to ensure it exists
+      DocumentSnapshot jobDoc = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(_auth.getCurrentUserId()!)
+          .collection('JobOpenings')
+          .doc(jobUid)
+          .get();
+
+      if (jobDoc.exists) {
+        // Access the pending_applicants subcollection
+        DocumentSnapshot applicantDoc = await jobDoc.reference
+            .collection('pending_applicants')
+            .doc(applicantUid)
+            .get();
+
+        if (applicantDoc.exists) {
+          // Retrieve the data and check if it's valid
+          final data = applicantDoc.data();
+          if (data != null && data is Map<String, dynamic>) {
+            // Add the applicant to the accepted_applicants subcollection
+            await jobDoc.reference
+                .collection('accepted_applicants')
+                .doc(applicantUid)
+                .set(data);
+
+            // Delete the applicant from the pending_applicants subcollection
+            await jobDoc.reference
+                .collection('pending_applicants')
+                .doc(applicantUid)
+                .delete();
+
+            print('Applicant accepted successfully');
+          } else {
+            log("Applicant document data is null or not of the expected type.");
+          }
+        } else {
+          log("Applicant document does not exist.");
+        }
+      } else {
+        log("Job document does not exist.");
+      }
+    } catch (e) {
+      log(e.toString()); // Log the error
+      rethrow; // Propagate the error for handling upstream
+    }
+  }
 }
-
