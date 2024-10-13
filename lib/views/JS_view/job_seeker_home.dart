@@ -448,18 +448,11 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.jobData.jobTitle!, // Replace with actual job title
+                      'Job Title: ${widget.jobData.jobTitle!}',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
-                    const SizedBox(height: 4), // Vertical spacing
-                    Text(
-                      'Company Name: ${ownerName ?? 'Unknown'}',
-                      // Replace with actual company name
-                      style: usernameStyle,
-
                     ),
                   ],
                 ),
@@ -531,14 +524,11 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Text(
-                      'Meet the hiring manager',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      'Company Name: ${ownerName ?? 'Unknown'}',
+                      // Replace with actual company name
+                      style: usernameStyle,
                     ),
                   ),
-
                   // Row for avatar, name, role, and message button
                   Row(
                     children: [
@@ -556,14 +546,6 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'John Doe', // Replace with actual name
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 2), // Vertical spacing
                           Text(
                             'Senior Developer', // Replace with actual role
                             style: TextStyle(
