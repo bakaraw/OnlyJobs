@@ -404,12 +404,13 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
 
   }
 
-  void fetchCurrentUserName() async {
-    currentUserName = await authService.getCurrentUserName();
-    setState(() {});
+
+
+  @override
+  void dispose() {
+    super.dispose();
+
   }
-
-
 
   Future<void> getOwnerName(String ownerUid) async {
     DocumentSnapshot userDoc = await FirebaseFirestore.instance
@@ -417,16 +418,28 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
         .doc(ownerUid)
         .get();
 
-    if (userDoc.exists) {
+    if (userDoc.exists && mounted) {  // Check if the widget is still mounted
       String name = userDoc.get('name');
-      String? fetchedProfilePicture = userDoc.get('profile_picture'); // Fetch the profile picture URL
+      String? fetchedProfilePicture = userDoc.get('profile_picture');
 
+      if (mounted) {  // Check again before calling setState
+        setState(() {
+          ownerName = name;
+          profilePicture = fetchedProfilePicture;
+        });
+      }
+    }
+  }
+  void fetchCurrentUserName() async {
+    String? fetchedCurrentUserName = await authService.getCurrentUserName();
+
+    if (mounted) {  // Check if the widget is still mounted
       setState(() {
-        ownerName = name; // Store the fetched name
-        profilePicture = fetchedProfilePicture; // Store the fetched profile picture
+        currentUserName = fetchedCurrentUserName;
       });
     }
   }
+
 
     @override
     Widget build(BuildContext context) {
