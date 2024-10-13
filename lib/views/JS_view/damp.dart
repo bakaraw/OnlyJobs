@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
@@ -11,8 +10,6 @@ import 'package:only_job/services/job_service.dart';
 import 'package:only_job/models/jobs.dart';
 import 'package:only_job/services/job_recommendation_controller.dart';
 import 'package:only_job/services/job_matcher.dart';
-
-import '../../chatFeature/chat_page.dart';
 
 class HomePage extends StatefulWidget {
   Function changePage;
@@ -96,7 +93,7 @@ class _HomePageState extends State<HomePage> {
 
     // Fetch more job recommendations
     List<JobData> moreJobs =
-        await jobRecommendationController.fetchInitialJobsRecommendations(uid);
+    await jobRecommendationController.fetchInitialJobsRecommendations(uid);
 
     // Prefetch user data for the additional jobs
     for (var job in moreJobs) {
@@ -117,7 +114,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     List<JobData> jobs =
-        await jobRecommendationController.fetchInitialJobsRecommendations(uid);
+    await jobRecommendationController.fetchInitialJobsRecommendations(uid);
 
     for (var job in jobs) {
       UserData userData = await _userService.getUserById(job.owner!);
@@ -135,143 +132,144 @@ class _HomePageState extends State<HomePage> {
     return _isLoading
         ? const Loading()
         : Scaffold(
-            body: Column(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 16.0, vertical: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset(
-                        'Logo.png',
-                        height: 60,
-                      ),
-                      StreamBuilder<UserData>(
-                        stream: _userService.userData,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          }
-                          if (snapshot.hasData) {
-                            return GestureDetector(
-                              onTap: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (BuildContext context) {
-                                    return FractionallySizedBox(
-                                      heightFactor: 0.5,
-                                      alignment: Alignment.topRight,
-                                      child: _buildProfileModal(
-                                          context, snapshot.data!),
-                                    );
-                                  },
-                                );
-                              },
-                              child: CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.grey[300],
-                                child: ClipOval(
-                                    child: Image.network(
-                                        snapshot.data!.profilePicture!,
-                                        width: 40,
-                                        height: 40,
-                                        fit: BoxFit.cover)),
-                              ),
-                            );
-                          }
-                          return const CircularProgressIndicator();
-                        },
-                      ),
-                    ],
-                  ),
+                Image.asset(
+                  'Logo.png',
+                  height: 60,
                 ),
-                if (skills!.isEmpty)
-                  Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Container(
-                        height: 60, // Fixed height
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.yellow[100],
-                          border:
-                              Border.all(color: Colors.amber[300]!, width: 1),
+                StreamBuilder<UserData>(
+                  stream: _userService.userData,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (snapshot.hasData) {
+                      return GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (BuildContext context) {
+                              return FractionallySizedBox(
+                                heightFactor: 0.5,
+                                alignment: Alignment.topRight,
+                                child: _buildProfileModal(
+                                    context, snapshot.data!),
+                              );
+                            },
+                          );
+                        },
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.grey[300],
+                          child: ClipOval(
+                              child: Image.network(
+                                  snapshot.data!.profilePicture!,
+                                  width: 40,
+                                  height: 40,
+                                  fit: BoxFit.cover)),
                         ),
-
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16), // Optional padding
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment
-                              .spaceBetween, // Align text to the left and button to the right
-                          children: [
-                            Text(
-                              'Set up profile to get started',
-                              style: TextStyle(
-                                  fontSize: 16), // Customize the text style
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                widget.changePage(0);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.amber[300],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  )),
-                              child: const Text(
-                                'Set-up',
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                Expanded(
-                  child: _isJobLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : _jobs.isNotEmpty
-                          ? PageView.builder(
-                              controller: _pageController,
-                              scrollDirection: Axis.vertical,
-                              itemCount: _jobs.length + 1,
-                              itemBuilder: (context, index) {
-                                if (index < _jobs.length &&
-                                    _jobs.isNotEmpty) {
-                                  JobData job = _jobs[index];
-                                  UserData? jobOwner =
-                                      _prefetchedUserData[job.owner!];
-                                  if (jobOwner == null) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
-                                  return Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                child: CustomBodyWidget(currentUserName: _auth, jobData: job),
-                                  );
-                                } else {
-                                  return _isJobLoadingMore
-                                      ? const Center(
-                                          child: CircularProgressIndicator(),
-                                        )
-                                      : const Center(
-                                          child: Text(
-                                              'No more jobs available yet'),
-                                        );
-                                }
-                              })
-                          : const Center(
-                              child: Text(
-                                  'No jobs available for you at the moment'),
-                            ),
+                      );
+                    }
+                    return const CircularProgressIndicator();
+                  },
                 ),
               ],
             ),
-          );
+          ),
+          if (skills!.isEmpty)
+            Padding(
+                padding: const EdgeInsets.all(8),
+                child: Container(
+                  height: 60, // Fixed height
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.yellow[100],
+                    border:
+                    Border.all(color: Colors.amber[300]!, width: 1),
+                  ),
+
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16), // Optional padding
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment
+                        .spaceBetween, // Align text to the left and button to the right
+                    children: [
+                      Text(
+                        'Set up profile to get started',
+                        style: TextStyle(
+                            fontSize: 16), // Customize the text style
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          widget.changePage(0);
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.amber[300],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            )),
+                        child: const Text(
+                          'Set-up',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+          Expanded(
+            child: _isJobLoading
+                ? const Center(
+              child: CircularProgressIndicator(),
+            )
+                : _jobs.isNotEmpty
+                ? PageView.builder(
+                controller: _pageController,
+                scrollDirection: Axis.vertical,
+                itemCount: _jobs.length + 1,
+                itemBuilder: (context, index) {
+                  if (index < _jobs.length &&
+                      _jobs.isNotEmpty) {
+                    JobData job = _jobs[index];
+                    UserData? jobOwner =
+                    _prefetchedUserData[job.owner!];
+                    if (jobOwner == null) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CustomBodyWidget(
+                          job: job, jobOwner: jobOwner),
+                    );
+                  } else {
+                    return _isJobLoadingMore
+                        ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                        : const Center(
+                      child: Text(
+                          'No more jobs available yet'),
+                    );
+                  }
+                })
+                : const Center(
+              child: Text(
+                  'No jobs available for you at the moment'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildProfileModal(BuildContext context, UserData userData) {
@@ -367,63 +365,15 @@ class _HomePageState extends State<HomePage> {
 }
 
 class CustomBodyWidget extends StatefulWidget {
-  const CustomBodyWidget({super.key, required this.jobData, required this.currentUserName});
-
-  final JobData jobData;
-  final AuthService currentUserName;
+  CustomBodyWidget({super.key, required this.job, required this.jobOwner});
+  JobData? job;
+  UserData jobOwner;
 
   @override
   State<CustomBodyWidget> createState() => _CustomBodyWidgetState();
 }
 
-
-
 class _CustomBodyWidgetState extends State<CustomBodyWidget> {
-
-  final AuthService authService = AuthService();
-
-
-  String? jobUid;
-  String? receiverUid;
-  String? currentUserName;
-  String? ownerName; // New variable to store the owner's name
-
-
-  @override
-  void initState() {
-    super.initState();
-    fetchCurrentUserName();
-    jobUid = widget.jobData.jobUid;
-    receiverUid = widget.jobData.owner;
-    getOwnerName(receiverUid!);
-
-
-  }
-
-  void fetchCurrentUserName() async {
-    currentUserName = await authService.getCurrentUserName();
-    setState(() {});
-  }
-
-
-
-  Future<void> getOwnerName(String ownerUid) async {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('User')
-        .doc(ownerUid)
-        .get();
-
-    if (userDoc.exists) {
-      String name = userDoc.get('name');
-      setState(() {
-        ownerName = name; // Store the fetched name
-      });
-    }
-  }
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -444,7 +394,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.jobData.jobTitle!, // Replace with actual job title
+                    widget.job!.jobTitle!, // Replace with actual job title
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -452,7 +402,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                   ),
                   const SizedBox(height: 4), // Vertical spacing
                   Text(
-                    'Company Name: ${widget.jobData.owner}', // Replace with actual company name
+                    'Company Name: ${widget.jobOwner.name}', // Replace with actual company name
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -464,19 +414,19 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
           ),
 
           // Image section
-          if (widget.jobData.image != null)
+          if (widget.job!.image != null)
             Container(
               height: 250, // Fixed height for the image
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 image: DecorationImage(
-                  image: NetworkImage(widget.jobData.image!),
+                  image: NetworkImage(widget.job!.image!),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
 
-          if (widget.jobData.image == null)
+          if (widget.job!.image == null)
             Container(
               height: 250, // Fixed height for the image
               decoration: BoxDecoration(
@@ -500,7 +450,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 Icon(Icons.location_on, color: Colors.red), // Location icon
                 const SizedBox(width: 4), // Space between icon and text
                 Text(
-                  widget.jobData.location!, // Replace with actual location
+                  widget.job!.location!, // Replace with actual location
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.black,
@@ -527,8 +477,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 // Title
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text(
-                    'Meet the hiring manager',
+                  child: const Text(
+                    'Message the Hiring Team',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -542,8 +492,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                     // Avatar picture
                     CircleAvatar(
                       radius: 25,
-                      backgroundImage: AssetImage(
-                          'sample_image_person.jpg'), // Replace with your image asset
+                      backgroundImage: NetworkImage(widget.jobOwner
+                          .profilePicture!), // Replace with your image asset
                     ),
                     const SizedBox(width: 8), // Space between avatar and column
 
@@ -552,15 +502,15 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'John Doe', // Replace with actual name
-                          style: TextStyle(
+                          widget.jobOwner.name!, // Replace with actual name
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 2), // Vertical spacing
-                        Text(
-                          'Senior Developer', // Replace with actual role
+                        const Text(
+                          'Human Resource Manager', // Replace with actual role
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -573,21 +523,15 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                     // Message button
                     ElevatedButton(
                       onPressed: () {
-                        if (ownerName != null) { // Check if the name has been fetched
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatPage(
-                                user: {
-                                  'name': ownerName, // Pass the fetched owner's name
-                                  'uid': receiverUid, // Pass the receiver's UID
-                                },
-                              ),
-                            ),
-                          );
-                        }
+                        // Add your message action here
                       },
-                      child: Text('Message'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                      ),
+                      child: const Text(
+                        'Message',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
@@ -608,11 +552,11 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                         0.95), // Add viewportFraction for slight space between pages
                     children: [
                       _buildDescriptionSection(
-                          'Job Description', widget.jobData.jobDescription!),
+                          'Job Description', widget.job!.jobDescription!),
                       _buildDescriptionSection(
-                          'Requirements', widget.jobData.otherRequirements!),
+                          'Requirements', widget.job!.otherRequirements!),
                       _buildDescriptionSection('Salary Range',
-                          '\$${widget.jobData.minSalaryRange} - \$${widget.jobData.maxSalaryRange}'),
+                          '\$${widget.job!.minSalaryRange} - \$${widget.job!.maxSalaryRange}'),
                     ],
                   ),
                 ),
@@ -642,7 +586,6 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
       ),
     );
   }
-
 
   Widget _buildDescriptionSection(String title, String content) {
     return Container(
