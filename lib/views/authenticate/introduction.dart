@@ -46,16 +46,16 @@ class _IntroPageState extends State<IntroPage> {
                   },
                   children: [
                     SwipePage(
-                      'System Introduction',
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                      'Welcome to OnlyJobs',
+                      'OnlyJobs is the job search app built for freelancers and employers. Whether you’re seeking new opportunities or looking for the perfect candidate, OnlyJobs connects you quickly and easily. Let’s get started on your journey to meaningful work!',
                     ),
                     SwipePage(
-                      'System Features',
-                      'Pellentesque ac bibendum velit, eu interdum enim.',
+                      'Browse and Swipe Through Jobs',
+                      'Discover job opportunities that match your skills by simply swiping through listings. Like a job? Swipe right to apply or connect with the employer. It’s an engaging, hassle-free way to find the right job that suits your talents.',
                     ),
                     SwipePage(
-                      'Get Started',
-                      'Quisque consequat ipsum at dui convallis, id dapibus est fermentum.',
+                      'Match and Communicate with Employers',
+                      'After matching with a job, you can start a conversation with employers directly within the app. Discuss job details, qualifications, and expectations seamlessly—making your job hunt more interactive and personal.',
                     ),
                   ],
                 ),
@@ -75,7 +75,8 @@ class _IntroPageState extends State<IntroPage> {
               right: 20,
               child: ElevatedButton(
                 onPressed: () async {
-                  await UserService(uid: _auth.getCurrentUserId()!).setUserNotNew();
+                  await UserService(uid: _auth.getCurrentUserId()!)
+                      .setUserNotNew();
                   widget.setUserNotNew();
                 },
                 style: ElevatedButton.styleFrom(
