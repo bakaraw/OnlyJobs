@@ -25,7 +25,8 @@ class JobService {
       int maxSalary,
       String jobType,
       String requirements,
-      List<String> skillsRequired) async {
+      List<String> skillsRequired,
+      String imageUrl) async {
     try {
       await _userRef.collection('JobOpenings').add({
         'jobTitle': title,
@@ -38,6 +39,7 @@ class JobService {
         'requirements': requirements,
         'owner': uid,
         'isOpened': true,
+        'image': imageUrl,
       });
     } catch (e) {
       log(e.toString());
@@ -102,6 +104,7 @@ class JobService {
       otherRequirements: snapshot.get('requirements'),
       isOpened: snapshot.get('isOpened'),
       jobUid: snapshot.id,
+      image: snapshot.get('image') ?? '',
     );
   }
 
@@ -109,5 +112,16 @@ class JobService {
     return _userRef.collection('JobOpenings').snapshots().map((snapshot) =>
         snapshot.docs.map((doc) => _jobDataFromSnapshot(doc)).toList());
   }
-}
 
+  // upload image for this job opening
+  Future<void> uploadImage(String jobUid, String imageUrl) async {
+    try {
+      await _userRef.collection('JobOpenings').doc(jobUid).update({
+        'imageUrl': imageUrl,
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+}
