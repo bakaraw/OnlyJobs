@@ -179,7 +179,6 @@ class _HomePageState extends State<HomePage> {
                               ),
                             );
                           }
-
                           return const CircularProgressIndicator();
                         },
                       ),
@@ -237,7 +236,8 @@ class _HomePageState extends State<HomePage> {
                               scrollDirection: Axis.vertical,
                               itemCount: _jobs.length + 1,
                               itemBuilder: (context, index) {
-                                if (index < _jobs.length - 1 && _jobs.isNotEmpty) {
+                                if (index < _jobs.length &&
+                                    _jobs.isNotEmpty) {
                                   JobData job = _jobs[index];
                                   UserData? jobOwner =
                                       _prefetchedUserData[job.owner!];
@@ -414,16 +414,30 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
           ),
 
           // Image section
-          Container(
-            height: 250, // Fixed height for the image
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-              image: DecorationImage(
-                image: AssetImage('sample_image.jpg'),
-                fit: BoxFit.cover,
+          if (widget.job!.image != null)
+            Container(
+              height: 250, // Fixed height for the image
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                image: DecorationImage(
+                  image: NetworkImage(widget.job!.image!),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
+
+          if (widget.job!.image == null)
+            Container(
+              height: 250, // Fixed height for the image
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                image: DecorationImage(
+                  image: AssetImage("sample_image.jpg"),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+
 
           const SizedBox(height: 8), // Spacing
 
@@ -478,8 +492,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                     // Avatar picture
                     CircleAvatar(
                       radius: 25,
-                      backgroundImage: NetworkImage(
-                          widget.jobOwner.profilePicture!), // Replace with your image asset
+                      backgroundImage: NetworkImage(widget.jobOwner
+                          .profilePicture!), // Replace with your image asset
                     ),
                     const SizedBox(width: 8), // Space between avatar and column
 

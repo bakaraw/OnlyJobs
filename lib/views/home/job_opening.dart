@@ -6,6 +6,11 @@ import 'dart:developer';
 import 'package:only_job/services/retrieve_skills.dart';
 import 'package:only_job/views/home/common/search_skills.dart';
 import 'package:only_job/services/job_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:only_job/services/file_service.dart';
+import 'package:only_job/services/file_service.dart';
+import 'package:only_job/views/constants/constants.dart';
 
 class JobOpeningForm extends StatefulWidget {
   @override
@@ -34,6 +39,14 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
 
   String? _selectedJobType;
   final List<String> _jobTypes = ['Full Time', 'Part Time', 'Contract'];
+
+  FileService _fileUploader = FileService();
+  Uint8List? _image;
+  final ImagePicker _picker = ImagePicker();
+  bool _isUploading = false;
+
+  String _error = '';
+  bool _loading = false;
 
   @override
   void initState() {
@@ -77,6 +90,15 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
     });
   }
 
+  Future<void> _pickImage() async {
+    final pickedFile = await _fileUploader.selectFile();
+    if (pickedFile != null) {
+      setState(() {
+        _image = pickedFile;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,19 +111,51 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
           key: _formKey,
           child: ListView(
             children: [
+              GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    width: double.infinity,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius:
+                          BorderRadius.circular(10), // Make the border rounded
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                          10), // Clip the child to match the rounded border
+                      child: _image == null
+                          ? Center(
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.upload_file),
+                                    SizedBox(width: 10),
+                                    Text('Select Image')
+                                  ]),
+                            )
+                          : Image.memory(
+                              _image!,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  )),
+              const SizedBox(height: 16),
+              Text(_error, style: TextStyle(color: Colors.red)),
+              SizedBox(height: 16),
               TextFormField(
                 validator: _validator,
                 controller: _jobTitleController,
                 decoration: InputDecoration(labelText: 'Job Title'),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
                 validator: _validator,
                 controller: _jobDescriptionController,
                 maxLines: 5,
                 decoration: InputDecoration(labelText: 'Job Description'),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
                 validator: _validator,
                 controller: _locationController,
@@ -158,7 +212,7 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
                   SizedBox(height: 8),
                   for (String skill in selectedSkills)
                     Chip(
-                      label: Text(skill),
+                      label: Text("$skill"),
                       onDeleted: () {
                         setState(() {
                           selectedSkills.remove(skill);
@@ -177,33 +231,44 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
               TextFormField(
                 controller: _requirementsController,
                 maxLines: 3,
-                decoration: InputDecoration(labelText: 'Requirements'),
+                decoration:
+                    InputDecoration(labelText: 'Additional Requirements'),
               ),
               SizedBox(height: 10),
               Text(_skillsError, style: TextStyle(color: Colors.red)),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+
                   if (selectedSkills.isEmpty) {
                     setState(() {
                       _skillsError = 'Enter Skills Required';
                     });
                   }
 
+                  if (_image == null) {
+                    setState(() {
+                      _error = 'Please select an image';
+                    });
+                  }
+
+                  var url = await _fileUploader.uploadFileToFirebase(uid);
+
                   if (_formKey.currentState != null &&
                       _formKey.currentState!.validate() &&
-                      selectedSkills.isNotEmpty) {
+                      selectedSkills.isNotEmpty &&
+                      _image != null) {
                     String jobTitle = _jobTitleController.text;
                     JobService(uid: uid).addJobOpening(
-                      _jobTitleController.text,
-                      _jobDescriptionController.text,
-                      _locationController.text,
-                      int.parse(_minSalaryRangeController.text),
-                      int.parse(_maxSalaryRangeController.text),
-                      _selectedJobType!,
-                      _requirementsController.text,
-                      selectedSkills,
-                    );
+                        _jobTitleController.text,
+                        _jobDescriptionController.text,
+                        _locationController.text,
+                        int.parse(_minSalaryRangeController.text),
+                        int.parse(_maxSalaryRangeController.text),
+                        _selectedJobType!,
+                        _requirementsController.text,
+                        selectedSkills,
+                        url!);
 
                     Navigator.pop(context, jobTitle);
                   }
