@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
@@ -10,6 +11,8 @@ import 'package:only_job/services/job_service.dart';
 import 'package:only_job/models/jobs.dart';
 import 'package:only_job/services/job_recommendation_controller.dart';
 import 'package:only_job/services/job_matcher.dart';
+
+import '../../chatFeature/chat_page.dart';
 
 class HomePage extends StatefulWidget {
   Function changePage;
@@ -248,8 +251,7 @@ class _HomePageState extends State<HomePage> {
                                   }
                                   return Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: CustomBodyWidget(
-                                        job: job, jobOwner: jobOwner),
+                                child: CustomBodyWidget(currentUserName: _auth, jobData: job),
                                   );
                                 } else {
                                   return _isJobLoadingMore
@@ -365,15 +367,63 @@ class _HomePageState extends State<HomePage> {
 }
 
 class CustomBodyWidget extends StatefulWidget {
-  CustomBodyWidget({super.key, required this.job, required this.jobOwner});
-  JobData? job;
-  UserData jobOwner;
+  const CustomBodyWidget({super.key, required this.jobData, required this.currentUserName});
+
+  final JobData jobData;
+  final AuthService currentUserName;
 
   @override
   State<CustomBodyWidget> createState() => _CustomBodyWidgetState();
 }
 
+
+
 class _CustomBodyWidgetState extends State<CustomBodyWidget> {
+
+  final AuthService authService = AuthService();
+
+
+  String? jobUid;
+  String? receiverUid;
+  String? currentUserName;
+  String? ownerName; // New variable to store the owner's name
+
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCurrentUserName();
+    jobUid = widget.jobData.jobUid;
+    receiverUid = widget.jobData.owner;
+    getOwnerName(receiverUid!);
+
+
+  }
+
+  void fetchCurrentUserName() async {
+    currentUserName = await authService.getCurrentUserName();
+    setState(() {});
+  }
+
+
+
+  Future<void> getOwnerName(String ownerUid) async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('User')
+        .doc(ownerUid)
+        .get();
+
+    if (userDoc.exists) {
+      String name = userDoc.get('name');
+      setState(() {
+        ownerName = name; // Store the fetched name
+      });
+    }
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -394,7 +444,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.job!.jobTitle!, // Replace with actual job title
+                    widget.jobData.jobTitle!, // Replace with actual job title
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -402,8 +452,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                   ),
                   const SizedBox(height: 4), // Vertical spacing
                   Text(
-                    'Company Name: ${widget.jobOwner.name}', // Replace with actual company name
-                    style: const TextStyle(
+                    'Company Name:', // Replace with actual company name
+                    style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
                     ),
@@ -414,30 +464,16 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
           ),
 
           // Image section
-          if (widget.job!.image != null)
-            Container(
-              height: 250, // Fixed height for the image
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                image: DecorationImage(
-                  image: NetworkImage(widget.job!.image!),
-                  fit: BoxFit.cover,
-                ),
+          Container(
+            height: 250, // Fixed height for the image
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+              image: DecorationImage(
+                image: AssetImage('sample_image.jpg'),
+                fit: BoxFit.cover,
               ),
             ),
-
-          if (widget.job!.image == null)
-            Container(
-              height: 250, // Fixed height for the image
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                image: DecorationImage(
-                  image: AssetImage("sample_image.jpg"),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-
+          ),
 
           const SizedBox(height: 8), // Spacing
 
@@ -450,7 +486,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 Icon(Icons.location_on, color: Colors.red), // Location icon
                 const SizedBox(width: 4), // Space between icon and text
                 Text(
-                  widget.job!.location!, // Replace with actual location
+                  widget.jobData.location!, // Replace with actual location
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.black,
@@ -477,8 +513,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 // Title
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: const Text(
-                    'Message the Hiring Team',
+                  child: Text(
+                    'Meet the hiring manager',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -492,8 +528,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                     // Avatar picture
                     CircleAvatar(
                       radius: 25,
-                      backgroundImage: NetworkImage(widget.jobOwner
-                          .profilePicture!), // Replace with your image asset
+                      backgroundImage: AssetImage(
+                          'sample_image_person.jpg'), // Replace with your image asset
                     ),
                     const SizedBox(width: 8), // Space between avatar and column
 
@@ -502,15 +538,15 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.jobOwner.name!, // Replace with actual name
-                          style: const TextStyle(
+                          'John Doe', // Replace with actual name
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 2), // Vertical spacing
-                        const Text(
-                          'Human Resource Manager', // Replace with actual role
+                        Text(
+                          'Senior Developer', // Replace with actual role
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -523,15 +559,21 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                     // Message button
                     ElevatedButton(
                       onPressed: () {
-                        // Add your message action here
+                        if (ownerName != null) { // Check if the name has been fetched
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                user: {
+                                  'name': ownerName, // Pass the fetched owner's name
+                                  'uid': receiverUid, // Pass the receiver's UID
+                                },
+                              ),
+                            ),
+                          );
+                        }
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                      ),
-                      child: const Text(
-                        'Message',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      child: Text('Message'),
                     ),
                   ],
                 ),
@@ -549,14 +591,14 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                   child: PageView(
                     controller: PageController(
                         viewportFraction:
-                            0.95), // Add viewportFraction for slight space between pages
+                        0.95), // Add viewportFraction for slight space between pages
                     children: [
                       _buildDescriptionSection(
-                          'Job Description', widget.job!.jobDescription!),
+                          'Job Description', widget.jobData.jobDescription!),
                       _buildDescriptionSection(
-                          'Requirements', widget.job!.otherRequirements!),
+                          'Requirements', widget.jobData.otherRequirements!),
                       _buildDescriptionSection('Salary Range',
-                          '\$${widget.job!.minSalaryRange} - \$${widget.job!.maxSalaryRange}'),
+                          '\$${widget.jobData.minSalaryRange} - \$${widget.jobData.maxSalaryRange}'),
                     ],
                   ),
                 ),
@@ -586,6 +628,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
       ),
     );
   }
+
 
   Widget _buildDescriptionSection(String title, String content) {
     return Container(
