@@ -189,4 +189,29 @@ class JobService {
       rethrow; // Propagate the error for handling upstream
     }
   }
+
+  // get the count of how many the documents in the subcollection pending_applicants
+  Future<int> getPendingApplicantsCount(String jobUid) async {
+    try {
+      // Fetch the job document to ensure it exists
+      DocumentSnapshot jobDoc = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(_auth.getCurrentUserId()!)
+          .collection('JobOpenings')
+          .doc(jobUid)
+          .get();
+
+      if (jobDoc.exists) {
+        // Access the pending_applicants subcollection
+        QuerySnapshot applicantsSnapshot =
+            await jobDoc.reference.collection('pending_applicants').get();
+
+        return applicantsSnapshot.size; // Return the number of documents
+      }
+      return 0; // Return 0 if the job document does not exist
+    } catch (e) {
+      log(e.toString()); // Log the error
+      rethrow; // Propagate the error for handling upstream
+    }
+  }
 }

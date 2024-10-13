@@ -342,6 +342,19 @@ class UserService {
             snapshot.docs.map((doc) => _educationFromSnapshot(doc)).toList());
   }
 
+  Future<List<Education>> getEducation() async {
+    try {
+      final QuerySnapshot snapshot =
+          await userCollection.doc(uid).collection('education').get();
+      final List<Education> educationList =
+          snapshot.docs.map((doc) => Education.fromDocument(doc)).toList();
+      return educationList;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
   // methods for adding experience
   Future<void> addExperience(String company, String title, String description,
       String location, DateTime startDate, DateTime endDate) async {
@@ -418,6 +431,20 @@ class UserService {
             snapshot.docs.map((doc) => _experienceFromSnapshot(doc)).toList());
   }
 
+  Future<List<Experience>> getExperience() async {
+    try {
+      final QuerySnapshot snapshot =
+          await userCollection.doc(uid).collection('experience').get();
+      final List<Experience> experienceList = snapshot.docs
+          .map((doc) => Experience.fromDocument(doc))
+          .toList();
+      return experienceList;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
   Future<void> addCertification(
       String certificationName, String date, String? attachedFile) async {
     try {
@@ -464,6 +491,20 @@ class UserService {
         (snapshot) => snapshot.docs
             .map((doc) => _certificationFromSnapshot(doc))
             .toList());
+  }
+
+  Future<List<Certification>> getCertifications() async {
+    try {
+      final QuerySnapshot snapshot =
+          await userCollection.doc(uid).collection('certifications').get();
+      final List<Certification> certificationList = snapshot.docs
+          .map((doc) => Certification.fromDocument(doc))
+          .toList();
+      return certificationList;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
   }
 
   Future<void> recordJobInteraction(

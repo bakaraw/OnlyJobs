@@ -1,114 +1,218 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
+import 'package:only_job/services/auth.dart';
+import 'package:only_job/services/user_service.dart';
+import 'package:only_job/models/user.dart';
+import 'package:only_job/views/constants/loading.dart';
+import 'package:only_job/models/education.dart';
+import 'package:only_job/models/certification.dart';
+import 'package:only_job/models/experience.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
+  String? uid;
+  ProfileScreen({super.key, required this.uid});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late AuthService _auth;
+  late UserService _applicantService;
+  late UserData _applicantData;
+  late List<Education>? _education;
+  late List<Certification>? _certifications;
+  late List<Experience>? _experiences;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _auth = AuthService();
+    _applicantService = UserService(uid: widget.uid!);
+    _getApplicantData();
+  }
+
+  void _getApplicantData() async {
+    _applicantData = await _applicantService.getUserById(widget.uid!);
+    _education = await _applicantService.getEducation();
+    _certifications = await _applicantService.getCertifications();
+    _experiences = await _applicantService.getExperience();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        actions: [
-          TextButton(
-              onPressed: () {},
-              child: Text(
-                'Send Message',
-                style: appbarstyle,
-              ))
-        ],
-        backgroundColor: primarycolor,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 20),
+    return _isLoading
+        ? const Loading()
+        : Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              backgroundColor: primarycolor,
+              elevation: 0,
+            ),
+            body: SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: NetworkImage(
-                        'https://via.placeholder.com/150'), // Replace with actual image
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Beatrice Colon',
-                    style: usernameStyle,
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    '24, Female',
-                    style: TextStyle(
-                      fontSize: 16,
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: NetworkImage(_applicantData
+                              .profilePicture!), // Replace with actual image
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          _applicantData.name!,
+                          style: usernameStyle,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          _applicantData.gender!,
+                          style: TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+
+                  // Personal Info Card
+                  InfoSection(
+                    title: 'Personal Info',
+                    children: [
+                      InfoCard(
+                        icon: Icons.cake_outlined,
+                        text:
+                            'Birthdate: ${DateFormat('MMM. d, y').format(_applicantData.birthDate!)}',
+                      ),
+                      InfoCard(
+                        icon: Icons.home_outlined,
+                        text: 'Address: ${_applicantData.address!}',
+                      ),
+                    ],
+                  ),
+
+                  // Contact Info Card
+                  InfoSection(
+                    title: 'Contact Info',
+                    children: [
+                      InfoCard(
+                        icon: Icons.email_outlined,
+                        text: 'Email: ${_applicantData.email!}',
+                      ),
+                      InfoCard(
+                        icon: Icons.phone_outlined,
+                        text: 'Phone: ${_applicantData.phone!}',
+                      ),
+                      if (_applicantData.website != null &&
+                          _applicantData.website!.isNotEmpty)
+                        InfoCard(
+                          icon: Icons.web_outlined,
+                          text: 'Website: ${_applicantData.website!}',
+                        ),
+                      if (_applicantData.website == null ||
+                          _applicantData.website!.isEmpty)
+                        InfoCard(
+                          icon: Icons.web_outlined,
+                          text: 'Website: Not provided',
+                        ),
+                    ],
+                  ),
+
+                  // Education and Skills Info Card
+                  InfoSection(
+                    title: 'Education and Skills',
+                    children: [
+                      ..._showEducation(),
+                      ..._showExperiences(),
+                      Column(
+                        children: [
+                          ..._showCertificates(),
+                        ],
+                      ),
+                      if (_applicantData.skills != null)
+                        if (_applicantData.skills!.isNotEmpty)
+                          for (var skill in _applicantData.skills!)
+                            InfoCard(
+                              icon: Icons.build_outlined,
+                              text: 'Skills: ${skill}',
+                            ),
+                    ],
                   ),
                 ],
               ),
             ),
+          );
+  }
 
-            // Personal Info Card
-            InfoSection(
-              title: 'Personal Info',
-              children: [
-                InfoCard(
-                  icon: Icons.cake_outlined,
-                  text: 'Birthdate: January 1, 2000',
-                ),
-                InfoCard(
-                  icon: Icons.home_outlined,
-                  text: 'Address: 123 Street, City',
-                ),
-              ],
-            ),
+  List<Widget> _showEducation() {
+    List<Widget> educationWidgets = [];
 
-            // Contact Info Card
-            InfoSection(
-              title: 'Contact Info',
-              children: [
-                InfoCard(
-                  icon: Icons.email_outlined,
-                  text: 'Email: beatrice@example.com',
-                ),
-                InfoCard(
-                  icon: Icons.phone_outlined,
-                  text: 'Phone: +123 456 7890',
-                ),
-                InfoCard(
-                  icon: Icons.web_outlined,
-                  text: 'Website: www.example.com',
-                ),
-              ],
-            ),
+    if (_education == null) {
+      return educationWidgets;
+    }
 
-            // Education and Skills Info Card
-            InfoSection(
-              title: 'Education and Skills',
-              children: [
-                InfoCard(
-                  icon: Icons.school_outlined,
-                  text: 'Education: B.Sc. in Product Design',
-                ),
-                InfoCard(
-                  icon: Icons.card_membership_outlined,
-                  text: 'Certification: Certified UX Designer',
-                ),
-                InfoCard(
-                  icon: Icons.build_outlined,
-                  text: 'Skills: UX/UI Design, Prototyping, Wireframing',
-                ),
-              ],
-            ),
-          ],
+    for (var edu in _education!) {
+      educationWidgets.add(
+        InfoCard(
+          icon: Icons.school_outlined,
+          text: 'Education: ${edu.degree} at ${edu.university}',
         ),
-      ),
-    );
+      );
+    }
+    return educationWidgets;
+  }
+
+  List<Widget> _showExperiences() {
+    List<Widget> experienceWidget = [];
+
+    if (_experiences == null) {
+      return experienceWidget;
+    }
+
+    for (var edu in _experiences!) {
+      experienceWidget.add(
+        InfoCard(
+          icon: Icons.school_outlined,
+          text: 'Experiences: ${edu.company}',
+        ),
+      );
+    }
+    return experienceWidget;
+  }
+
+  List<Widget> _showCertificates() {
+    List<Widget> certificateWidget = [];
+
+    if (_certifications == null) {
+      return certificateWidget;
+    }
+
+    for (var edu in _certifications!) {
+      certificateWidget.add(
+        Image.network(edu.attachedFile!),
+      );
+      certificateWidget.add(
+        InfoCard(
+          icon: Icons.card_membership_outlined,
+          text: 'Certification: ${edu.certificationName}',
+        ),
+      );
+    }
+    return certificateWidget;
   }
 }
 
