@@ -37,7 +37,9 @@ class _NavJSState extends State<NavJS> {
     setState(() {
       _selectedIndex = index;
     });
-    //_pageController.jumpToPage(index);
+    if (index == 1) {
+      _pages[1] = HomePage(key: UniqueKey(), changePage: _changePage);
+    }
   }
 
   @override
@@ -54,9 +56,7 @@ class _NavJSState extends State<NavJS> {
           child: GNav(
             selectedIndex: _selectedIndex,
             onTabChange: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
+              _changePage(index);
             },
             gap: 8,
             iconSize: 24,
