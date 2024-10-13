@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
@@ -11,8 +10,7 @@ import 'package:only_job/services/job_service.dart';
 import 'package:only_job/models/jobs.dart';
 import 'package:only_job/services/job_recommendation_controller.dart';
 import 'package:only_job/services/job_matcher.dart';
-
-import '../../chatFeature/chat_page.dart';
+import 'package:only_job/chatFeature/chat_page.dart';
 
 class HomePage extends StatefulWidget {
   Function changePage;
@@ -77,9 +75,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onPageChanged() {
-    //if (_pageController.page == _jobs.length - 1 && _hasMore) {
-    //  _loadMoreJobs(); // Load more jobs when on the last page
-    //}
     if (_pageController.page == _jobs.length - 1 &&
         !_isJobLoadingMore &&
         _hasMore) {
@@ -239,8 +234,7 @@ class _HomePageState extends State<HomePage> {
                               scrollDirection: Axis.vertical,
                               itemCount: _jobs.length + 1,
                               itemBuilder: (context, index) {
-                                if (index < _jobs.length &&
-                                    _jobs.isNotEmpty) {
+                                if (index < _jobs.length && _jobs.isNotEmpty) {
                                   JobData job = _jobs[index];
                                   UserData? jobOwner =
                                       _prefetchedUserData[job.owner!];
@@ -251,7 +245,8 @@ class _HomePageState extends State<HomePage> {
                                   }
                                   return Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                child: CustomBodyWidget(currentUserName: _auth, jobData: job),
+                                    child: CustomBodyWidget(
+                                        job: job, jobOwner: jobOwner),
                                   );
                                 } else {
                                   return _isJobLoadingMore
@@ -367,318 +362,246 @@ class _HomePageState extends State<HomePage> {
 }
 
 class CustomBodyWidget extends StatefulWidget {
-  const CustomBodyWidget({super.key, required this.jobData, required this.currentUserName});
-
-  final JobData jobData;
-  final AuthService currentUserName;
+  CustomBodyWidget({super.key, required this.job, required this.jobOwner});
+  JobData? job;
+  UserData jobOwner;
 
   @override
   State<CustomBodyWidget> createState() => _CustomBodyWidgetState();
 }
 
-
-
 class _CustomBodyWidgetState extends State<CustomBodyWidget> {
-
-
-
-  final AuthService authService = AuthService();
-
-
-  String? jobUid;
-  String? receiverUid;
-  String? currentUserName;
-  String? ownerName; // New variable to store the owner's name
-  String? profilePicture; // New variable to store the owner's name
-
-
-
   @override
-  void initState() {
-    super.initState();
-    fetchCurrentUserName();
-    jobUid = widget.jobData.jobUid;
-    receiverUid = widget.jobData.owner;
-    getOwnerName(receiverUid!);
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,
+      // Increased height to accommodate the job description section
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+      ),
+      child: Column(
+        children: [
+          // Job Title section
 
-
-  }
-
-
-
-  @override
-  void dispose() {
-    super.dispose();
-
-  }
-
-  Future<void> getOwnerName(String ownerUid) async {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('User')
-        .doc(ownerUid)
-        .get();
-
-    if (userDoc.exists && mounted) {  // Check if the widget is still mounted
-      String name = userDoc.get('name');
-      String? fetchedProfilePicture = userDoc.get('profile_picture');
-
-      if (mounted) {  // Check again before calling setState
-        setState(() {
-          ownerName = name;
-          profilePicture = fetchedProfilePicture;
-        });
-      }
-    }
-  }
-  void fetchCurrentUserName() async {
-    String? fetchedCurrentUserName = await authService.getCurrentUserName();
-
-    if (mounted) {  // Check if the widget is still mounted
-      setState(() {
-        currentUserName = fetchedCurrentUserName;
-      });
-    }
-  }
-
-
-    @override
-    Widget build(BuildContext context) {
-      return Container(
-        width: 300,
-        // Increased height to accommodate the job description section
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-        ),
-        child: Column(
-          children: [
-            // Job Title section
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Job Title: ${widget.jobData.jobTitle!}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Image section
-            if (widget.jobData.image != null)
-              Container(
-                height: 250, // Fixed height for the image
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                  image: DecorationImage(
-                    image: NetworkImage(widget.jobData.image!),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-
-            if (widget.jobData.image == null)
-              Container(
-                height: 250, // Fixed height for the image
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                  image: DecorationImage(
-                    image: AssetImage("sample_image.jpg"),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-
-
-            const SizedBox(height: 8), // Spacing
-
-            // Location section
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0, vertical: 4.0), // Padding for location
-              child: Row(
-                children: [
-                  Icon(Icons.location_on, color: Colors.red), // Location icon
-                  const SizedBox(width: 4), // Space between icon and text
-                  Text(
-                    widget.jobData.location!, // Replace with actual location
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Meet the Hiring Team Section
+          // Image section
+          if (widget.job!.image != null)
             Container(
-              margin: const EdgeInsets.all(8.0),
-              padding: const EdgeInsets.all(8.0),
+              height: 250, // Fixed height for the image
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-                border: Border.all(color: Colors.grey), // Added border here
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                image: DecorationImage(
+                  image: NetworkImage(widget.job!.image!),
+                  fit: BoxFit.cover,
+                ),
               ),
+            ),
+
+          if (widget.job!.image == null)
+            Container(
+              height: 250, // Fixed height for the image
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                image: DecorationImage(
+                  image: AssetImage("sample_image.jpg"),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+
+          const SizedBox(height: 8), // Spacing
+
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Text(
-                      'Company Name: ${ownerName ?? 'Unknown'}',
-                      // Replace with actual company name
-                      style: usernameStyle,
+                  Text(
+                    widget.job!.jobTitle!, // Replace with actual job title
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  // Row for avatar, name, role, and message button
-                  Row(
-                    children: [
-                      // Avatar picture
-                      CircleAvatar(
-                        radius: 25,
-                        backgroundImage: profilePicture != null
-                            ? NetworkImage(profilePicture!) // Use NetworkImage if available
-                            : AssetImage('sample_image.jpg') as ImageProvider, // Fallback to local asset
-                      ),
-                      const SizedBox(width: 8),
-                      // Space between avatar and column
-
-                      // Column for name and role
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Senior Developer', // Replace with actual role
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      // Pushes the message button to the right
-
-                      // Message button
-                      ElevatedButton(
-                        onPressed: () {
-                          if (ownerName !=
-                              null) { // Check if the name has been fetched
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ChatPage(
-                                      user: {
-                                        'name': ownerName,
-                                        // Pass the fetched owner's name
-                                        'uid': receiverUid,
-                                        // Pass the receiver's UID
-                                      },
-                                    ),
-                              ),
-                            );
-                          }
-                        },
-                        child: Text('Message'),
-                      ),
-                    ],
+                  const SizedBox(height: 4), // Vertical spacing
+                  Text(
+                    '${widget.jobOwner.name}', // Replace with actual company name
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
                   ),
                 ],
               ),
             ),
+          ),
+          Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(children: [
+                Container(
+                  child: Wrap(
+                    spacing: 8.0, // Space between chips
+                    runSpacing: 4.0, // Space between lines of chips
+                    children: widget.job!.skillsRequired!
+                        .take(4) .map<Widget>((skill) => Chip(label: Text(skill)))
+                        .toList(),
+                  ),
+                ),
+              ])),
+          SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 8.0, vertical: 4.0), // Padding for location
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.job!.jobDescription!, // Replace with actual location
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    softWrap: true,
+                    maxLines: 5,
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
 
-            // Job Description Section (snapping scroll with PageView)
-            Container(
-              margin: const EdgeInsets.all(8.0),
-              height: 140, // Height for the job description container
-              child: Column(
-                children: [
-                  Expanded(
-                    child: PageView(
-                      controller: PageController(
-                          viewportFraction:
-                          0.95),
-                      // Add viewportFraction for slight space between pages
+          // Location section
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 8.0, vertical: 4.0), // Padding for location
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Column(children: [
+                      Row(children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Salary Range',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              '\$${widget.job!.minSalaryRange!} - \$${widget.job!.maxSalaryRange}', // Replace with actual date
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ]),
+                    ]),
+                    Column(
                       children: [
-                        _buildDescriptionSection(
-                            'Job Description', widget.jobData.jobDescription!),
-                        _buildDescriptionSection(
-                            'Requirements', widget.jobData.otherRequirements!),
-                        _buildDescriptionSection('Salary Range',
-                            '\$${widget.jobData.minSalaryRange} - \$${widget
-                                .jobData.maxSalaryRange}'),
+                        Row(
+                          children: [
+                            Icon(Icons.lock_clock,
+                                color: Colors.black87), // Calendar icon
+                            SizedBox(width: 4), // Space between icon and text
+                            Text(
+                              widget.job!.jobType!, // Replace with actual date
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                  ),
-                  // Indicator Circles
-                ],
+                    Column(children: [
+                      Row(children: [
+                        Icon(Icons.location_on,
+                            color: Colors.red), // Calendar icon
+                        const SizedBox(width: 4), // Space between icon and text
+                        Text(
+                          widget.job!.location!, // Replace with actual date
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
+                          softWrap: true,
+                          maxLines: 3,
+                        ),
+                      ]),
+                    ]),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const Spacer(),
+          // Apply Button
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                print('Apply button clicked');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                minimumSize: Size(double.infinity, 40),
+              ),
+              child: Text(
+                'Apply',
+                style: TextStyle(color: Colors.white),
               ),
             ),
-            smallSizedBox_H,
-            // Apply Button
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  print('Apply button clicked');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  minimumSize: Size(double.infinity, 40),
-                ),
-                child: Text(
-                  'Apply',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+          ),
+        ],
+      ),
+    );
   }
 
-
-    Widget _buildDescriptionSection(String title, String content) {
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          border: Border.all(color: Colors.grey), // Added border here
-        ),
-        padding: const EdgeInsets.all(8.0),
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        width: 300, // Fixed width for each section
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+  Widget _buildDescriptionSection(String title, String content) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        border: Border.all(color: Colors.grey), // Added border here
+      ),
+      padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      width: 300, // Fixed width for each section
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 4), // Vertical spacing
-            Text(
-              content,
-              style: TextStyle(fontSize: 12),
-            ),
-          ],
-        ),
-      );
-    }
-
+          ),
+          const SizedBox(height: 4), // Vertical spacing
+          Text(
+            content,
+            style: TextStyle(fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}
