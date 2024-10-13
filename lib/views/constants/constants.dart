@@ -31,6 +31,9 @@ const TextStyle headingStyle = TextStyle(
   fontWeight: FontWeight.bold,
 );
 
+const TextStyle appbarstyle =
+    TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: secondarycolor);
+
 const TextStyle headingStyle_white = TextStyle(
   fontSize: 24.0,
   fontWeight: FontWeight.bold,
@@ -95,7 +98,8 @@ const TextStyle chatMessageTextStyle = TextStyle(
 const InputDecoration textFieldStyleSM = InputDecoration(
   border: OutlineInputBorder(),
   hintText: 'Enter a value',
-  contentPadding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 3),
+  contentPadding: EdgeInsets.symmetric(
+      vertical: 2.0, horizontal: 3), // Adjust the vertical padding as needed
 );
 
 const TextStyle emailTextStyle = TextStyle(
