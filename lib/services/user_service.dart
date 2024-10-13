@@ -316,8 +316,7 @@ class UserService {
   Future<Education?> getFirstUserEducation() async {
     try {
       // Reference to the education subcollection under the specific user document
-      CollectionReference educationRef = _userRef
-          .collection('education');
+      CollectionReference educationRef = _userRef.collection('education');
 
       // Retrieve the education documents (limit to 1 for efficiency)
       QuerySnapshot educationSnapshot = await educationRef.limit(1).get();
@@ -341,6 +340,19 @@ class UserService {
     return userCollection.doc(uid).collection('education').snapshots().map(
         (snapshot) =>
             snapshot.docs.map((doc) => _educationFromSnapshot(doc)).toList());
+  }
+
+  Future<List<Education>> getEducation() async {
+    try {
+      final QuerySnapshot snapshot =
+          await userCollection.doc(uid).collection('education').get();
+      final List<Education> educationList =
+          snapshot.docs.map((doc) => Education.fromDocument(doc)).toList();
+      return educationList;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
   }
 
   // methods for adding experience
@@ -419,6 +431,20 @@ class UserService {
             snapshot.docs.map((doc) => _experienceFromSnapshot(doc)).toList());
   }
 
+  Future<List<Experience>> getExperience() async {
+    try {
+      final QuerySnapshot snapshot =
+          await userCollection.doc(uid).collection('experience').get();
+      final List<Experience> experienceList = snapshot.docs
+          .map((doc) => Experience.fromDocument(doc))
+          .toList();
+      return experienceList;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
   Future<void> addCertification(
       String certificationName, String date, String? attachedFile) async {
     try {
@@ -465,5 +491,53 @@ class UserService {
         (snapshot) => snapshot.docs
             .map((doc) => _certificationFromSnapshot(doc))
             .toList());
+  }
+
+  Future<List<Certification>> getCertifications() async {
+    try {
+      final QuerySnapshot snapshot =
+          await userCollection.doc(uid).collection('certifications').get();
+      final List<Certification> certificationList = snapshot.docs
+          .map((doc) => Certification.fromDocument(doc))
+          .toList();
+      return certificationList;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> recordJobInteraction(
+      String userId, String jobId, String type) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('User')
+          .doc(userId)
+          .collection('JobInteractions')
+          .doc(jobId)
+          .set({
+        'jobId': jobId,
+        'type': type, // "applied" or "viewed"
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List<String>> fetchInteractedJobIds(String userId) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(userId)
+          .collection('JobInteractions')
+          .get();
+
+      return snapshot.docs.map((doc) => doc.id).toList(); // List of jobIds
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
   }
 }
