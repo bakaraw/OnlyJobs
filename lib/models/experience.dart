@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Experience {
   final String? uid;
   final String? company;
@@ -26,8 +28,8 @@ class Experience {
       title: data['title'],
       description: data['description'],
       location: data['location'],
-      startDate: data['startDate'],
-      endDate: data['endDate'],
+      startDate: (data['startDate'] as Timestamp).toDate(),
+      endDate: (data['endDate'] as Timestamp).toDate(),
     );
   }
   

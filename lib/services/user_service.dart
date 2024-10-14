@@ -19,8 +19,7 @@ class UserService {
 
   DocumentReference get _userRef => userCollection.doc(uid);
 
-  final String defaultPfp =
-      "https://firebasestorage.googleapis.com/v0/b/onlyjob-13c80.appspot.com/o/commons%2Fjames-pfp.jpg?alt=media&token=ce36246e-04bc-42cc-98ab-7c08ac8591b3";
+  final String defaultPfp = "https://firebasestorage.googleapis.com/v0/b/onlyjob-13c80.appspot.com/o/commons%2Fdefault.png?alt=media&token=fe3aaaea-0c8f-48ab-8103-2083ab52b4a5";
 
   Future addUser(String name, String? gender, DateTime? birthDate, String email,
       String phone, String address, bool isJobSeeker) async {
