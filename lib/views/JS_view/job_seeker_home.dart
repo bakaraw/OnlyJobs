@@ -373,12 +373,15 @@ class CustomBodyWidget extends StatefulWidget {
 
 class _CustomBodyWidgetState extends State<CustomBodyWidget> {
   final AuthService authService = AuthService();
+  late final UserService userService;
 
   String? jobUid;
   String? receiverUid;
   String? currentUserName;
   String? ownerName; // New variable to store the owner's name
   String? profilePicture; // New variable to store the owner's name
+
+  bool _isButtonDisabled = false;
 
   @override
   void initState() {
@@ -409,6 +412,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
 
   void fetchCurrentUserName() async {
     String? fetchedCurrentUserName = await authService.getCurrentUserName();
+    userService = UserService(uid: authService.getCurrentUserId()!);
 
     if (mounted) {
       // Check if the widget is still mounted
@@ -429,6 +433,10 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
     String? currentUserName =
         this.currentUserName; // Current user's name (fetched earlier)
 
+    setState(() {
+      _isButtonDisabled = true;
+    });
+
     if (jobOwnerUid != null) {
       try {
         // Reference to the specific job opening under the job owner's JobOpenings subcollection
@@ -441,12 +449,15 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
         // Add current user to the 'pending_applicants' subcollection under the job opening
         await jobDocRef
             .collection('pending_applicants')
-            .doc(currentUserName)
+            .doc(authService.getCurrentUserId()!)
             .set({
-          'name': currentUserName, // Store the applicant's name
-          // Store the time of application
-          // Add any additional data related to the application here
+          'name': currentUserName,
+          'applied_at': FieldValue.serverTimestamp(),
+          'uid': authService.getCurrentUserId(),
         });
+
+        await userService.recordJobInteraction(
+            authService.getCurrentUserId()!, jobUid, "applied");
 
         // Notify the user that their application is pending
         ScaffoldMessenger.of(context).showSnackBar(
@@ -653,10 +664,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
-              onPressed: () {
-                print('Apply button clicked');
-                applyForJob();
-              },
+              onPressed: _isButtonDisabled ? null : applyForJob,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 minimumSize: Size(double.infinity, 40),

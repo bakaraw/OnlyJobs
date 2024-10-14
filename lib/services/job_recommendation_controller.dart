@@ -16,7 +16,7 @@ class JobRecommendationController {
   Future<List<JobData>> fetchInitialJobsRecommendations(String userId) async {
     UserData user = await userService.getUserData();
     if (user != null) {
-      List<JobData> jobs = await jobService.fetchInitialJob();
+      List<JobData> jobs = await jobService.fetchInitialJob(userService, userId);
       return jobMatcher.recommendJobsForUser(user, jobs);
     }
     return [];
@@ -25,7 +25,7 @@ class JobRecommendationController {
   Future<List<JobData>> fetchMoreJobsRecommendations(String userId) async {
     UserData user = await userService.getUserData();
     if (user != null) {
-      List<JobData> jobs = await jobService.fetchMoreJobs();
+      List<JobData> jobs = await jobService.fetchMoreJobs(userService, userId);
       return jobMatcher.recommendJobsForUser(user, jobs);
     }
     return [];
