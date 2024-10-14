@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:developer';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/services/user_service.dart';
 import 'package:only_job/views/constants/constants.dart';
@@ -26,115 +25,220 @@ class _ClientSignupFormState extends State<ClientSignupForm> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the available height from the screen
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return loading
         ? const Loading()
         : Scaffold(
             appBar: AppBar(
-              title: Text('Client Sign Up'),
-            ),
-            body: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(labelText: 'Company Name'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your company name';
-                        }
-                        return null;
-                      },
-                    ),
-                    TextFormField(
-                      controller: _addressController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(labelText: 'Address'),
-                      validator: (value) => value != null && value.isEmpty
-                          ? 'Please enter the Company Address'
-                          : null,
-                    ),
-                    SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(labelText: 'Phone Number'),
-                      validator: (value) => value != null && value.isEmpty
-                          ? 'Please enter the Company Phone Number'
-                          : null,
-                    ),
-                    SizedBox(height: 16),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(labelText: 'Email Address'),
-                      validator: (value) => value != null && value.isEmpty
-                          ? 'Please enter your email address'
-                          : null,
-                    ),
-                    SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(labelText: 'Password'),
-                      validator: (value) => value != null && value.isEmpty
-                          ? 'Please enter a password'
-                          : null,
-                    ),
-                    SizedBox(height: 16),
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      obscureText: true,
-                      decoration:
-                          InputDecoration(labelText: 'Confirm Password'),
-                      validator: (value) =>
-                          value != null && value != _passwordController.text
-                              ? 'Passwords do not match'
-                              : null,
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState != null &&
-                            _formKey.currentState!.validate()) {
-                          setState(() {
-                            loading = true;
-                          });
-                          dynamic result = await _auth.registerEmailAndPassword(
-                              _emailController.text, _passwordController.text);
-
-                          if (result == null) {
-                            log('Error: Registration failed');
-                            setState(() {
-                              error = 'Registration failed';
-                              loading = false;
-                            });
-                          } else {
-                            await UserService(uid: result.uid)
-                                .addUser(
-                                    _nameController.text,
-                                    null,
-                                    null,
-                                    _emailController.text,
-                                    _phoneController.text,
-                                    _addressController.text,
-                                    false);
-
-                            Navigator.pop(context);
-                          }
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: accent1,
-                      ),
-                      child: Text('Submit'),
-                    ),
-                  ],
+              leading: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: accent1,
                 ),
               ),
+              backgroundColor: primarycolor,
+            ),
+            body: Stack(
+              children: [
+                // Background and Logo
+                Container(
+                  height: screenHeight, // Full screen height
+                  color: primarycolor,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      largeSizedBox_W,
+                      Image.asset(
+                        'assets/Logo.png',
+                        height: 150,
+                        width: 150,
+                      ),
+                      extraLargeSizedBox_W,
+                    ],
+                  ),
+                ),
+                // Scrollable Signup form section
+                Padding(
+                  padding: const EdgeInsets.only(top: 150.0),
+                  child: Container(
+                    height: screenHeight -
+                        150, // Ensures it fills the remaining height
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(40),
+                        topRight: Radius.circular(40),
+                      ),
+                      color: backgroundwhite,
+                    ),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              largeSizedBox_H,
+                              Text(
+                                "Client Sign Up",
+                                style: headingStyle,
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                "Please fill in the details to register.",
+                                style: bodyStyle,
+                                textAlign: TextAlign.center,
+                              ),
+                              largeSizedBox_H,
+                              // Company Name Field
+                              TextFormField(
+                                controller: _nameController,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter Company Name',
+                                  prefixIcon: Icon(Icons.business),
+                                  labelText: 'Company Name',
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your company name';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              largeSizedBox_H,
+                              // Address Field
+                              TextFormField(
+                                controller: _addressController,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter Company Address',
+                                  prefixIcon: Icon(Icons.location_on),
+                                  labelText: 'Address',
+                                ),
+                                validator: (value) =>
+                                    value != null && value.isEmpty
+                                        ? 'Please enter the company address'
+                                        : null,
+                              ),
+                              largeSizedBox_H,
+                              // Phone Number Field
+                              TextFormField(
+                                controller: _phoneController,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter Phone Number',
+                                  prefixIcon: Icon(Icons.phone),
+                                  labelText: 'Phone Number',
+                                ),
+                                validator: (value) => value != null &&
+                                        value.isEmpty
+                                    ? 'Please enter the company phone number'
+                                    : null,
+                              ),
+                              largeSizedBox_H,
+                              // Email Field
+                              TextFormField(
+                                controller: _emailController,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter Email Address',
+                                  prefixIcon: Icon(Icons.email),
+                                  labelText: 'Email Address',
+                                ),
+                                validator: (value) =>
+                                    value != null && value.isEmpty
+                                        ? 'Please enter your email address'
+                                        : null,
+                              ),
+                              largeSizedBox_H,
+                              // Password Field
+                              TextFormField(
+                                controller: _passwordController,
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Enter Password',
+                                  prefixIcon: Icon(Icons.lock),
+                                  labelText: 'Password',
+                                ),
+                                validator: (value) =>
+                                    value != null && value.isEmpty
+                                        ? 'Please enter a password'
+                                        : null,
+                              ),
+                              largeSizedBox_H,
+                              // Confirm Password Field
+                              TextFormField(
+                                controller: _confirmPasswordController,
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Confirm Password',
+                                  prefixIcon: Icon(Icons.lock),
+                                  labelText: 'Confirm Password',
+                                ),
+                                validator: (value) => value != null &&
+                                        value != _passwordController.text
+                                    ? 'Passwords do not match'
+                                    : null,
+                              ),
+                              largeSizedBox_H,
+                              // Submit Button
+                              ElevatedButton(
+                                onPressed: () async {
+                                  if (_formKey.currentState != null &&
+                                      _formKey.currentState!.validate()) {
+                                    setState(() {
+                                      loading = true;
+                                    });
+                                    dynamic result =
+                                        await _auth.registerEmailAndPassword(
+                                            _emailController.text,
+                                            _passwordController.text);
+
+                                    if (result == null) {
+                                      setState(() {
+                                        error = 'Registration failed';
+                                        loading = false;
+                                      });
+                                    } else {
+                                      await UserService(uid: result.uid)
+                                          .addUser(
+                                              _nameController.text,
+                                              null,
+                                              null,
+                                              _emailController.text,
+                                              _phoneController.text,
+                                              _addressController.text,
+                                              false);
+                                      Navigator.pop(context);
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: Size.fromHeight(50),
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: accent1,
+                                ),
+                                child: Text('Sign Up'),
+                              ),
+                              SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
   }
