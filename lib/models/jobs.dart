@@ -21,6 +21,7 @@ class JobData {
   String? otherRequirements;
   String? owner;
   String? image;
+  int? applicantsCount = 0;
 
   JobData({
     required this.jobUid, // Initialize jobUid here
@@ -36,5 +37,6 @@ class JobData {
     required this.otherRequirements,
     required this.owner,
     required this.image,
+    this.applicantsCount,
   });
 }

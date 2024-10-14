@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
@@ -11,8 +10,8 @@ import 'package:only_job/services/job_service.dart';
 import 'package:only_job/models/jobs.dart';
 import 'package:only_job/services/job_recommendation_controller.dart';
 import 'package:only_job/services/job_matcher.dart';
-
-import '../../chatFeature/chat_page.dart';
+import 'package:only_job/chatFeature/chat_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   Function changePage;
@@ -77,9 +76,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onPageChanged() {
-    //if (_pageController.page == _jobs.length - 1 && _hasMore) {
-    //  _loadMoreJobs(); // Load more jobs when on the last page
-    //}
     if (_pageController.page == _jobs.length - 1 &&
         !_isJobLoadingMore &&
         _hasMore) {
@@ -239,8 +235,7 @@ class _HomePageState extends State<HomePage> {
                               scrollDirection: Axis.vertical,
                               itemCount: _jobs.length + 1,
                               itemBuilder: (context, index) {
-                                if (index < _jobs.length &&
-                                    _jobs.isNotEmpty) {
+                                if (index < _jobs.length && _jobs.isNotEmpty) {
                                   JobData job = _jobs[index];
                                   UserData? jobOwner =
                                       _prefetchedUserData[job.owner!];
@@ -251,7 +246,8 @@ class _HomePageState extends State<HomePage> {
                                   }
                                   return Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                child: CustomBodyWidget(currentUserName: _auth, jobData: job),
+                                    child: CustomBodyWidget(
+                                        jobData: job, jobOwner: jobOwner),
                                   );
                                 } else {
                                   return _isJobLoadingMore
@@ -367,23 +363,17 @@ class _HomePageState extends State<HomePage> {
 }
 
 class CustomBodyWidget extends StatefulWidget {
-  const CustomBodyWidget({super.key, required this.jobData, required this.currentUserName});
-
-  final JobData jobData;
-  final AuthService currentUserName;
+  CustomBodyWidget({super.key, required this.jobData, required this.jobOwner});
+  JobData jobData;
+  UserData jobOwner;
 
   @override
   State<CustomBodyWidget> createState() => _CustomBodyWidgetState();
 }
 
-
-
 class _CustomBodyWidgetState extends State<CustomBodyWidget> {
-
-
-
   final AuthService authService = AuthService();
-
+  late final UserService userService;
 
   String? jobUid;
   String? receiverUid;
@@ -391,7 +381,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
   String? ownerName; // New variable to store the owner's name
   String? profilePicture; // New variable to store the owner's name
 
-
+  bool _isButtonDisabled = false;
 
   @override
   void initState() {
@@ -400,29 +390,18 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
     jobUid = widget.jobData.jobUid;
     receiverUid = widget.jobData.owner;
     getOwnerName(receiverUid!);
-
-
-  }
-
-
-
-  @override
-  void dispose() {
-    super.dispose();
-
   }
 
   Future<void> getOwnerName(String ownerUid) async {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('User')
-        .doc(ownerUid)
-        .get();
+    DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection('User').doc(ownerUid).get();
 
-    if (userDoc.exists && mounted) {  // Check if the widget is still mounted
+    if (userDoc.exists) {
       String name = userDoc.get('name');
       String? fetchedProfilePicture = userDoc.get('profile_picture');
 
-      if (mounted) {  // Check again before calling setState
+      if (mounted) {
+        // Check if the widget is still mounted
         setState(() {
           ownerName = name;
           profilePicture = fetchedProfilePicture;
@@ -430,255 +409,304 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
       }
     }
   }
+
   void fetchCurrentUserName() async {
     String? fetchedCurrentUserName = await authService.getCurrentUserName();
+    userService = UserService(uid: authService.getCurrentUserId()!);
 
-    if (mounted) {  // Check if the widget is still mounted
+    if (mounted) {
+      // Check if the widget is still mounted
       setState(() {
         currentUserName = fetchedCurrentUserName;
       });
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
-    @override
-    Widget build(BuildContext context) {
-      return Container(
-        width: 300,
-        // Increased height to accommodate the job description section
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-        ),
-        child: Column(
-          children: [
-            // Job Title section
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Job Title: ${widget.jobData.jobTitle!}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+  Future<void> applyForJob() async {
+    String? jobOwnerUid = widget.jobData.owner; // Job owner's UID from job data
+    String? jobUid = widget.jobData.jobUid; // Job UID from job data
+    String? currentUserName =
+        this.currentUserName; // Current user's name (fetched earlier)
 
-            // Image section
-            if (widget.jobData.image != null)
-              Container(
-                height: 250, // Fixed height for the image
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                  image: DecorationImage(
-                    image: NetworkImage(widget.jobData.image!),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
+    setState(() {
+      _isButtonDisabled = true;
+    });
 
-            if (widget.jobData.image == null)
-              Container(
-                height: 250, // Fixed height for the image
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                  image: DecorationImage(
-                    image: AssetImage("sample_image.jpg"),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
+    if (jobOwnerUid != null) {
+      try {
+        // Reference to the specific job opening under the job owner's JobOpenings subcollection
+        DocumentReference jobDocRef = FirebaseFirestore.instance
+            .collection('User')
+            .doc(jobOwnerUid)
+            .collection('JobOpenings')
+            .doc(jobUid);
 
+        // Add current user to the 'pending_applicants' subcollection under the job opening
+        await jobDocRef
+            .collection('pending_applicants')
+            .doc(authService.getCurrentUserId()!)
+            .set({
+          'name': currentUserName,
+          'applied_at': FieldValue.serverTimestamp(),
+          'uid': authService.getCurrentUserId(),
+        });
 
-            const SizedBox(height: 8), // Spacing
+        await userService.recordJobInteraction(
+            authService.getCurrentUserId()!, jobUid, "applied");
 
-            // Location section
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0, vertical: 4.0), // Padding for location
-              child: Row(
-                children: [
-                  Icon(Icons.location_on, color: Colors.red), // Location icon
-                  const SizedBox(width: 4), // Space between icon and text
-                  Text(
-                    widget.jobData.location!, // Replace with actual location
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Meet the Hiring Team Section
-            Container(
-              margin: const EdgeInsets.all(8.0),
-              padding: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-                border: Border.all(color: Colors.grey), // Added border here
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Text(
-                      'Company Name: ${ownerName ?? 'Unknown'}',
-                      // Replace with actual company name
-                      style: usernameStyle,
-                    ),
-                  ),
-                  // Row for avatar, name, role, and message button
-                  Row(
-                    children: [
-                      // Avatar picture
-                      CircleAvatar(
-                        radius: 25,
-                        backgroundImage: profilePicture != null
-                            ? NetworkImage(profilePicture!) // Use NetworkImage if available
-                            : AssetImage('sample_image.jpg') as ImageProvider, // Fallback to local asset
-                      ),
-                      const SizedBox(width: 8),
-                      // Space between avatar and column
-
-                      // Column for name and role
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Senior Developer', // Replace with actual role
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      // Pushes the message button to the right
-
-                      // Message button
-                      ElevatedButton(
-                        onPressed: () {
-                          if (ownerName !=
-                              null) { // Check if the name has been fetched
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ChatPage(
-                                      user: {
-                                        'name': ownerName,
-                                        // Pass the fetched owner's name
-                                        'uid': receiverUid,
-                                        // Pass the receiver's UID
-                                      },
-                                    ),
-                              ),
-                            );
-                          }
-                        },
-                        child: Text('Message'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Job Description Section (snapping scroll with PageView)
-            Container(
-              margin: const EdgeInsets.all(8.0),
-              height: 140, // Height for the job description container
-              child: Column(
-                children: [
-                  Expanded(
-                    child: PageView(
-                      controller: PageController(
-                          viewportFraction:
-                          0.95),
-                      // Add viewportFraction for slight space between pages
-                      children: [
-                        _buildDescriptionSection(
-                            'Job Description', widget.jobData.jobDescription!),
-                        _buildDescriptionSection(
-                            'Requirements', widget.jobData.otherRequirements!),
-                        _buildDescriptionSection('Salary Range',
-                            '\$${widget.jobData.minSalaryRange} - \$${widget
-                                .jobData.maxSalaryRange}'),
-                      ],
-                    ),
-                  ),
-                  // Indicator Circles
-                ],
-              ),
-            ),
-            smallSizedBox_H,
-            // Apply Button
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  print('Apply button clicked');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  minimumSize: Size(double.infinity, 40),
-                ),
-                child: Text(
-                  'Apply',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
+        // Notify the user that their application is pending
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Your application is pending review.')),
+        );
+      } catch (e) {
+        // Handle any errors during the application process
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to apply: $e')),
+        );
+      }
+    } else {
+      // Handle case where current user or job owner UID is null
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to apply. Please try again.')),
       );
     }
   }
 
-
-    Widget _buildDescriptionSection(String title, String content) {
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          border: Border.all(color: Colors.grey), // Added border here
-        ),
-        padding: const EdgeInsets.all(8.0),
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        width: 300, // Fixed width for each section
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,
+      // Increased height to accommodate the job description section
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+      ),
+      child: Column(
+        children: [
+          // Image section
+          if (widget.jobData.image != null)
+            Container(
+              height: 250, // Fixed height for the image
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                image: DecorationImage(
+                  image: NetworkImage(widget.jobData.image!),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-            const SizedBox(height: 4), // Vertical spacing
-            Text(
-              content,
-              style: TextStyle(fontSize: 12),
-            ),
-          ],
-        ),
-      );
-    }
 
+          if (widget.jobData.image == null)
+            Container(
+              height: 250, // Fixed height for the image
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                image: DecorationImage(
+                  image: AssetImage("sample_image.jpg"),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+
+          const SizedBox(height: 8), // Spacing
+
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.jobData.jobTitle!, // Replace with actual job title
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4), // Vertical spacing
+                  Text(
+                    '${widget.jobOwner.name}', // Replace with actual company name
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(children: [
+                Container(
+                  child: Wrap(
+                    spacing: 8.0, // Space between chips
+                    runSpacing: 4.0, // Space between lines of chips
+                    children: widget.jobData.skillsRequired!
+                        .take(4)
+                        .map<Widget>((skill) => Chip(label: Text(skill)))
+                        .toList(),
+                  ),
+                ),
+              ])),
+          SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 8.0, vertical: 4.0), // Padding for location
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.jobData
+                        .jobDescription!, // Replace with actual location
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    softWrap: true,
+                    maxLines: 5,
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+
+          // Location section
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 8.0, vertical: 4.0), // Padding for location
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Column(children: [
+                      Row(children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Salary Range',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              '\$${widget.jobData.minSalaryRange!} - \$${widget.jobData.maxSalaryRange}', // Replace with actual date
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ]),
+                    ]),
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.lock_clock,
+                                color: Colors.black87), // Calendar icon
+                            SizedBox(width: 4), // Space between icon and text
+                            Text(
+                              widget
+                                  .jobData.jobType!, // Replace with actual date
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Column(children: [
+                      Row(children: [
+                        Icon(Icons.location_on,
+                            color: Colors.red), // Calendar icon
+                        const SizedBox(width: 4), // Space between icon and text
+                        Text(
+                          widget.jobData.location!, // Replace with actual date
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
+                          softWrap: true,
+                          maxLines: 3,
+                        ),
+                      ]),
+                    ]),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const Spacer(),
+          // Apply Button
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: _isButtonDisabled ? null : applyForJob,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                minimumSize: Size(double.infinity, 40),
+              ),
+              child: Text(
+                'Apply',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDescriptionSection(String title, String content) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        border: Border.all(color: Colors.grey), // Added border here
+      ),
+      padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      width: 300, // Fixed width for each section
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4), // Vertical spacing
+          Text(
+            content,
+            style: TextStyle(fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}

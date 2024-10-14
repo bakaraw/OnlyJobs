@@ -16,5 +16,19 @@ class Experience {
     required this.startDate,
     required this.endDate,
   });
+
+  // from qury snapshot
+  factory Experience.fromDocument(doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Experience(
+      uid: doc.id,
+      company: data['company'],
+      title: data['title'],
+      description: data['description'],
+      location: data['location'],
+      startDate: data['startDate'],
+      endDate: data['endDate'],
+    );
+  }
   
 }
