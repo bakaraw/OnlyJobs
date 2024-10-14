@@ -51,7 +51,7 @@ void showProfileBottomSheet(String receiverUserId, BuildContext context) {
                       child: Icon(Icons.person),
                     ),
                   ),
-                  SizedBox(height: 16),
+                   SizedBox(height: 16),
                   Text('Name: $name', style: usernameStylewithSecondaryColor),
                   SizedBox(height: 16),
                   Text('Address: $address', style: usernameStylewithSecondaryColor),
