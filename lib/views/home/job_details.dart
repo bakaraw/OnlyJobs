@@ -172,6 +172,7 @@ class _JobDetailsPageState extends State<JobDetailsPage>
               title: Text('Job Details'),
               titleTextStyle: headingStyle_white,
               backgroundColor: primarycolor,
+              iconTheme: IconThemeData(color: secondarycolor),
             ),
             body: SingleChildScrollView(
               child: Column(

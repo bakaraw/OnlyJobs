@@ -65,7 +65,7 @@ class _NavJSState extends State<NavJS> {
             tabBackgroundColor: Colors.grey.shade800,
             color: backgroundwhite,
             activeColor: backgroundwhite,
-            tabs: [
+            tabs: const [
               GButton(
                 icon: Icons.person,
                 text: 'Profile',

@@ -5,7 +5,7 @@ const Color backgroundwhite = Color(0xFFFFFFFF);
 const Color backgroundblack = Color(0xFF000000);
 
 const Color primarycolor = Color(0xFF3E595C);
-const Color secondarycolor = Color(0xFFDAF0F2);
+const Color secondarycolor = Color(0xFFF6F6F6);
 
 const Color accent1 = Color(0xFFFE6A1E);
 const Color accent2 = Color(0xFFB1EF6B);
@@ -53,11 +53,10 @@ const TextStyle usernameStylewithSecondaryColor = TextStyle(
 );
 
 const TextStyle usernameStylewithWhite = TextStyle(
-fontSize: 16,
-fontWeight: FontWeight.bold,
-color: Colors.white, // Using your primary color
+  fontSize: 16,
+  fontWeight: FontWeight.bold,
+  color: Colors.white, // Using your primary color
 );
-
 
 // Constant style for email in user listing
 const TextStyle emailStyle = TextStyle(
@@ -105,8 +104,7 @@ const TextStyle chatMessageTextStyle = TextStyle(
 const InputDecoration textFieldStyleSM = InputDecoration(
   border: OutlineInputBorder(),
   hintText: 'Enter a value',
-  contentPadding: EdgeInsets.symmetric(
-      vertical: 2.0, horizontal: 3), // Adjust the vertical padding as needed
+  contentPadding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 3),
 );
 
 const TextStyle emailTextStyle = TextStyle(

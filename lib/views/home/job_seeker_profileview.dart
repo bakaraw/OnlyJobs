@@ -55,11 +55,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         : Scaffold(
             appBar: AppBar(
               leading: IconButton(
+                color: secondarycolor,
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
+              title: Text("Job Seeker's Profile"),
+              titleTextStyle: headingStyle_white,
               backgroundColor: primarycolor,
               elevation: 0,
             ),
@@ -171,13 +174,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: FloatingActionButton.extended(
                       onPressed: () {
                         // Action for the first button
-                        _jobService.acceptApplicant(widget.jobUid!, widget.uid!);
+                        _jobService.acceptApplicant(
+                            widget.jobUid!, widget.uid!);
 
                         Navigator.of(context).pop();
                       },
                       backgroundColor: Colors.green,
                       heroTag: 'btn1',
-                      label: Text('Accept', style: TextStyle(color: Colors.white)),
+                      label:
+                          Text('Accept', style: TextStyle(color: Colors.white)),
                       icon: Icon(Icons.check, color: Colors.white),
                     ),
                   ),
@@ -187,12 +192,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: FloatingActionButton.extended(
                       onPressed: () {
                         // Action for the second button
-                        _jobService.deleteApplicant(widget.jobUid!, widget.uid!);
+                        _jobService.deleteApplicant(
+                            widget.jobUid!, widget.uid!);
                         Navigator.of(context).pop();
                       },
                       backgroundColor: Colors.red,
                       heroTag: 'btn2',
-                      label: Text('Reject', style: TextStyle(color: Colors.white)),
+                      label:
+                          Text('Reject', style: TextStyle(color: Colors.white)),
                       icon: Icon(Icons.close, color: Colors.white),
                     ),
                   ),
@@ -255,7 +262,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         InfoCard(
           icon: Icons.card_membership_outlined,
           text: 'Certification: ${edu.certificationName}',
-        ), 
+        ),
       );
     }
     return certificateWidget;
@@ -315,6 +322,7 @@ class InfoCard extends StatelessWidget {
             SizedBox(width: 16),
             Text(
               text,
+              softWrap: true,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
