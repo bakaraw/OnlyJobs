@@ -313,7 +313,9 @@ class _JobDetailsPageState extends State<JobDetailsPage>
                                             ))
                                         .toList(),
                                   ),
-
+                            const SizedBox(
+                              height: 10,
+                            ),
                             // Job Description
                             isEditing
                                 ? TextField(
@@ -366,14 +368,10 @@ class _JobDetailsPageState extends State<JobDetailsPage>
                                                 'This will also delete all job seeker applications.'),
                                             actions: [
                                               TextButton(
-                                                onPressed: () {
-                                                  removeJobFromFirebase();
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            EmployerPositions()),
-                                                  );
+                                                onPressed: () async {
+                                                  await removeJobFromFirebase(); // Wait for job deletion from Firebase
+                                                  Navigator.of(context).pop();
+                                                  Navigator.of(context).pop();
                                                 },
                                                 child: Text('Yes',
                                                     style: TextStyle(
@@ -577,7 +575,8 @@ class _JobDetailsPageState extends State<JobDetailsPage>
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                    builder: (context) => ChatPage(
+                                                    builder: (context) =>
+                                                        ChatPage(
                                                       user: {
                                                         'name': applicant.name,
                                                         // Pass the fetched owner's name
@@ -591,7 +590,6 @@ class _JobDetailsPageState extends State<JobDetailsPage>
                                                 // Handle the close button action
                                               },
                                             ),
-
                                           ],
                                         ),
                                       ),
