@@ -202,7 +202,7 @@ class _HomePageState extends State<HomePage> {
                           mainAxisAlignment: MainAxisAlignment
                               .spaceBetween, // Align text to the left and button to the right
                           children: [
-                            Text(
+                            const Text(
                               'Set up profile to get started',
                               style: TextStyle(
                                   fontSize: 16), // Customize the text style
@@ -470,7 +470,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
     } else {
       // Handle case where current user or job owner UID is null
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unable to apply. Please try again.')),
+        const SnackBar(content: Text('Unable to apply. Please try again.')),
       );
     }
   }
@@ -596,7 +596,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                   child: Text(
                     widget.jobData
                         .jobDescription!, // Replace with actual location
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.black,
                     ),
@@ -607,9 +607,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
               ],
             ),
           ),
-          SizedBox(
-            height: 10,
-          ),
+          smallSizedBox_H,
 
           // Location section
           Padding(
@@ -627,7 +625,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Salary Range',
                               style: TextStyle(
                                 fontSize: 14,
@@ -636,7 +634,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                             ),
                             Text(
                               '\$${widget.jobData.minSalaryRange!} - \$${widget.jobData.maxSalaryRange}', // Replace with actual date
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -654,7 +652,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                             SizedBox(width: 4),
                             Text(
                               widget.jobData.jobType!,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.black87,
                                 fontWeight: FontWeight.bold,
@@ -670,7 +668,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                         const SizedBox(width: 4),
                         Text(
                           widget.jobData.location!,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black,
                           ),
@@ -720,7 +718,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
