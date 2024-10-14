@@ -172,6 +172,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () {
                         // Action for the first button
                         _jobService.acceptApplicant(widget.jobUid!, widget.uid!);
+
                         Navigator.of(context).pop();
                       },
                       backgroundColor: Colors.green,
@@ -254,7 +255,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         InfoCard(
           icon: Icons.card_membership_outlined,
           text: 'Certification: ${edu.certificationName}',
-        ),
+        ), 
       );
     }
     return certificateWidget;

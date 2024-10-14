@@ -52,6 +52,13 @@ const TextStyle usernameStylewithSecondaryColor = TextStyle(
   color: secondarycolor,
 );
 
+const TextStyle usernameStylewithWhite = TextStyle(
+fontSize: 16,
+fontWeight: FontWeight.bold,
+color: Colors.white, // Using your primary color
+);
+
+
 // Constant style for email in user listing
 const TextStyle emailStyle = TextStyle(
   fontSize: 14,

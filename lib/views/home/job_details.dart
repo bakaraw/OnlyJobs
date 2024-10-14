@@ -5,6 +5,7 @@ import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/views/constants/loading.dart';
 import 'package:only_job/views/home/job_seeker_profileview.dart';
 
+import '../../chatFeature/chat_page.dart';
 import '../../services/job_service.dart';
 import '../../services/retrieve_skills.dart';
 import 'common/search_skills.dart';
@@ -573,9 +574,24 @@ class _JobDetailsPageState extends State<JobDetailsPage>
                                               icon: Icon(Icons.message_rounded,
                                                   color: primarycolor),
                                               onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => ChatPage(
+                                                      user: {
+                                                        'name': applicant.name,
+                                                        // Pass the fetched owner's name
+                                                        'uid': applicant.uid,
+                                                        // Pass the receiver's UID
+                                                      },
+                                                    ),
+                                                  ),
+                                                );
+
                                                 // Handle the close button action
                                               },
                                             ),
+
                                           ],
                                         ),
                                       ),
