@@ -38,7 +38,7 @@ class ClientOrEmployee extends StatelessWidget {
               buildRoleCard(
                 context,
                 image: 'JobSeeker_background_pic.jpg',
-                buttonText: 'Employee',
+                buttonText: 'Job Seeker',
                 description:
                     'Find jobs, set your profile, and showcase your skills to potential employers.',
                 onTap: () {

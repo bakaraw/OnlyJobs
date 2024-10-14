@@ -315,6 +315,7 @@ class InfoCard extends StatelessWidget {
             SizedBox(width: 16),
             Text(
               text,
+              softWrap: true,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,

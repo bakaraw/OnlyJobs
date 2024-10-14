@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:only_job/views/constants/constants.dart';
 import 'package:only_job/services/auth.dart';
@@ -10,8 +9,8 @@ import 'package:only_job/services/job_service.dart';
 import 'package:only_job/models/jobs.dart';
 import 'package:only_job/services/job_recommendation_controller.dart';
 import 'package:only_job/services/job_matcher.dart';
-import 'package:only_job/chatFeature/chat_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:only_job/views/constants/constants.dart';
 
 class HomePage extends StatefulWidget {
   Function changePage;
@@ -658,7 +657,6 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
               ],
             ),
           ),
-
           const Spacer(),
           // Apply Button
           Padding(
@@ -666,10 +664,10 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
             child: ElevatedButton(
               onPressed: _isButtonDisabled ? null : applyForJob,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: accent1,
                 minimumSize: Size(double.infinity, 40),
               ),
-              child: Text(
+              child: const Text(
                 'Apply',
                 style: TextStyle(color: Colors.white),
               ),
