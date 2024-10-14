@@ -126,7 +126,9 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundwhite,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text(
             widget.experience == null ? 'Add Experience' : 'Edit Experience'),
       ),
@@ -148,7 +150,7 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              mediumSizedBox_H,
               TextFormField(
                 controller: _positionController,
                 decoration: InputDecoration(labelText: 'Position'),
@@ -159,7 +161,7 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              mediumSizedBox_H,
               TextFormField(
                 controller: _descriptionController,
                 decoration: InputDecoration(labelText: 'Description'),
@@ -171,7 +173,7 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              mediumSizedBox_H,
               TextFormField(
                 controller: _locationController,
                 decoration: InputDecoration(labelText: 'Location'),
@@ -182,7 +184,7 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              mediumSizedBox_H,
               TextFormField(
                 controller: TextEditingController(
                   text: _selectedStartDate == null
@@ -199,7 +201,7 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              mediumSizedBox_H,
 
               // End Date field
               TextFormField(
@@ -218,10 +220,8 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
-              // Position field
-
-              // Save button
+              mediumSizedBox_H,
+              Spacer(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: buildButtons(),
@@ -275,7 +275,11 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
             onPressed: _saveExperience,
             style: ElevatedButton.styleFrom(
               minimumSize: const Size.fromHeight(50),
-              backgroundColor: Colors.blue,
+              backgroundColor: accent1,
+              foregroundColor: backgroundwhite,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             child: const Text('Save'),
           ),
@@ -302,7 +306,7 @@ class _AddExperiencePageState extends State<AddExperiencePage> {
             child: ElevatedButton(
           onPressed: _updateExperience,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
+            backgroundColor: accent1,
             foregroundColor: backgroundwhite,
             minimumSize: const Size(100, 50),
             shape: RoundedRectangleBorder(

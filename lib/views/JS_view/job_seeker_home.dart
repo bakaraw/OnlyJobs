@@ -130,6 +130,7 @@ class _HomePageState extends State<HomePage> {
     return _isLoading
         ? const Loading()
         : Scaffold(
+            backgroundColor: backgroundwhite,
             body: Column(
               children: [
                 Padding(
@@ -201,7 +202,7 @@ class _HomePageState extends State<HomePage> {
                           mainAxisAlignment: MainAxisAlignment
                               .spaceBetween, // Align text to the left and button to the right
                           children: [
-                            Text(
+                            const Text(
                               'Set up profile to get started',
                               style: TextStyle(
                                   fontSize: 16), // Customize the text style
@@ -377,8 +378,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
   String? jobUid;
   String? receiverUid;
   String? currentUserName;
-  String? ownerName; // New variable to store the owner's name
-  String? profilePicture; // New variable to store the owner's name
+  String? ownerName;
+  String? profilePicture;
 
   bool _isButtonDisabled = false;
 
@@ -400,7 +401,6 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
       String? fetchedProfilePicture = userDoc.get('profile_picture');
 
       if (mounted) {
-        // Check if the widget is still mounted
         setState(() {
           ownerName = name;
           profilePicture = fetchedProfilePicture;
@@ -414,7 +414,6 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
     userService = UserService(uid: authService.getCurrentUserId()!);
 
     if (mounted) {
-      // Check if the widget is still mounted
       setState(() {
         currentUserName = fetchedCurrentUserName;
       });
@@ -471,7 +470,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
     } else {
       // Handle case where current user or job owner UID is null
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unable to apply. Please try again.')),
+        const SnackBar(content: Text('Unable to apply. Please try again.')),
       );
     }
   }
@@ -480,19 +479,35 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
   Widget build(BuildContext context) {
     return Container(
       width: 300,
-      // Increased height to accommodate the job description section
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
+        color: secondarycolor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 4), // Shadow position
+          ),
+        ],
       ),
       child: Column(
         children: [
           // Image section
           if (widget.jobData.image != null)
             Container(
-              height: 250, // Fixed height for the image
+              height: 250,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(10)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
                 image: DecorationImage(
                   image: NetworkImage(widget.jobData.image!),
                   fit: BoxFit.cover,
@@ -502,8 +517,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
 
           if (widget.jobData.image == null)
             Container(
-              height: 250, // Fixed height for the image
-              decoration: BoxDecoration(
+              height: 250,
+              decoration: const BoxDecoration(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 image: DecorationImage(
                   image: AssetImage("sample_image.jpg"),
@@ -512,8 +527,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
               ),
             ),
 
-          const SizedBox(height: 8), // Spacing
-
+          smallSizedBox_H,
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Align(
@@ -522,15 +536,15 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.jobData.jobTitle!, // Replace with actual job title
+                    widget.jobData.jobTitle!,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4), // Vertical spacing
+                  const SizedBox(height: 4),
                   Text(
-                    '${widget.jobOwner.name}', // Replace with actual company name
+                    '${widget.jobOwner.name}',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -541,22 +555,38 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
             ),
           ),
           Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(children: [
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
                 Container(
                   child: Wrap(
-                    spacing: 8.0, // Space between chips
-                    runSpacing: 4.0, // Space between lines of chips
+                    spacing: 8.0,
+                    runSpacing: 4.0,
                     children: widget.jobData.skillsRequired!
                         .take(4)
-                        .map<Widget>((skill) => Chip(label: Text(skill)))
+                        .map<Widget>(
+                          (skill) => Chip(
+                            label: Text(
+                              skill,
+                              style: const TextStyle(
+                                color: Colors.white, // Set text color to white
+                              ),
+                            ),
+                            backgroundColor:
+                                primarycolor, // Change background to primarycolor
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        )
                         .toList(),
                   ),
                 ),
-              ])),
-          SizedBox(
-            height: 10,
+              ],
+            ),
           ),
+
+          smallSizedBox_H,
           Padding(
             padding: const EdgeInsets.symmetric(
                 horizontal: 8.0, vertical: 4.0), // Padding for location
@@ -566,7 +596,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                   child: Text(
                     widget.jobData
                         .jobDescription!, // Replace with actual location
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.black,
                     ),
@@ -577,9 +607,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
               ],
             ),
           ),
-          SizedBox(
-            height: 10,
-          ),
+          smallSizedBox_H,
 
           // Location section
           Padding(
@@ -597,7 +625,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Salary Range',
                               style: TextStyle(
                                 fontSize: 14,
@@ -606,7 +634,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                             ),
                             Text(
                               '\$${widget.jobData.minSalaryRange!} - \$${widget.jobData.maxSalaryRange}', // Replace with actual date
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -620,13 +648,11 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.lock_clock,
-                                color: Colors.black87), // Calendar icon
-                            SizedBox(width: 4), // Space between icon and text
+                            Icon(Icons.lock_clock, color: Colors.black87),
+                            SizedBox(width: 4),
                             Text(
-                              widget
-                                  .jobData.jobType!, // Replace with actual date
-                              style: TextStyle(
+                              widget.jobData.jobType!,
+                              style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.black87,
                                 fontWeight: FontWeight.bold,
@@ -638,12 +664,11 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                     ),
                     Column(children: [
                       Row(children: [
-                        Icon(Icons.location_on,
-                            color: Colors.red), // Calendar icon
-                        const SizedBox(width: 4), // Space between icon and text
+                        Icon(Icons.location_on, color: Colors.red),
+                        const SizedBox(width: 4),
                         Text(
-                          widget.jobData.location!, // Replace with actual date
-                          style: TextStyle(
+                          widget.jobData.location!,
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black,
                           ),
@@ -693,7 +718,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),

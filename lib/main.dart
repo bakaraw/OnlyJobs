@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:only_job/services/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:only_job/views/auth_gate.dart';
+import 'package:only_job/views/constants/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:only_job/services/auth.dart';
 import 'package:only_job/models/user.dart';
@@ -44,7 +45,11 @@ class _MyAppState extends State<MyApp> {
     return StreamProvider<User?>.value(
         value: AuthService().user,
         initialData: null,
-        child: const MaterialApp(
+        child: MaterialApp(
+          theme: ThemeData(
+            primaryColor: Colors.white,
+            scaffoldBackgroundColor: Colors.white,
+          ),
           debugShowCheckedModeBanner: false,
           home: AuthGate(),
         ));
