@@ -10,6 +10,21 @@ const Color secondarycolor = Color(0xFFDAF0F2);
 const Color accent1 = Color(0xFFFE6A1E);
 const Color accent2 = Color(0xFFB1EF6B);
 
+////Gradient
+const LinearGradient orderGradient = LinearGradient(
+  colors: [
+    Color(0xFF3E595C),
+    Color(0xFFFF6F61),
+  ],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);
+
+// 0xFF5B7F7B
+// 0xFFFFF8E1
+// 0xFFFF6F61
+// 0xFFC1A16D
+
 /// TextStyle Constants
 const TextStyle headingStyle = TextStyle(
   fontSize: 24.0,
@@ -28,19 +43,26 @@ const TextStyle headingStyle_white = TextStyle(
 const TextStyle usernameStyle = TextStyle(
   fontSize: 16,
   fontWeight: FontWeight.bold,
-  color: primarycolor, // Using your primary color
+  color: primarycolor,
 );
 
 const TextStyle usernameStylewithSecondaryColor = TextStyle(
   fontSize: 16,
   fontWeight: FontWeight.bold,
-  color: secondarycolor, // Using your primary color
+  color: secondarycolor,
 );
+
+const TextStyle usernameStylewithWhite = TextStyle(
+fontSize: 16,
+fontWeight: FontWeight.bold,
+color: Colors.white, // Using your primary color
+);
+
 
 // Constant style for email in user listing
 const TextStyle emailStyle = TextStyle(
   fontSize: 14,
-  color: Colors.grey, // Customize this color as needed
+  color: Colors.grey,
 );
 
 const TextStyle bodyStyle = TextStyle(
@@ -69,7 +91,7 @@ const TextStyle noMessagesFoundStyle = TextStyle(
 
 const TextStyle messageTimeStyle = TextStyle(
   fontSize: 12,
-  color: Colors.black, // You can customize this color as needed
+  color: Colors.black,
   fontWeight: FontWeight.w300,
 );
 

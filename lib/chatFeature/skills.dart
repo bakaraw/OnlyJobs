@@ -6,7 +6,7 @@ final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
 void showSkillsBottomSheet(String receiverUserId, BuildContext context) {
   showModalBottomSheet(
-    backgroundColor: secondarycolor,
+    backgroundColor: primarycolor,
     context: context,
     builder: (context) {
       return FutureBuilder<DocumentSnapshot>(
@@ -53,20 +53,20 @@ void showSkillsBottomSheet(String receiverUserId, BuildContext context) {
                   ),
                   SizedBox(height: 16),
                   // Display name and email
-                  Text('Name: $name', style: usernameStyle),
+                  Text('Name: $name', style: usernameStylewithSecondaryColor),
                   SizedBox(height: 8),
-                  Text('Email: $email', style: usernameStyle),
+                  Text('Email: $email', style: usernameStylewithSecondaryColor),
                   SizedBox(height: 16),
                   Divider(),
                   // Display skills
-                  Text("Skills", style: headingStyle),
+                  Text("Skills", style: usernameStylewithSecondaryColor),
                   SizedBox(height: 8),
                   skills.isNotEmpty
                       ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: skills.map((skill) => Text('- $skill', style: usernameStyle)).toList(),
+                    children: skills.map((skill) => Text('- $skill', style: usernameStylewithSecondaryColor)).toList(),
                   )
-                      : Text('No skills available', style: usernameStyle),
+                      : Text('No skills available', style: usernameStylewithSecondaryColor),
                 ],
               ),
             ),
