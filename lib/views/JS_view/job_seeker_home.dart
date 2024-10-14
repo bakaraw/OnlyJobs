@@ -131,7 +131,7 @@ class _HomePageState extends State<HomePage> {
     return _isLoading
         ? const Loading()
         : Scaffold(
-            backgroundColor: Colors.grey,
+            backgroundColor: backgroundwhite,
             body: Column(
               children: [
                 Padding(
@@ -482,7 +482,15 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
       width: 300,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: backgroundwhite,
+        color: secondarycolor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 4), // Shadow position
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -511,7 +519,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
           if (widget.jobData.image == null)
             Container(
               height: 250,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 image: DecorationImage(
                   image: AssetImage("sample_image.jpg"),
@@ -559,8 +567,14 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                         .take(4)
                         .map<Widget>(
                           (skill) => Chip(
-                            label: Text(skill),
-                            backgroundColor: secondarycolor,
+                            label: Text(
+                              skill,
+                              style: const TextStyle(
+                                color: Colors.white, // Set text color to white
+                              ),
+                            ),
+                            backgroundColor:
+                                primarycolor, // Change background to primarycolor
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -637,12 +651,10 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.lock_clock,
-                                color: Colors.black87), // Calendar icon
-                            SizedBox(width: 4), // Space between icon and text
+                            Icon(Icons.lock_clock, color: Colors.black87),
+                            SizedBox(width: 4),
                             Text(
-                              widget
-                                  .jobData.jobType!, // Replace with actual date
+                              widget.jobData.jobType!,
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.black87,
@@ -655,11 +667,10 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                     ),
                     Column(children: [
                       Row(children: [
-                        Icon(Icons.location_on,
-                            color: Colors.red), // Calendar icon
-                        const SizedBox(width: 4), // Space between icon and text
+                        Icon(Icons.location_on, color: Colors.red),
+                        const SizedBox(width: 4),
                         Text(
-                          widget.jobData.location!, // Replace with actual date
+                          widget.jobData.location!,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black,

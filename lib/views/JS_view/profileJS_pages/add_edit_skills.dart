@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:only_job/services/retrieve_skills.dart';
 import 'package:only_job/services/user_service.dart';
 import 'package:only_job/services/auth.dart';
+import 'package:only_job/views/constants/constants.dart';
 
 class AddSkillsPage extends StatefulWidget {
   final List<String>? selectedSkills;
@@ -65,10 +66,10 @@ class _AddSkillsPageState extends State<AddSkillsPage> {
     });
   }
 
-  void _saveSkills() async{
-
+  void _saveSkills() async {
     for (String skill in addedSkills) {
-      await UserService(uid: _auth.getCurrentUserId()!).addSkills(skill); // Add selected skills to profile
+      await UserService(uid: _auth.getCurrentUserId()!)
+          .addSkills(skill); // Add selected skills to profile
     }
 
     Navigator.pop(
@@ -78,8 +79,10 @@ class _AddSkillsPageState extends State<AddSkillsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundwhite,
       appBar: AppBar(
         title: Text('Add Skills'),
+        backgroundColor: Colors.transparent,
         actions: [
           IconButton(
             icon: Icon(Icons.save),
@@ -100,7 +103,7 @@ class _AddSkillsPageState extends State<AddSkillsPage> {
                 suffixIcon: Icon(Icons.search),
               ),
               onChanged: (value) {
-                _filterSkills(value); // Filter skills based on input
+                _filterSkills(value);
               },
             ),
             SizedBox(height: 16),
@@ -138,8 +141,13 @@ class _AddSkillsPageState extends State<AddSkillsPage> {
                 spacing: 10,
                 children: addedSkills.map((skill) {
                   return Chip(
-                    label: Text(skill),
-                    backgroundColor: Colors.blue[100],
+                    label: Text(
+                      skill,
+                      style: const TextStyle(
+                        color: backgroundblack,
+                      ),
+                    ),
+                    backgroundColor: backgroundwhite,
                     deleteIcon: Icon(Icons.cancel, color: Colors.red),
                     onDeleted: () => _removeSkill(skill),
                   );

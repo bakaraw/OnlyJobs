@@ -10,7 +10,8 @@ class UserListPage extends StatefulWidget {
   final String user;
   final String receiverUserId;
 
-  const UserListPage({super.key, required this.user, required this.receiverUserId});
+  const UserListPage(
+      {super.key, required this.user, required this.receiverUserId});
 
   @override
   _UserListPageState createState() => _UserListPageState();
@@ -27,7 +28,6 @@ class _UserListPageState extends State<UserListPage> {
   List<String> contactProfilePictures = [];
   List<String> pendingProfilePictures = [];
 
-
   @override
   void initState() {
     super.initState();
@@ -37,11 +37,14 @@ class _UserListPageState extends State<UserListPage> {
   Future<void> fetchContactsAndPending() async {
     String currentUserId = auth.currentUser!.uid;
 
-    DocumentSnapshot userDoc = await firestore.collection('User').doc(currentUserId).get();
+    DocumentSnapshot userDoc =
+        await firestore.collection('User').doc(currentUserId).get();
 
     if (userDoc.exists) {
-      List<dynamic> contactList = (userDoc.data() as Map<String, dynamic>?)?['contacts'] ?? [];
-      List<dynamic> pendingList = (userDoc.data() as Map<String, dynamic>?)?['pending'] ?? [];
+      List<dynamic> contactList =
+          (userDoc.data() as Map<String, dynamic>?)?['contacts'] ?? [];
+      List<dynamic> pendingList =
+          (userDoc.data() as Map<String, dynamic>?)?['pending'] ?? [];
 
       contacts = List<String>.from(contactList);
       pendingContacts = List<String>.from(pendingList);
@@ -49,7 +52,8 @@ class _UserListPageState extends State<UserListPage> {
       if (contacts.isNotEmpty) {
         await fetchProfilePictures(contacts, isPending: false);
         setState(() {
-          contactsStream = firestore.collection('User')
+          contactsStream = firestore
+              .collection('User')
               .where(FieldPath.documentId, whereIn: contacts)
               .snapshots();
         });
@@ -62,7 +66,8 @@ class _UserListPageState extends State<UserListPage> {
       if (pendingContacts.isNotEmpty) {
         await fetchProfilePictures(pendingContacts, isPending: true);
         setState(() {
-          pendingStream = firestore.collection('User')
+          pendingStream = firestore
+              .collection('User')
               .where(FieldPath.documentId, whereIn: pendingContacts)
               .snapshots();
         });
@@ -74,11 +79,13 @@ class _UserListPageState extends State<UserListPage> {
     }
   }
 
-  Future<void> fetchProfilePictures(List<String> names, {bool isPending = false}) async {
+  Future<void> fetchProfilePictures(List<String> names,
+      {bool isPending = false}) async {
     List<String> profilePictures = [];
 
     for (var uid in names) {
-      DocumentSnapshot userDoc = await firestore.collection('User').doc(uid).get();
+      DocumentSnapshot userDoc =
+          await firestore.collection('User').doc(uid).get();
 
       if (userDoc.exists) {
         var userData = userDoc.data() as Map<String, dynamic>?;
@@ -145,14 +152,19 @@ class _UserListPageState extends State<UserListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundwhite,
       appBar: AppBar(
-        title: Text('Search People', style: usernameStyle, ),
+        title: Text(
+          'Search People',
+          style: usernameStyle,
+        ),
         backgroundColor: secondarycolor,
         actions: [
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () async {
-              final result = await showSearch(context: context, delegate: UserSearchDelegate());
+              final result = await showSearch(
+                  context: context, delegate: UserSearchDelegate());
               if (result != null) {
                 await fetchContactsAndPending(); // To refresh the contact list display
               }
@@ -170,56 +182,80 @@ class _UserListPageState extends State<UserListPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Pending Requests', style: TextStyle(fontSize: 18, color: primarycolor)),
+                    Text('Pending Requests',
+                        style: TextStyle(fontSize: 18, color: primarycolor)),
                     pendingStream != null
                         ? StreamBuilder<QuerySnapshot>(
-                      stream: pendingStream,
-                      builder: (context, pendingSnapshot) {
-                        if (pendingSnapshot.hasError) {
-                          return Center(child: Text("Error loading pending requests", style: errortxtstyle,));
-                        }
-                        if (pendingSnapshot.connectionState == ConnectionState.waiting) {
-                          //return Center(child: Loading());
-                          return Center(child: CircularProgressIndicator());
+                            stream: pendingStream,
+                            builder: (context, pendingSnapshot) {
+                              if (pendingSnapshot.hasError) {
+                                return Center(
+                                    child: Text(
+                                  "Error loading pending requests",
+                                  style: errortxtstyle,
+                                ));
+                              }
+                              if (pendingSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                //return Center(child: Loading());
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              }
 
-                        }
+                              if (pendingSnapshot.data!.docs.isEmpty) {
+                                return Center(
+                                    child: Text('No pending requests.'));
+                              }
 
-                        if (pendingSnapshot.data!.docs.isEmpty) {
-                          return Center(child: Text('No pending requests.'));
-                        }
+                              return Column(
+                                children: pendingSnapshot.data!.docs
+                                    .map((DocumentSnapshot document) {
+                                  Map<String, dynamic>? userData =
+                                      document.data() as Map<String, dynamic>?;
+                                  String uid = document.id;
 
-                        return Column(
-                          children: pendingSnapshot.data!.docs.map((DocumentSnapshot document) {
-                            Map<String, dynamic>? userData = document.data() as Map<String, dynamic>?;
-                            String uid = document.id;
-
-                            return ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage: userData?['profile_picture'] != null
-                                    ? NetworkImage(userData?['profile_picture'])
-                                    : AssetImage('assets/default_profile.png') as ImageProvider,
-                              ),
-                              title: Text(userData?['name'] ?? 'No Name', style: usernameStyle,),  // Null-safe access
-                              subtitle: Text(userData?['email'] ?? 'No Email', style: emailStyle,),  // Null-safe access
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.check, color: primarycolor),
-                                    onPressed: () => acceptContact(uid),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.close, color: Colors.blueGrey),
-                                    onPressed: () => rejectContact(uid),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        );
-                      },
-                    )
-                        : Center(child: Text('No pending requests.', style: emailStyle)),
+                                  return ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundImage: userData?[
+                                                  'profile_picture'] !=
+                                              null
+                                          ? NetworkImage(
+                                              userData?['profile_picture'])
+                                          : AssetImage(
+                                                  'assets/default_profile.png')
+                                              as ImageProvider,
+                                    ),
+                                    title: Text(
+                                      userData?['name'] ?? 'No Name',
+                                      style: usernameStyle,
+                                    ), // Null-safe access
+                                    subtitle: Text(
+                                      userData?['email'] ?? 'No Email',
+                                      style: emailStyle,
+                                    ), // Null-safe access
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(Icons.check,
+                                              color: primarycolor),
+                                          onPressed: () => acceptContact(uid),
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Icons.close,
+                                              color: Colors.blueGrey),
+                                          onPressed: () => rejectContact(uid),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              );
+                            },
+                          )
+                        : Center(
+                            child: Text('No pending requests.',
+                                style: emailStyle)),
                   ],
                 ),
               ),
@@ -229,47 +265,73 @@ class _UserListPageState extends State<UserListPage> {
             // Contacts section
             contactsStream != null
                 ? StreamBuilder<QuerySnapshot>(
-              stream: contactsStream,
-              builder: (context, contactSnapshot) {
-                if (contactSnapshot.hasError) {
-                  return Center(child: Text("An error occurred", style: errortxtstyle,));
-                }
-                if (contactSnapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
+                    stream: contactsStream,
+                    builder: (context, contactSnapshot) {
+                      if (contactSnapshot.hasError) {
+                        return Center(
+                            child: Text(
+                          "An error occurred",
+                          style: errortxtstyle,
+                        ));
+                      }
+                      if (contactSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
 
-                if (contactSnapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('No contacts found. You can add users through search.', style: emailStyle,));
-                }
+                      if (contactSnapshot.data!.docs.isEmpty) {
+                        return Center(
+                            child: Text(
+                          'No contacts found. You can add users through search.',
+                          style: emailStyle,
+                        ));
+                      }
 
-                return ListView(
-                  shrinkWrap: true, // Adjust the list to fit content
-                  children: contactSnapshot.data!.docs.map((DocumentSnapshot document) {
-                    Map<String, dynamic>? userData = document.data() as Map<String, dynamic>?;  // Null-safe access
-                    String uid = document.id;
+                      return ListView(
+                        shrinkWrap: true, // Adjust the list to fit content
+                        children: contactSnapshot.data!.docs
+                            .map((DocumentSnapshot document) {
+                          Map<String, dynamic>? userData = document.data()
+                              as Map<String, dynamic>?; // Null-safe access
+                          String uid = document.id;
 
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: userData?['profile_picture'] != null
-                            ? NetworkImage(userData?['profile_picture'])
-                            : AssetImage('assets/default_profile.png') as ImageProvider,
-                      ),
-                      title: Text(userData?['name'] ?? 'No Name', style: usernameStyle,),  // Null-safe access
-                      subtitle: Text(userData?['email'] ?? 'No Email', style: emailStyle,),  // Null-safe access
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatPage(user: {'uid': uid, 'name': userData?['name']}), // Navigate to ChatPage
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),
-                );
-              },
-            )
-                : Center(child: Text('No contacts found.', style: emailStyle,)),
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: userData?['profile_picture'] !=
+                                      null
+                                  ? NetworkImage(userData?['profile_picture'])
+                                  : AssetImage('assets/default_profile.png')
+                                      as ImageProvider,
+                            ),
+                            title: Text(
+                              userData?['name'] ?? 'No Name',
+                              style: usernameStyle,
+                            ), // Null-safe access
+                            subtitle: Text(
+                              userData?['email'] ?? 'No Email',
+                              style: emailStyle,
+                            ), // Null-safe access
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatPage(user: {
+                                    'uid': uid,
+                                    'name': userData?['name']
+                                  }), // Navigate to ChatPage
+                                ),
+                              );
+                            },
+                          );
+                        }).toList(),
+                      );
+                    },
+                  )
+                : Center(
+                    child: Text(
+                    'No contacts found.',
+                    style: emailStyle,
+                  )),
           ],
         ),
       ),

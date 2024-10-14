@@ -5,7 +5,7 @@ const Color backgroundwhite = Color(0xFFFFFFFF);
 const Color backgroundblack = Color(0xFF000000);
 
 const Color primarycolor = Color(0xFF3E595C);
-const Color secondarycolor = Color.fromARGB(255, 235, 251, 252);
+const Color secondarycolor = Color(0xFFF6F6F6);
 
 const Color accent1 = Color(0xFFFE6A1E);
 const Color accent2 = Color(0xFFB1EF6B);

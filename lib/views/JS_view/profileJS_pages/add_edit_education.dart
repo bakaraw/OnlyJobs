@@ -37,12 +37,6 @@ class _AddEducationPageState extends State<AddEducationPage> {
     _institutionController =
         TextEditingController(text: widget.education?.university ?? '');
     _yearController = TextEditingController(text: widget.education?.year ?? '');
-    //_yearFocusNode = FocusNode();
-    //_yearFocusNode.addListener(() {
-    //  if (!_yearFocusNode.hasFocus) {
-    //    _selectYear(context);
-    //  }
-    //});
   }
 
   @override
@@ -89,8 +83,8 @@ class _AddEducationPageState extends State<AddEducationPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Delete Education'),
-          content:
-              const Text('Are you sure you want to delete this education entry?'),
+          content: const Text(
+              'Are you sure you want to delete this education entry?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -115,7 +109,9 @@ class _AddEducationPageState extends State<AddEducationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundwhite,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title:
             Text(widget.education == null ? 'Add Education' : 'Edit Education'),
       ),
@@ -158,7 +154,8 @@ class _AddEducationPageState extends State<AddEducationPage> {
                       ? _yearController.text
                       : _selectedDate!.year.toString(),
                 ),
-                decoration: const InputDecoration(labelText: 'Year of Graduation'),
+                decoration:
+                    const InputDecoration(labelText: 'Year of Graduation'),
                 keyboardType: TextInputType.number,
                 onTap: () => _selectYear(context),
                 validator: (value) {
@@ -173,7 +170,7 @@ class _AddEducationPageState extends State<AddEducationPage> {
               ),
               extraLargeSizedBox_H,
 
-              Row(
+              Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _buildButtons(),
               ),
@@ -188,29 +185,29 @@ class _AddEducationPageState extends State<AddEducationPage> {
     if (widget.education != null) {
       return [
         ElevatedButton(
-          onPressed: _deleteEducation,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: backgroundwhite,
-            minimumSize: const Size(100, 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: const Text('Delete'),
-        ),
-        smallSizedBox_W,
-        ElevatedButton(
           onPressed: _updateEducation,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
+            minimumSize: const Size.fromHeight(50),
+            backgroundColor: accent1,
             foregroundColor: backgroundwhite,
-            minimumSize: const Size(100, 50),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
           ),
           child: const Text('Save'),
+        ),
+        smallSizedBox_H,
+        ElevatedButton(
+          onPressed: _deleteEducation,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: backgroundwhite,
+            minimumSize: const Size.fromHeight(50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: const Text('Delete'),
         ),
       ];
     } else {
@@ -218,9 +215,9 @@ class _AddEducationPageState extends State<AddEducationPage> {
         ElevatedButton(
           onPressed: _saveEducation,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
+            backgroundColor: accent1,
             foregroundColor: backgroundwhite,
-            minimumSize: const Size(100, 50),
+            minimumSize: const Size.fromHeight(50),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),

@@ -6,7 +6,6 @@ import 'chat_list.dart';
 import 'chat_page.dart';
 
 class MainChatPage extends StatefulWidget {
-
   const MainChatPage({super.key});
 
   @override
@@ -14,22 +13,14 @@ class MainChatPage extends StatefulWidget {
 }
 
 class _MainChatPageState extends State<MainChatPage> {
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat Page', style: usernameStylewithSecondaryColor,
-        ),
-        centerTitle: true,
-        backgroundColor: primarycolor,
+      backgroundColor: backgroundwhite,
+      body: UserListPage(
+        user: '',
+        receiverUserId: '',
       ),
-      body:UserListPage(user: '', receiverUserId: '',),
-
-
     );
   }
 }

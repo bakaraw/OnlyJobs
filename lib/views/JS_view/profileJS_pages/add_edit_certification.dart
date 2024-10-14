@@ -77,7 +77,9 @@ class _AddCertificationPageState extends State<AddCertificationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundwhite,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text(widget.certification == null
             ? 'Add Certification'
             : 'Edit Certification'),
@@ -193,7 +195,7 @@ class _AddCertificationPageState extends State<AddCertificationPage> {
                       )
                     : const Text(' '),
               ],
-              const Spacer(),
+              Spacer(),
               ..._buildButtons(),
               // Save Button
             ],
@@ -226,7 +228,7 @@ class _AddCertificationPageState extends State<AddCertificationPage> {
         ElevatedButton(
           onPressed: saveCertification,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
+            backgroundColor: accent1,
             foregroundColor: backgroundwhite,
             minimumSize: const Size(double.infinity, 50),
             shape: RoundedRectangleBorder(
