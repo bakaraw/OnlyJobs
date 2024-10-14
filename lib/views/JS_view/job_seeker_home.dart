@@ -131,6 +131,7 @@ class _HomePageState extends State<HomePage> {
     return _isLoading
         ? const Loading()
         : Scaffold(
+            backgroundColor: Colors.grey,
             body: Column(
               children: [
                 Padding(
@@ -378,8 +379,8 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
   String? jobUid;
   String? receiverUid;
   String? currentUserName;
-  String? ownerName; // New variable to store the owner's name
-  String? profilePicture; // New variable to store the owner's name
+  String? ownerName;
+  String? profilePicture;
 
   bool _isButtonDisabled = false;
 
@@ -401,7 +402,6 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
       String? fetchedProfilePicture = userDoc.get('profile_picture');
 
       if (mounted) {
-        // Check if the widget is still mounted
         setState(() {
           ownerName = name;
           profilePicture = fetchedProfilePicture;
@@ -415,7 +415,6 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
     userService = UserService(uid: authService.getCurrentUserId()!);
 
     if (mounted) {
-      // Check if the widget is still mounted
       setState(() {
         currentUserName = fetchedCurrentUserName;
       });
@@ -481,19 +480,27 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
   Widget build(BuildContext context) {
     return Container(
       width: 300,
-      // Increased height to accommodate the job description section
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
+        color: backgroundwhite,
       ),
       child: Column(
         children: [
           // Image section
           if (widget.jobData.image != null)
             Container(
-              height: 250, // Fixed height for the image
+              height: 250,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(10)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
                 image: DecorationImage(
                   image: NetworkImage(widget.jobData.image!),
                   fit: BoxFit.cover,
@@ -503,7 +510,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
 
           if (widget.jobData.image == null)
             Container(
-              height: 250, // Fixed height for the image
+              height: 250,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 image: DecorationImage(
@@ -513,8 +520,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
               ),
             ),
 
-          const SizedBox(height: 8), // Spacing
-
+          smallSizedBox_H,
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Align(
@@ -523,15 +529,15 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.jobData.jobTitle!, // Replace with actual job title
+                    widget.jobData.jobTitle!,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4), // Vertical spacing
+                  const SizedBox(height: 4),
                   Text(
-                    '${widget.jobOwner.name}', // Replace with actual company name
+                    '${widget.jobOwner.name}',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -542,22 +548,32 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
             ),
           ),
           Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(children: [
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
                 Container(
                   child: Wrap(
-                    spacing: 8.0, // Space between chips
-                    runSpacing: 4.0, // Space between lines of chips
+                    spacing: 8.0,
+                    runSpacing: 4.0,
                     children: widget.jobData.skillsRequired!
                         .take(4)
-                        .map<Widget>((skill) => Chip(label: Text(skill)))
+                        .map<Widget>(
+                          (skill) => Chip(
+                            label: Text(skill),
+                            backgroundColor: secondarycolor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        )
                         .toList(),
                   ),
                 ),
-              ])),
-          SizedBox(
-            height: 10,
+              ],
+            ),
           ),
+
+          smallSizedBox_H,
           Padding(
             padding: const EdgeInsets.symmetric(
                 horizontal: 8.0, vertical: 4.0), // Padding for location
@@ -666,7 +682,7 @@ class _CustomBodyWidgetState extends State<CustomBodyWidget> {
             child: ElevatedButton(
               onPressed: _isButtonDisabled ? null : applyForJob,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: accent1,
                 minimumSize: Size(double.infinity, 40),
               ),
               child: Text(
