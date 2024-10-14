@@ -105,6 +105,7 @@ class _JobOpeningFormState extends State<JobOpeningForm> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Job Opening'),
+        titleTextStyle: headingStyle_white,
         backgroundColor: primarycolor,
       ),
       body: Padding(
